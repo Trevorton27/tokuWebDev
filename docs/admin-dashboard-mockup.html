@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard Mockup - Signal Works LMS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f9fafb;
+      padding: 0;
+    }
+
+    .header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 24px 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      color: #374151;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background: #f9fafb;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid;
+    }
+
+    .stat-card.blue { border-left-color: #3b82f6; }
+    .stat-card.green { border-left-color: #10b981; }
+    .stat-card.purple { border-left-color: #8b5cf6; }
+    .stat-card.orange { border-left-color: #f59e0b; }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .stat-card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-card-icon {
+      font-size: 32px;
+    }
+
+    .stat-card-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .stat-card-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .management-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .management-card {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-top: 4px solid;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .management-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .management-card.blue { border-top-color: #3b82f6; }
+    .management-card.indigo { border-top-color: #6366f1; }
+    .management-card.green { border-top-color: #10b981; }
+    .management-card.yellow { border-top-color: #f59e0b; }
+    .management-card.purple { border-top-color: #8b5cf6; }
+    .management-card.pink { border-top-color: #ec4899; }
+
+    .management-card-content {
+      display: flex;
+      gap: 16px;
+    }
+
+    .management-card-icon {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .management-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .management-card-description {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .quick-actions {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .actions-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-btn.blue { background: #3b82f6; }
+    .action-btn.blue:hover { background: #2563eb; }
+    .action-btn.indigo { background: #6366f1; }
+    .action-btn.indigo:hover { background: #4f46e5; }
+    .action-btn.green { background: #10b981; }
+    .action-btn.green:hover { background: #059669; }
+    .action-btn.pink { background: #ec4899; }
+    .action-btn.pink:hover { background: #db2777; }
+
+    .watermark {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 12px;
+      margin-top: 32px;
+      padding: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <h1>Admin Dashboard</h1>
+        <p>Manage your learning platform</p>
+      </div>
+      <a href="#" class="btn">Back to Home</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Statistics Overview -->
+    <h2 class="section-title">Platform Overview</h2>
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-card-header">
+          <div>
+            <div class="stat-card-title">Total Users</div>
+          </div>
+          <div class="stat-card-icon">👥</div>
+        </div>
+        <div class="stat-card-value">1,247</div>
+        <div class="stat-card-subtitle">985 students, 12 instructors</div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="stat-card-header">
+          <div>
+            <div class="stat-card-title">Total Courses</div>
+          </div>
+          <div class="stat-card-icon">📚</div>
+        </div>
+        <div class="stat-card-value">48</div>
+        <div class="stat-card-subtitle">42 published, 6 draft</div>
+      </div>
+
+      <div class="stat-card purple">
+        <div class="stat-card-header">
+          <div>
+            <div class="stat-card-title">Active Enrollments</div>
+          </div>
+          <div class="stat-card-icon">🎓</div>
+        </div>
+        <div class="stat-card-value">2,134</div>
+        <div class="stat-card-subtitle">567 completed</div>
+      </div>
+
+      <div class="stat-card orange">
+        <div class="stat-card-header">
+          <div>
+            <div class="stat-card-title">Avg Progress</div>
+          </div>
+          <div class="stat-card-icon">📊</div>
+        </div>
+        <div class="stat-card-value">67%</div>
+        <div class="stat-card-subtitle">8,456 total attempts</div>
+      </div>
+    </div>
+
+    <!-- Management Sections -->
+    <h2 class="section-title">Management</h2>
+    <div class="management-grid">
+      <a href="#" class="management-card blue">
+        <div class="management-card-content">
+          <div class="management-card-icon">👨‍🎓</div>
+          <div>
+            <div class="management-card-title">Student Management</div>
+            <div class="management-card-description">
+              View, create, edit, and manage student accounts and their progress
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="management-card indigo">
+        <div class="management-card-content">
+          <div class="management-card-icon">👨‍🏫</div>
+          <div>
+            <div class="management-card-title">Instructor Management</div>
+            <div class="management-card-description">
+              Manage instructor accounts and their course assignments
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="management-card green">
+        <div class="management-card-content">
+          <div class="management-card-icon">📚</div>
+          <div>
+            <div class="management-card-title">Course Management</div>
+            <div class="management-card-description">
+              Manage all courses, publish/unpublish, and view enrollment stats
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="management-card yellow">
+        <div class="management-card-content">
+          <div class="management-card-icon">📝</div>
+          <div>
+            <div class="management-card-title">Lesson Management</div>
+            <div class="management-card-description">
+              Create, edit, and organize lessons across all courses
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="management-card purple">
+        <div class="management-card-content">
+          <div class="management-card-icon">📊</div>
+          <div>
+            <div class="management-card-title">Student Engagement</div>
+            <div class="management-card-description">
+              Track student progress, completion rates, and assessment performance
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="management-card pink">
+        <div class="management-card-content">
+          <div class="management-card-icon">🗺️</div>
+          <div>
+            <div class="management-card-title">Student Roadmaps</div>
+            <div class="management-card-description">
+              Create and manage personalized learning paths for students
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="actions-buttons">
+        <a href="#" class="action-btn blue">+ Add Student</a>
+        <a href="#" class="action-btn indigo">+ Add Instructor</a>
+        <a href="#" class="action-btn green">+ Create Course</a>
+        <a href="#" class="action-btn pink">+ Create Roadmap</a>
+      </div>
+    </div>
+
+    <div class="watermark">
+      Signal Works LMS - Admin Dashboard Mockup
+    </div>
+  </div>
+</body>
+</html>
