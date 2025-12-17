@@ -28,7 +28,11 @@ export async function listCourses(filters?: {
       },
     });
 
-    return courses;
+    // Convert null to undefined for TypeScript compatibility
+    return courses.map(course => ({
+      ...course,
+      thumbnailUrl: course.thumbnailUrl ?? undefined,
+    }));
   } catch (error) {
     logger.error('Failed to list courses', error, { filters });
     throw new Error('Failed to retrieve courses');
@@ -108,7 +112,12 @@ export async function createCourse(data: {
     });
 
     logger.info('Course created', { courseId: course.id, title: course.title });
-    return course;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...course,
+      thumbnailUrl: course.thumbnailUrl ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to create course', error, { data });
     throw new Error('Failed to create course');
@@ -131,7 +140,12 @@ export async function updateCourse(
     });
 
     logger.info('Course updated', { courseId });
-    return course;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...course,
+      thumbnailUrl: course.thumbnailUrl ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to update course', error, { courseId, data });
     throw new Error('Failed to update course');

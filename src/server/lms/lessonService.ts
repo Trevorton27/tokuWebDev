@@ -12,7 +12,14 @@ export async function getLessonById(lessonId: string): Promise<Lesson | null> {
       where: { id: lessonId },
     });
 
-    return lesson;
+    if (!lesson) return null;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...lesson,
+      videoUrl: lesson.videoUrl ?? undefined,
+      duration: lesson.duration ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to get lesson', error, { lessonId });
     throw new Error('Failed to retrieve lesson');
@@ -26,7 +33,12 @@ export async function getLessonsByCourse(courseId: string): Promise<Lesson[]> {
       orderBy: { order: 'asc' },
     });
 
-    return lessons;
+    // Convert null to undefined for TypeScript compatibility
+    return lessons.map(lesson => ({
+      ...lesson,
+      videoUrl: lesson.videoUrl ?? undefined,
+      duration: lesson.duration ?? undefined,
+    }));
   } catch (error) {
     logger.error('Failed to get lessons', error, { courseId });
     throw new Error('Failed to retrieve lessons');
@@ -47,7 +59,13 @@ export async function createLesson(data: {
     });
 
     logger.info('Lesson created', { lessonId: lesson.id, courseId: data.courseId });
-    return lesson;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...lesson,
+      videoUrl: lesson.videoUrl ?? undefined,
+      duration: lesson.duration ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to create lesson', error, { data });
     throw new Error('Failed to create lesson');
@@ -71,7 +89,13 @@ export async function updateLesson(
     });
 
     logger.info('Lesson updated', { lessonId });
-    return lesson;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...lesson,
+      videoUrl: lesson.videoUrl ?? undefined,
+      duration: lesson.duration ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to update lesson', error, { lessonId, data });
     throw new Error('Failed to update lesson');

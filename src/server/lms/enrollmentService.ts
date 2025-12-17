@@ -59,7 +59,12 @@ export async function enrollUser(userId: string, courseId: string): Promise<Enro
         },
       });
       logger.info('User re-enrolled', { userId, courseId, enrollmentId: reactivated.id });
-      return reactivated;
+
+      // Convert null to undefined for TypeScript compatibility
+      return {
+        ...reactivated,
+        completedAt: reactivated.completedAt ?? undefined,
+      };
     }
 
     const enrollment = await prisma.enrollment.create({
@@ -72,7 +77,12 @@ export async function enrollUser(userId: string, courseId: string): Promise<Enro
     });
 
     logger.info('User enrolled', { userId, courseId, enrollmentId: enrollment.id });
-    return enrollment;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...enrollment,
+      completedAt: enrollment.completedAt ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to enroll user', error, { userId, courseId });
     throw error;
@@ -120,7 +130,13 @@ export async function getEnrollmentById(enrollmentId: string): Promise<Enrollmen
       where: { id: enrollmentId },
     });
 
-    return enrollment;
+    if (!enrollment) return null;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...enrollment,
+      completedAt: enrollment.completedAt ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to get enrollment', error, { enrollmentId });
     throw new Error('Failed to retrieve enrollment');
@@ -138,7 +154,12 @@ export async function updateProgress(enrollmentId: string, progress: number): Pr
     });
 
     logger.info('Enrollment progress updated', { enrollmentId, progress });
-    return enrollment;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      ...enrollment,
+      completedAt: enrollment.completedAt ?? undefined,
+    };
   } catch (error) {
     logger.error('Failed to update progress', error, { enrollmentId, progress });
     throw new Error('Failed to update progress');

@@ -60,7 +60,17 @@ export async function indexDocument(data: {
       title: data.title,
     });
 
-    return document;
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      id: document.id,
+      title: document.title,
+      content: document.content,
+      type: document.type,
+      sourceUrl: document.sourceUrl ?? undefined,
+      metadata: document.metadata as Record<string, any> | undefined,
+      createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
+    };
   } catch (error) {
     logger.error('Failed to index document', error, { title: data.title });
     throw new Error('Failed to index document');
@@ -140,7 +150,7 @@ export async function searchKnowledge(
           documentId: chunk.document.id,
           title: chunk.document.title,
           type: chunk.document.type,
-          sourceUrl: chunk.document.sourceUrl,
+          sourceUrl: chunk.document.sourceUrl ?? undefined,
         },
       }))
       .filter((result) => result.score >= (filters?.minScore || 0.7))
@@ -223,7 +233,18 @@ export async function updateDocument(documentId: string, content: string): Promi
     );
 
     logger.info('Document updated and re-indexed', { documentId });
-    return document;
+
+    // Convert null to undefined for TypeScript compatibility
+    return {
+      id: document.id,
+      title: document.title,
+      content: document.content,
+      type: document.type,
+      sourceUrl: document.sourceUrl ?? undefined,
+      metadata: document.metadata as Record<string, any> | undefined,
+      createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
+    };
   } catch (error) {
     logger.error('Failed to update document', error, { documentId });
     throw new Error('Failed to update document');
