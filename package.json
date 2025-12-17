@@ -11,6 +11,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "seed:prod": "tsx scripts/seed-production.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -42,6 +43,7 @@
     "postcss": "^8.4.0",
     "prisma": "^5.18.0",
     "tailwindcss": "^3.4.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.0"
   }
 }
