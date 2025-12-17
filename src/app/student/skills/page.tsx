@@ -1,0 +1,247 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import axios from 'axios';
+import SkillRadar from '@/modules/assessment/ui/SkillRadar';
+
+interface SkillDimensionData {
+  dimension: string;
+  label: string;
+  mastery: number;
+  confidence: number;
+}
+
+interface SkillProfileData {
+  dimensions: SkillDimensionData[];
+  overallMastery: number;
+  overallConfidence: number;
+  totalSkillsAssessed: number;
+  totalSkills: number;
+  lastAssessment?: string;
+}
+
+const DIMENSION_LABELS: Record<string, string> = {
+  programming_fundamentals: 'Programming Fundamentals',
+  web_foundations: 'Web Foundations',
+  javascript: 'JavaScript',
+  backend: 'Backend Development',
+  dev_practices: 'Dev Practices',
+  system_thinking: 'System Thinking',
+  design: 'UI/UX Design',
+  meta: 'Meta Skills',
+};
+
+export default function SkillsPage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<SkillProfileData | null>(null);
+
+  useEffect(() => {
+    fetchSkillProfile();
+  }, []);
+
+  const fetchSkillProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/assessment/intake/summary');
+      if (response.data.success) {
+        const summary = response.data.data.profileSummary;
+        // Transform the data
+        const dimensions = summary.dimensions.map((d: any) => ({
+          dimension: d.key,
+          label: DIMENSION_LABELS[d.key] || d.key,
+          mastery: d.score,
+          confidence: d.confidence,
+        }));
+
+        setProfile({
+          dimensions,
+          overallMastery: summary.overallScore,
+          overallConfidence: summary.overallConfidence,
+          totalSkillsAssessed: summary.totalSkillsAssessed,
+          totalSkills: summary.totalSkills,
+        });
+      } else {
+        setError(response.data.error || 'Failed to load skill profile');
+      }
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        setError('No skill profile found. Complete an assessment first.');
+      } else {
+        setError('Failed to load skill profile');
+      }
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading your skill profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 text-center border border-gray-200 dark:border-dark-border">
+            <div className="text-6xl mb-4">📊</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Skill Profile Yet</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              {error || 'Complete the skill assessment to see your profile.'}
+            </p>
+            <Link
+              href="/assessment/intake"
+              className="inline-block px-6 py-3 bg-indigo-600 dark:bg-purple-600 text-white rounded-lg font-medium hover:bg-indigo-700 dark:hover:bg-purple-700 transition"
+            >
+              Start Assessment
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const getOverallLevelLabel = (mastery: number) => {
+    if (mastery >= 0.7) return { label: 'Advanced', color: 'text-green-600 dark:text-green-400' };
+    if (mastery >= 0.5) return { label: 'Intermediate', color: 'text-blue-600 dark:text-blue-400' };
+    if (mastery >= 0.3) return { label: 'Beginner', color: 'text-yellow-600 dark:text-yellow-400' };
+    return { label: 'Novice', color: 'text-gray-600 dark:text-gray-400' };
+  };
+
+  const overallLevel = getOverallLevelLabel(profile.overallMastery);
+
+  // Find strongest and weakest areas
+  const sortedDimensions = [...profile.dimensions].sort((a, b) => b.mastery - a.mastery);
+  const strongestAreas = sortedDimensions.slice(0, 2);
+  const weakestAreas = sortedDimensions.slice(-2).reverse();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
+      {/* Header */}
+      <div className="bg-white dark:bg-dark-surface shadow-sm border-b border-gray-200 dark:border-dark-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center gap-3">
+            <Link href="/student" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">
+              ← Back
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Your Skill Profile</h1>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
+            Track your progress across all skill dimensions
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Overview Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-5 border border-gray-100 dark:border-dark-border">
+            <div className={`text-3xl font-bold ${overallLevel.color}`}>
+              {overallLevel.label}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Overall Level</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+              {Math.round(profile.overallMastery * 100)}%
+            </div>
+          </div>
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-5 border border-gray-100 dark:border-dark-border">
+            <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+              {profile.totalSkillsAssessed}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Skills Assessed</div>
+            <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              of {profile.totalSkills} total
+            </div>
+          </div>
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-5 border border-gray-100 dark:border-dark-border">
+            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+              {Math.round(profile.overallConfidence * 100)}%
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Confidence</div>
+            <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              Based on assessment data
+            </div>
+          </div>
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-5 border border-gray-100 dark:border-dark-border">
+            <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+              {profile.dimensions.filter((d) => d.mastery >= 0.7).length}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Strong Areas</div>
+            <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              70%+ mastery
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main Chart */}
+          <div className="lg:col-span-2">
+            <SkillRadar dimensions={profile.dimensions} showConfidence={true} height={350} />
+          </div>
+
+          {/* Insights Panel */}
+          <div className="space-y-6">
+            {/* Strongest Areas */}
+            <div className="bg-white dark:bg-dark-card rounded-xl p-6 border border-gray-200 dark:border-dark-border">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <span>💪</span> Strongest Areas
+              </h3>
+              <div className="space-y-3">
+                {strongestAreas.map((dim) => (
+                  <div key={dim.dimension} className="flex items-center justify-between">
+                    <span className="text-gray-700 dark:text-gray-300">{dim.label}</span>
+                    <span className="font-bold text-green-600 dark:text-green-400">{Math.round(dim.mastery * 100)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Areas to Improve */}
+            <div className="bg-white dark:bg-dark-card rounded-xl p-6 border border-gray-200 dark:border-dark-border">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <span>🎯</span> Focus Areas
+              </h3>
+              <div className="space-y-3">
+                {weakestAreas.map((dim) => (
+                  <div key={dim.dimension} className="flex items-center justify-between">
+                    <span className="text-gray-700 dark:text-gray-300">{dim.label}</span>
+                    <span className="font-bold text-yellow-600 dark:text-yellow-400">{Math.round(dim.mastery * 100)}%</span>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/student/roadmap"
+                className="mt-4 block text-center px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition"
+              >
+                View Learning Roadmap
+              </Link>
+            </div>
+
+            {/* Retake Assessment */}
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 dark:from-purple-600 dark:to-indigo-700 rounded-xl p-6 text-white">
+              <h3 className="text-lg font-semibold mb-2">Update Your Profile</h3>
+              <p className="text-indigo-100 dark:text-purple-200 text-sm mb-4">
+                Retake the assessment to get updated skill estimates
+              </p>
+              <Link
+                href="/assessment/intake"
+                className="block text-center px-4 py-2 bg-white text-indigo-600 dark:text-purple-600 rounded-lg font-medium hover:bg-indigo-50 dark:hover:bg-gray-100 transition"
+              >
+                Retake Assessment
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

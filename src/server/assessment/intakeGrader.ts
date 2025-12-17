@@ -12,6 +12,7 @@ import { selfReportToMastery } from './skillProfileService';
 import {
   type IntakeStepConfig,
   type McqStepConfig,
+  type MicroMcqBurstStepConfig,
   type ShortTextStepConfig,
   type CodeStepConfig,
   type DesignComparisonStepConfig,
@@ -61,6 +62,10 @@ export interface DesignCritiqueAnswer {
   critique: string;
 }
 
+export interface MicroMcqBurstAnswer {
+  answers: Record<string, string>; // questionId -> selectedOptionId
+}
+
 // ============================================
 // MAIN GRADING FUNCTION
 // ============================================
@@ -79,6 +84,9 @@ export async function gradeStep(
 
     case 'MCQ':
       return gradeMcq(stepConfig as McqStepConfig, answer as McqAnswer);
+
+    case 'MICRO_MCQ_BURST':
+      return gradeMicroMcqBurst(stepConfig as MicroMcqBurstStepConfig, answer as MicroMcqBurstAnswer);
 
     case 'SHORT_TEXT':
       return gradeShortText(stepConfig as ShortTextStepConfig, answer as ShortTextAnswer);
@@ -193,6 +201,84 @@ export function gradeMcq(config: McqStepConfig, answer: McqAnswer): GradeResult 
       selectedOptionId: answer.selectedOptionId,
       correctOptionId: correctOption?.id,
       explanation: config.explanation,
+    },
+  };
+}
+
+// ============================================
+// MICRO MCQ BURST GRADING
+// ============================================
+
+/**
+ * Grade micro MCQ burst (3 rapid-fire questions)
+ * Returns skill level based on number of correct answers
+ */
+export function gradeMicroMcqBurst(
+  config: MicroMcqBurstStepConfig,
+  answer: MicroMcqBurstAnswer
+): GradeResult {
+  const { answers } = answer;
+  let correctCount = 0;
+  const questionResults: Array<{ questionId: string; correct: boolean; explanation?: string }> = [];
+
+  // Grade each question
+  for (const question of config.questions) {
+    const selectedOptionId = answers[question.id];
+    const selectedOption = question.options.find((o) => o.id === selectedOptionId);
+    const isCorrect = selectedOption?.isCorrect || false;
+
+    if (isCorrect) {
+      correctCount++;
+    }
+
+    questionResults.push({
+      questionId: question.id,
+      correct: isCorrect,
+      explanation: question.explanation,
+    });
+  }
+
+  // Calculate normalized score (0-1)
+  const totalQuestions = config.questions.length;
+  const score = correctCount / totalQuestions;
+
+  // Determine detected level based on correct count
+  let detectedLevel: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
+  if (correctCount >= config.levelMapping.advanced) {
+    detectedLevel = 'advanced';
+  } else if (correctCount >= config.levelMapping.intermediate) {
+    detectedLevel = 'intermediate';
+  }
+
+  // Build skill scores
+  const skillScores: Record<string, number> = {};
+  for (const skillKey of config.skillKeys) {
+    skillScores[skillKey] = score;
+  }
+
+  // Generate feedback
+  let feedback = '';
+  if (correctCount === totalQuestions) {
+    feedback = `Excellent! You got all ${totalQuestions} questions correct. You seem to have a strong foundation.`;
+  } else if (correctCount >= totalQuestions - 1) {
+    feedback = `Good job! You got ${correctCount}/${totalQuestions} correct. You have a solid understanding.`;
+  } else if (correctCount > 0) {
+    feedback = `You got ${correctCount}/${totalQuestions} correct. Let's build on your existing knowledge.`;
+  } else {
+    feedback = `No worries! This assessment will help us find the right starting point for you.`;
+  }
+
+  return {
+    score,
+    passed: true, // Skill probe always passes - it's just for calibration
+    feedback,
+    skillScores,
+    confidence: 0.8, // High confidence for MCQs
+    details: {
+      correctCount,
+      totalQuestions,
+      detectedLevel,
+      questionResults,
     },
   };
 }
@@ -399,7 +485,7 @@ export async function gradeCode(config: CodeStepConfig, answer: CodeAnswer): Pro
         qualityBonus = qualityResult.bonus;
         qualityFeedback = qualityResult.feedback;
       } catch (error) {
-        logger.warn('Code quality evaluation failed', error);
+        logger.warn('Code quality evaluation failed', { error: String(error) });
       }
     }
 

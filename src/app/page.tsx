@@ -7,9 +7,9 @@ export default function Home() {
   const { t } = useLanguage();
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-white dark:bg-dark-bg">
       {/* Hero Section */}
-      <section id="home" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-32">
+      <section id="home" className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-purple-900 dark:to-indigo-900 text-white py-32">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-6xl font-bold mb-6">
             {t('home.heroTitle')}
@@ -20,13 +20,13 @@ export default function Home() {
           <div className="flex gap-4 justify-center">
             <Link
               href="/assessment"
-              className="px-10 py-4 bg-white text-indigo-600 rounded-lg font-semibold hover:bg-gray-100 transition text-lg"
+              className="px-10 py-4 bg-white dark:bg-purple-600 text-indigo-600 dark:text-white rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-purple-700 transition text-lg"
             >
               {t('home.tryAssessment')}
             </Link>
             <a
               href="#about"
-              className="px-10 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition text-lg"
+              className="px-10 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-indigo-600 dark:hover:text-purple-600 transition text-lg"
             >
               {t('home.learnMore')}
             </a>
@@ -35,7 +35,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-white">
+      <section id="about" className="py-20 bg-white dark:bg-dark-bg">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl font-bold text-center text-gray-900 mb-6">

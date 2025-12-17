@@ -58,6 +58,47 @@ export interface SessionSummaryResponse {
   profileSummary: SkillProfileSummary;
 }
 
+export interface AssessmentSummary {
+  skillProfile: {
+    dimensions: Array<{
+      dimension: string;
+      mastery: number;
+      confidence: number;
+    }>;
+    overallMastery: number;
+  };
+  recommendations: string[];
+  nextSteps?: string[];
+}
+
+function generateRecommendations(profileSummary: SkillProfileSummary): string[] {
+  const recommendations: string[] = [];
+  const weakAreas = profileSummary.dimensions
+    .filter((d) => d.score < 0.4)
+    .sort((a, b) => a.score - b.score);
+
+  if (weakAreas.length > 0) {
+    recommendations.push(`Focus on strengthening your ${weakAreas[0].label} skills first`);
+  }
+
+  const lowConfidence = profileSummary.dimensions.filter(
+    (d) => d.confidence < 0.3 && d.assessedRatio < 0.5
+  );
+  if (lowConfidence.length > 0) {
+    recommendations.push(
+      `Complete more assessments in ${lowConfidence.map((d) => d.label).join(', ')} to get a better skill estimate`
+    );
+  }
+
+  if (profileSummary.overallScore >= 0.6) {
+    recommendations.push('You have a solid foundation - consider tackling more advanced projects');
+  } else {
+    recommendations.push('Start with the fundamentals and build up your skills progressively');
+  }
+
+  return recommendations;
+}
+
 // ============================================
 // API FUNCTIONS
 // ============================================
@@ -132,10 +173,40 @@ export async function getIntakeSummary(sessionId?: string): Promise<SessionSumma
   return response.data.data!;
 }
 
+/**
+ * Get the full assessment summary with skill profile and recommendations
+ */
+export async function getAssessmentSummary(): Promise<AssessmentSummary> {
+  const response = await api.get<ApiResponse<SessionSummaryResponse>>('/summary');
+  if (!response.data.success) {
+    throw new Error(response.data.error || 'Failed to get assessment summary');
+  }
+
+  const data = response.data.data!;
+  const profileSummary = data.profileSummary;
+
+  // Transform the profile summary into the AssessmentSummary format
+  const dimensions = profileSummary?.dimensions?.map((d) => ({
+    dimension: d.label,
+    mastery: d.score,
+    confidence: d.confidence,
+  })) || [];
+
+  return {
+    skillProfile: {
+      dimensions,
+      overallMastery: profileSummary?.overallScore || 0,
+    },
+    recommendations: generateRecommendations(profileSummary),
+    nextSteps: [],
+  };
+}
+
 export default {
   startIntakeSession,
   getCurrentStep,
   goBack,
   submitStepAnswer,
   getIntakeSummary,
+  getAssessmentSummary,
 };

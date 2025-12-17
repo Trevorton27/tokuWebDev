@@ -11,11 +11,21 @@ import {
   type CurrentStepResponse,
   type SubmitAnswerResponse,
 } from '@/lib/intakeClient';
-import type { IntakeStepConfig } from '@/server/assessment/intakeConfig';
+import type {
+  IntakeStepConfig,
+  QuestionnaireStepConfig,
+  McqStepConfig,
+  MicroMcqBurstStepConfig,
+  ShortTextStepConfig,
+  CodeStepConfig,
+  DesignComparisonStepConfig,
+  DesignCritiqueStepConfig,
+} from '@/server/assessment/intakeConfig';
 
 // Step Components
 import QuestionnaireStep from '@/modules/assessment/ui/intake/QuestionnaireStep';
 import McqStep from '@/modules/assessment/ui/intake/McqStep';
+import MicroMcqBurstStep from '@/modules/assessment/ui/intake/MicroMcqBurstStep';
 import ShortTextStep from '@/modules/assessment/ui/intake/ShortTextStep';
 import CodeStep from '@/modules/assessment/ui/intake/CodeStep';
 import DesignComparisonStep from '@/modules/assessment/ui/intake/DesignComparisonStep';
@@ -112,26 +122,76 @@ export default function IntakeAssessmentPage() {
   const renderStep = () => {
     if (!currentStep) return null;
 
-    const commonProps = {
-      config: currentStep,
-      onSubmit: handleSubmit,
-      previousAnswer,
-      isSubmitting: state === 'submitting',
-    };
+    const isSubmittingNow = state === 'submitting';
 
     switch (currentStep.kind) {
       case 'QUESTIONNAIRE':
-        return <QuestionnaireStep {...commonProps} />;
+        return (
+          <QuestionnaireStep
+            config={currentStep as QuestionnaireStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+          />
+        );
       case 'MCQ':
-        return <McqStep {...commonProps} lastResult={lastResult} />;
+        return (
+          <McqStep
+            config={currentStep as McqStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+            lastResult={lastResult}
+          />
+        );
+      case 'MICRO_MCQ_BURST':
+        return (
+          <MicroMcqBurstStep
+            config={currentStep as MicroMcqBurstStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+            lastResult={lastResult}
+          />
+        );
       case 'SHORT_TEXT':
-        return <ShortTextStep {...commonProps} lastResult={lastResult} />;
+        return (
+          <ShortTextStep
+            config={currentStep as ShortTextStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+            lastResult={lastResult}
+          />
+        );
       case 'CODE':
-        return <CodeStep {...commonProps} />;
+        return (
+          <CodeStep
+            config={currentStep as CodeStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+          />
+        );
       case 'DESIGN_COMPARISON':
-        return <DesignComparisonStep {...commonProps} lastResult={lastResult} />;
+        return (
+          <DesignComparisonStep
+            config={currentStep as DesignComparisonStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+            lastResult={lastResult}
+          />
+        );
       case 'DESIGN_CRITIQUE':
-        return <DesignCritiqueStep {...commonProps} />;
+        return (
+          <DesignCritiqueStep
+            config={currentStep as DesignCritiqueStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+          />
+        );
       case 'SUMMARY':
         return <SummaryStep sessionId={sessionId!} onComplete={() => router.push('/student')} />;
       default:
@@ -142,10 +202,10 @@ export default function IntakeAssessmentPage() {
   // Loading state
   if (state === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading assessment...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading assessment...</p>
         </div>
       </div>
     );
@@ -154,14 +214,14 @@ export default function IntakeAssessmentPage() {
   // Error state
   if (state === 'error') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
-          <div className="text-red-500 text-5xl mb-4">!</div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Something went wrong</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg flex items-center justify-center">
+        <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 max-w-md text-center border border-gray-200 dark:border-dark-border">
+          <div className="text-red-500 dark:text-red-400 text-5xl mb-4">!</div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Something went wrong</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            className="px-4 py-2 bg-indigo-600 dark:bg-purple-600 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-purple-700 transition"
           >
             Try Again
           </button>
@@ -173,7 +233,7 @@ export default function IntakeAssessmentPage() {
   // Complete state
   if (state === 'complete') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
         <div className="max-w-4xl mx-auto px-4 py-12">
           <SummaryStep sessionId={sessionId!} onComplete={() => router.push('/student')} />
         </div>
@@ -182,29 +242,29 @@ export default function IntakeAssessmentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
       {/* Progress Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-lg font-semibold text-gray-900">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
               Skill Assessment
             </h1>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               ~{estimatedMinutes} min total
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-dark-card rounded-full h-2">
             <div
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              className="bg-indigo-600 dark:bg-purple-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
           <div className="flex justify-between mt-1">
-            <span className="text-xs text-gray-500">{progress}% complete</span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-500 dark:text-gray-400">{progress}% complete</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
               {currentStep?.title}
             </span>
           </div>
@@ -215,13 +275,13 @@ export default function IntakeAssessmentPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Error Banner */}
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
             {error}
           </div>
         )}
 
         {/* Step Content */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-dark-border">
           {renderStep()}
         </div>
 
@@ -231,15 +291,15 @@ export default function IntakeAssessmentPage() {
             <button
               onClick={handleBack}
               disabled={!canGoBack || state === 'submitting'}
-              className={`px-4 py-2 rounded-lg font-medium ${
+              className={`px-4 py-2 rounded-lg font-medium transition ${
                 canGoBack && state !== 'submitting'
-                  ? 'text-gray-700 hover:bg-gray-100'
-                  : 'text-gray-400 cursor-not-allowed'
+                  ? 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-hover'
+                  : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
               }`}
             >
               ← Back
             </button>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               Step {Math.round((progress / 100) * totalSteps)} of {totalSteps}
             </div>
           </div>

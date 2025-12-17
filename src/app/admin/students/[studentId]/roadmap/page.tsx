@@ -20,20 +20,25 @@ export default function StudentRoadmap() {
 
   useEffect(() => {
     if (studentId) {
-      fetchStudent();
+      redirectToNewUrl();
     }
   }, [studentId]);
 
-  const fetchStudent = async () => {
+  const redirectToNewUrl = async () => {
     try {
       const params = new URLSearchParams({ role: 'STUDENT', search: studentId });
       const res = await fetch(`/api/admin/users?${params}`);
       const data = await res.json();
       if (data.success && data.data.users.length > 0) {
-        setStudent(data.data.users[0]);
+        const student = data.data.users[0];
+        const username = student.name || student.email.split('@')[0];
+
+        // Redirect to new username-based URL
+        const router = require('next/navigation').useRouter();
+        window.location.href = `/admin/${username}/roadmap`;
       }
     } catch (error) {
-      console.error('Error fetching student:', error);
+      console.error('Error redirecting:', error);
     } finally {
       setLoading(false);
     }

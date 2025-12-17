@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const latestSession = await getLatestIntakeSession(user.id);
     const profileSummary = await getProfileSummary(user.id);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         hasCompletedIntake: hasCompleted,
@@ -57,6 +57,12 @@ export async function GET(request: NextRequest) {
         profileSummary,
       },
     });
+
+    // Prevent caching - this data is user-specific
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    response.headers.set('Pragma', 'no-cache');
+
+    return response;
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json(

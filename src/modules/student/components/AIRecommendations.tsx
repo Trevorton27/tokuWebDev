@@ -89,15 +89,15 @@ export default function AIRecommendations() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+    <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
-          <h2 className="text-xl font-bold text-gray-900">{t('student.aiRecommendations')}</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('student.aiRecommendations')}</h2>
         </div>
-        <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+        <button className="text-sm text-indigo-600 dark:text-purple-400 hover:text-indigo-700 dark:hover:text-purple-300 font-medium">
           {t('student.refresh')}
         </button>
       </div>
@@ -112,10 +112,10 @@ export default function AIRecommendations() {
             <div className="flex items-start space-x-3">
               <span className="text-2xl">{rec.icon}</span>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-gray-900 mb-1">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
                   {t(`student.${rec.titleKey}`)}: {rec.title}
                 </h3>
-                <p className="text-xs text-gray-600 mb-2">
+                <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
                   {rec.description}
                 </p>
                 <span className={`inline-flex items-center text-xs font-semibold ${getTextColor(rec.color)}`}>
@@ -131,8 +131,8 @@ export default function AIRecommendations() {
       </div>
 
       {/* AI Badge */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <p className="text-xs text-gray-500 text-center">
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-dark-border">
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
           {t('student.aiPowered')}
         </p>
       </div>

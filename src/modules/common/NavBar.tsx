@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import ThemeToggle from './ThemeToggle';
 
 export default function NavBar() {
   const { user } = useUser();
@@ -20,7 +21,7 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-indigo-600 dark:bg-dark-surface text-white shadow-lg sticky top-0 z-50 border-b border-transparent dark:border-dark-border transition-colors">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
@@ -32,22 +33,22 @@ export default function NavBar() {
             <SignedOut>
               {isHomePage && (
                 <div className="hidden md:flex space-x-6">
-                  <a href="#about" className="hover:text-indigo-200 transition">
+                  <a href="#about" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
                     About
                   </a>
-                  <a href="#how-it-works" className="hover:text-indigo-200 transition">
+                  <a href="#how-it-works" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
                     How It Works
                   </a>
-                  <a href="#features" className="hover:text-indigo-200 transition">
+                  <a href="#features" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
                     Features
                   </a>
-                  <a href="#curriculum" className="hover:text-indigo-200 transition">
+                  <a href="#curriculum" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
                     Curriculum
                   </a>
-                  <a href="#testimonials" className="hover:text-indigo-200 transition">
+                  <a href="#testimonials" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
                     Testimonials
                   </a>
-                  <a href="#faq" className="hover:text-indigo-200 transition">
+                  <a href="#faq" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
                     FAQ
                   </a>
                 </div>
@@ -59,7 +60,7 @@ export default function NavBar() {
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center space-x-2 px-3 py-2 rounded-md bg-indigo-700 hover:bg-indigo-800 transition"
+              className="flex items-center space-x-2 px-3 py-2 rounded-md bg-indigo-700 dark:bg-dark-card hover:bg-indigo-800 dark:hover:bg-dark-hover transition"
               aria-label="Toggle language"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,21 +74,21 @@ export default function NavBar() {
               {isAdmin ? (
                 <Link
                   href="/admin"
-                  className="px-4 py-2 bg-white text-indigo-600 rounded-md hover:bg-indigo-50 transition font-medium"
+                  className="px-4 py-2 bg-white dark:bg-dark-card text-indigo-600 dark:text-white rounded-md hover:bg-indigo-50 dark:hover:bg-dark-hover transition font-medium"
                 >
                   {t('nav.dashboard')}
                 </Link>
               ) : isStudent ? (
                 <Link
                   href="/student"
-                  className="px-4 py-2 bg-white text-indigo-600 rounded-md hover:bg-indigo-50 transition font-medium"
+                  className="px-4 py-2 bg-white dark:bg-dark-card text-indigo-600 dark:text-white rounded-md hover:bg-indigo-50 dark:hover:bg-dark-hover transition font-medium"
                 >
                   {t('nav.dashboard')}
                 </Link>
               ) : isInstructor ? (
                 <Link
                   href="/instructor"
-                  className="px-4 py-2 bg-white text-indigo-600 rounded-md hover:bg-indigo-50 transition font-medium"
+                  className="px-4 py-2 bg-white dark:bg-dark-card text-indigo-600 dark:text-white rounded-md hover:bg-indigo-50 dark:hover:bg-dark-hover transition font-medium"
                 >
                   {t('nav.dashboard')}
                 </Link>
@@ -97,7 +98,7 @@ export default function NavBar() {
             <SignedOut>
               <Link
                 href="/sign-in"
-                className="px-4 py-2 bg-white text-indigo-600 rounded-md hover:bg-indigo-50 transition font-medium"
+                className="px-4 py-2 bg-white dark:bg-dark-card text-indigo-600 dark:text-white rounded-md hover:bg-indigo-50 dark:hover:bg-dark-hover transition font-medium"
               >
                 {t('nav.signIn')}
               </Link>
@@ -112,6 +113,9 @@ export default function NavBar() {
                 }}
               />
             </SignedIn>
+
+            {/* Theme Toggle - Far Right */}
+            <ThemeToggle />
           </div>
         </div>
       </div>

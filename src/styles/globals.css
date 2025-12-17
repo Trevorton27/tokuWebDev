@@ -2,25 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   LIGHT MODE (default)
+   Clean, professional with subtle blue tints
+   ============================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --hover: #f1f5f9;
+  --muted: #64748b;
+  --accent-primary: #6366f1;
+  --accent-secondary: #a855f7;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================
+   DARK MODE
+   Deep purple/black matching Cline UI image
+   ============================================ */
+.dark {
+  --background: #0a0a0f;
+  --foreground: #f1f5f9;
+  --surface: #12121a;
+  --card: #1a1a2e;
+  --border: #2a2a4a;
+  --hover: #252542;
+  --muted: #6b6b8a;
+  --accent-primary: #818cf8;
+  --accent-secondary: #c084fc;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Ensure form inputs have dark, readable text */
+/* Form inputs - Light mode */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -30,16 +51,96 @@ input[type="tel"],
 input[type="search"],
 textarea,
 select {
-  color: #1f2937 !important; /* gray-800 */
+  color: #1f2937;
+  background-color: #ffffff;
+  border-color: var(--border);
+}
+
+/* Form inputs - Dark mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="url"],
+.dark input[type="tel"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  color: #f1f5f9;
+  background-color: var(--card);
+  border-color: var(--border);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #9ca3af; /* gray-400 - lighter for placeholders */
+  color: #9ca3af;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6b6b8a;
+}
+
+/* Focus states */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+/* ============================================
+   Theme-aware component utilities
+   ============================================ */
+@layer components {
+  /* Cards and surfaces */
+  .theme-card {
+    @apply bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border;
+  }
+
+  .theme-surface {
+    @apply bg-white dark:bg-dark-surface;
+  }
+
+  /* Text colors */
+  .theme-text {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+
+  .theme-text-muted {
+    @apply text-gray-600 dark:text-dark-muted;
+  }
+
+  /* Borders */
+  .theme-border {
+    @apply border-gray-200 dark:border-dark-border;
+  }
+
+  /* Hover states */
+  .theme-hover {
+    @apply hover:bg-gray-100 dark:hover:bg-dark-hover;
+  }
+
+  /* Primary button gradient */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium transition-all;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply bg-gray-100 dark:bg-dark-card text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border;
   }
 }
