@@ -29,32 +29,53 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Check role-based access for admin routes
-  if (req.nextUrl.pathname.startsWith('/admin') && userId) {
-    const role = (sessionClaims?.publicMetadata as any)?.role as string || 'ADMIN';
+  if (req.nextUrl.pathname.startsWith('/admin')) {
+    if (!userId) {
+      // Not authenticated - redirect to sign-in
+      const signInUrl = new URL('/sign-in', req.url);
+      signInUrl.searchParams.set('redirect_url', req.url);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    const role = (sessionClaims?.publicMetadata as any)?.role as string;
     console.log('🔐 Admin route access attempt:', {
       path: req.nextUrl.pathname,
       userId,
       role,
       publicMetadata: sessionClaims?.publicMetadata,
     });
-    // TEMPORARILY DISABLED - Fix Clerk keys first
-     if (role !== 'ADMIN') {
-       console.log('❌ Access denied - user role is not ADMIN');
-       return NextResponse.redirect(new URL('/', req.url));
-     }
+
+    // Only allow ADMIN role to access admin routes
+    if (role !== 'ADMIN') {
+      console.log('❌ Access denied - user role is not ADMIN');
+      // Redirect based on their actual role
+      if (role === 'STUDENT') {
+        return NextResponse.redirect(new URL('/student', req.url));
+      } else if (role === 'INSTRUCTOR') {
+        return NextResponse.redirect(new URL('/instructor', req.url));
+      } else {
+        // Unknown role or no role - redirect to home
+        return NextResponse.redirect(new URL('/', req.url));
+      }
+    }
   }
 
   // Check role-based access for instructor routes
   if (req.nextUrl.pathname.startsWith('/instructor') && userId) {
-    const role = (sessionClaims?.publicMetadata as any)?.role as string || 'INSTRUCTOR';
+    const role = (sessionClaims?.publicMetadata as any)?.role as string;
     if (role !== 'INSTRUCTOR' && role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/', req.url));
+      // Redirect based on their actual role
+      if (role === 'STUDENT') {
+        return NextResponse.redirect(new URL('/student', req.url));
+      } else {
+        return NextResponse.redirect(new URL('/', req.url));
+      }
     }
   }
 
   // Check role-based access for student routes
   if (req.nextUrl.pathname.startsWith('/student') && userId) {
-    const role = (sessionClaims?.publicMetadata as any)?.role as string || 'STUDENT';
+    const role = (sessionClaims?.publicMetadata as any)?.role as string;
     console.log('🎓 Student route access attempt:', {
       path: req.nextUrl.pathname,
       userId,
@@ -63,7 +84,12 @@ export default clerkMiddleware(async (auth, req) => {
     });
     if (role !== 'STUDENT' && role !== 'ADMIN') {
       console.log('❌ Access denied - user role is not STUDENT');
-      return NextResponse.redirect(new URL('/', req.url));
+      // Redirect based on their actual role
+      if (role === 'INSTRUCTOR') {
+        return NextResponse.redirect(new URL('/instructor', req.url));
+      } else {
+        return NextResponse.redirect(new URL('/', req.url));
+      }
     }
   }
 
