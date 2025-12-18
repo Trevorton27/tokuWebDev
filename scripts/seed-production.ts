@@ -100,7 +100,6 @@ async function main() {
       description: 'Master the core concepts of JavaScript including variables, functions, arrays, objects, and async programming. Perfect for beginners starting their web development journey.',
       instructorId: instructor1.id,
       published: true,
-      maxStudents: 30,
       thumbnailUrl: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400',
     },
   });
@@ -112,7 +111,6 @@ async function main() {
       description: 'Build dynamic, responsive web applications with React. Learn hooks, state management, component patterns, and best practices for modern frontend development.',
       instructorId: instructor1.id,
       published: true,
-      maxStudents: 25,
       thumbnailUrl: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
     },
   });
@@ -124,7 +122,6 @@ async function main() {
       description: 'Learn server-side JavaScript with Node.js and Express. Build RESTful APIs, work with databases, implement authentication, and deploy production-ready applications.',
       instructorId: instructor2.id,
       published: true,
-      maxStudents: 20,
       thumbnailUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400',
     },
   });
@@ -136,7 +133,6 @@ async function main() {
       description: 'Master relational database design, SQL queries, indexing, transactions, and optimization. Learn PostgreSQL, MySQL, and database best practices.',
       instructorId: instructor2.id,
       published: true,
-      maxStudents: 25,
       thumbnailUrl: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400',
     },
   });
@@ -148,7 +144,6 @@ async function main() {
       description: 'Build type-safe applications from frontend to backend. Learn TypeScript, Next.js, tRPC, Prisma, and deploy full-stack applications with confidence.',
       instructorId: instructor3.id,
       published: true,
-      maxStudents: 20,
       thumbnailUrl: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=400',
     },
   });
