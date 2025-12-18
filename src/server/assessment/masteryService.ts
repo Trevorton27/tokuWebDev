@@ -137,7 +137,7 @@ export async function getMasteryProfile(userId: string): Promise<MasteryProfile>
 export async function getWeakAreas(userId: string, threshold = 50): Promise<string[]> {
   try {
     const profile = await getMasteryProfile(userId);
-
+    
     const weakSkills = Object.entries(profile.skills)
       .filter(([_, skill]) => skill.proficiency < threshold)
       .sort((a, b) => a[1].proficiency - b[1].proficiency)

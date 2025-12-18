@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useUser } from '@clerk/nextjs';
 
 interface DashboardStats {
   users: {
@@ -26,12 +27,60 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Check if user has admin role from database
+  useEffect(() => {
+    async function checkAdminAccess() {
+      if (!isLoaded) return;
+
+      if (!user) {
+        router.push('/sign-in');
+        return;
+      }
+
+      try {
+        // Get current user from API which checks database role
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        console.log('Admin access check response:', data);
+        if (!data.success || !data.user) {
+          router.push('/sign-in');
+          return;
+        }
+
+        // Check if user has ADMIN role from database
+        if (data.user.role !== 'ADMIN') {
+          console.log('Access denied - user role is:', data.user.role);
+          // Redirect based on their actual role
+          if (data.user.role === 'STUDENT') {
+            router.push('/student');
+          } else if (data.user.role === 'INSTRUCTOR') {
+            router.push('/instructor');
+          } else {
+            router.push('/');
+          }
+          return;
+        }
+
+        setCheckingAuth(false);
+      } catch (error) {
+        console.error('Error checking admin access:', error);
+        router.push('/');
+      }
+    }
+
+    checkAdminAccess();
+  }, [user, isLoaded, router]);
 
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+    if (!checkingAuth) {
+      fetchDashboardStats();
+    }
+  }, [checkingAuth]);
 
   const fetchDashboardStats = async () => {
     try {
@@ -107,6 +156,14 @@ export default function AdminDashboard() {
       </div>
     </Link>
   );
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
+        <div className="text-lg text-gray-600 dark:text-gray-300">Checking access...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
