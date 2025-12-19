@@ -8,21 +8,23 @@ datasource db {
 }
 
 model User {
-  id             String           @id @default(cuid())
-  clerkId        String?          @unique
-  email          String           @unique
-  name           String?
-  password       String?
-  role           Role             @default(STUDENT)
-  avatarUrl      String?
-  adminNotes     String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  attempts       Attempt[]
-  coursesCreated Course[]         @relation("InstructorCourses")
-  enrollments    Enrollment[]
-  masteryEvents  MasteryEvent[]
-  roadmapItems   StudentRoadmap[] @relation("UserRoadmaps")
+  id                 String               @id @default(cuid())
+  clerkId            String?              @unique
+  email              String               @unique
+  name               String?
+  password           String?
+  role               Role                 @default(STUDENT)
+  avatarUrl          String?
+  adminNotes         String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  attempts           Attempt[]
+  coursesCreated     Course[]             @relation("InstructorCourses")
+  enrollments        Enrollment[]
+  masteryEvents      MasteryEvent[]
+  roadmapItems       StudentRoadmap[]     @relation("UserRoadmaps")
+  assessmentSessions AssessmentSession[]
+  skillMasteries     UserSkillMastery[]   @relation("UserSkillMasteries")
 
   @@index([email])
   @@index([clerkId])
@@ -35,6 +37,7 @@ model Course {
   thumbnailUrl String?
   instructorId String
   published    Boolean      @default(false)
+  maxStudents  Int?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   instructor   User         @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
@@ -62,18 +65,20 @@ model Lesson {
 }
 
 model Enrollment {
-  id          String    @id @default(cuid())
+  id          String           @id @default(cuid())
   userId      String
   courseId    String
-  enrolledAt  DateTime  @default(now())
+  status      EnrollmentStatus @default(ACTIVE)
+  enrolledAt  DateTime         @default(now())
   completedAt DateTime?
-  progress    Int       @default(0)
-  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  progress    Int              @default(0)
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+  @@index([status])
 }
 
 model Challenge {
@@ -170,23 +175,75 @@ model DocumentChunk {
 }
 
 model StudentRoadmap {
-  id          String          @id @default(cuid())
-  userId      String
-  title       String
-  description String?
-  itemType    RoadmapItemType
-  status      RoadmapStatus   @default(NOT_STARTED)
-  order       Int
-  targetDate  DateTime?
-  completedAt DateTime?
-  metadata    Json?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  user        User            @relation("UserRoadmaps", fields: [userId], references: [id], onDelete: Cascade)
+  id             String          @id @default(cuid())
+  userId         String
+  title          String
+  description    String?
+  itemType       RoadmapItemType
+  status         RoadmapStatus   @default(NOT_STARTED)
+  phase          Int             @default(1)
+  order          Int
+  difficulty     Int?
+  estimatedHours Int?
+  skillKeys      String[]
+  targetDate     DateTime?
+  completedAt    DateTime?
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  user           User            @relation("UserRoadmaps", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([status])
   @@index([userId, order])
+}
+
+model AssessmentSession {
+  id          String               @id @default(cuid())
+  userId      String
+  sessionType String
+  status      String
+  currentStep String?
+  startedAt   DateTime             @default(now())
+  completedAt DateTime?
+  metadata    Json?
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses   AssessmentResponse[]
+
+  @@index([userId, sessionType])
+  @@index([status])
+}
+
+model AssessmentResponse {
+  id           String            @id @default(cuid())
+  sessionId    String
+  stepId       String
+  stepKind     String
+  rawAnswer    Json
+  gradeResult  Json?
+  skillUpdates Json?
+  submittedAt  DateTime          @default(now())
+  session      AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, stepId])
+  @@index([sessionId])
+}
+
+model UserSkillMastery {
+  id         String   @id @default(cuid())
+  userId     String
+  skillKey   String
+  mastery    Float    @default(0)
+  confidence Float    @default(0)
+  attempts   Int      @default(0)
+  lastUpdate DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  source     String?
+  user       User     @relation("UserSkillMasteries", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillKey])
+  @@index([userId])
+  @@index([skillKey])
 }
 
 enum Role {
@@ -231,6 +288,8 @@ enum RoadmapItemType {
   SKILL
   PROJECT
   MILESTONE
+  EXERCISE
+  DESIGN
 }
 
 enum RoadmapStatus {
@@ -238,4 +297,10 @@ enum RoadmapStatus {
   IN_PROGRESS
   COMPLETED
   BLOCKED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
 }
