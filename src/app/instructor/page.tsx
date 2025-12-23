@@ -2,11 +2,18 @@
 
 import { useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useSessionTracking } from '@/hooks/useSessionTracking';
 import Link from 'next/link';
+import StudentActivityTable from '@/modules/instructor/components/StudentActivityTable';
+import AtRiskAlerts from '@/modules/instructor/components/AtRiskAlerts';
 
 export default function InstructorDashboard() {
   const { user } = useUser();
   const { t } = useLanguage();
+
+  // Track user session activity
+  useSessionTracking();
+
   const instructorName = user?.firstName || user?.fullName || user?.username || 'Instructor';
 
   // TODO: Fetch all dashboard data in parallel using Promise.all() or React Query
@@ -105,6 +112,16 @@ export default function InstructorDashboard() {
             <div className="text-sm font-medium text-red-600">{t('instructor.atRiskStudents')}</div>
             <div className="text-3xl font-bold text-red-600 mt-2">{cohortStats.atRiskStudents}</div>
           </div>
+        </div>
+
+        {/* Real-Time Activity Tracking */}
+        <div className="mb-6">
+          <StudentActivityTable />
+        </div>
+
+        {/* At-Risk Students Alerts */}
+        <div className="mb-6">
+          <AtRiskAlerts />
         </div>
 
         {/* Top Row: Student List + Activity Feed */}

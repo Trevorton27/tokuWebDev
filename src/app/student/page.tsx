@@ -2,6 +2,7 @@
 
 import { useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useSessionTracking } from '@/hooks/useSessionTracking';
 import CurrentFocus from '@/modules/student/components/CurrentFocus';
 import RoadmapProgress from '@/modules/student/components/RoadmapProgress';
 import ActiveChallenges from '@/modules/student/components/ActiveChallenges';
@@ -13,10 +14,16 @@ import Notifications from '@/modules/student/components/Notifications';
 import QuickNav from '@/modules/student/components/QuickNav';
 import MyCourses from '@/modules/student/components/MyCourses';
 import OnboardingCheck from '@/modules/student/components/OnboardingCheck';
+import LoginSessionHistory from '@/modules/student/components/LoginSessionHistory';
+import GitHubActivity from '@/modules/student/components/GitHubActivity';
+import EngagementMetrics from '@/modules/student/components/EngagementMetrics';
 
 export default function StudentDashboard() {
   const { user } = useUser();
   const { t } = useLanguage();
+
+  // Track user session activity
+  useSessionTracking();
 
   // Get user's first name, full name, or username
   const userName = user?.firstName || user?.fullName || user?.username || 'Student';
@@ -61,6 +68,13 @@ export default function StudentDashboard() {
         {/* Second Row: My Courses */}
         <div className="mb-6">
           <MyCourses />
+        </div>
+
+        {/* Activity Tracking Row */}
+        <div className="grid lg:grid-cols-3 gap-6 mb-6">
+          <LoginSessionHistory />
+          <GitHubActivity />
+          <EngagementMetrics />
         </div>
 
         {/* Third Row: Active Tasks & Project */}

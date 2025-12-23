@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
+import { useSessionTracking } from '@/hooks/useSessionTracking';
 
 interface DashboardStats {
   users: {
@@ -31,6 +32,9 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Track user session activity
+  useSessionTracking();
 
   // Check if user has admin role from database
   useEffect(() => {

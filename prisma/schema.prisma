@@ -16,6 +16,9 @@ model User {
   role               Role                 @default(STUDENT)
   avatarUrl          String?
   adminNotes         String?
+  githubUsername     String?
+  githubRepoUrl      String?
+  lastActiveAt       DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   attempts           Attempt[]
@@ -25,6 +28,9 @@ model User {
   roadmapItems       StudentRoadmap[]     @relation("UserRoadmaps")
   assessmentSessions AssessmentSession[]
   skillMasteries     UserSkillMastery[]   @relation("UserSkillMasteries")
+  loginSessions      LoginSession[]       @relation("UserLoginSessions")
+  githubEvents       GitHubEvent[]        @relation("UserGitHubEvents")
+  activityMetrics    ActivityMetric[]     @relation("UserActivityMetrics")
 
   @@index([email])
   @@index([clerkId])
@@ -303,4 +309,62 @@ enum EnrollmentStatus {
   ACTIVE
   COMPLETED
   DROPPED
+}
+
+model LoginSession {
+  id           String    @id @default(cuid())
+  userId       String
+  loginAt      DateTime  @default(now())
+  logoutAt     DateTime?
+  lastActivity DateTime  @default(now())
+  ipAddress    String?
+  userAgent    String?
+  deviceType   String?
+  browser      String?
+  isActive     Boolean   @default(true)
+  sessionToken String?   @unique
+  metadata     Json?
+  user         User      @relation("UserLoginSessions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([loginAt])
+  @@index([isActive])
+  @@index([userId, loginAt])
+}
+
+model GitHubEvent {
+  id           String   @id @default(cuid())
+  userId       String
+  eventType    String
+  action       String?
+  repository   String
+  repoUrl      String?
+  payload      Json
+  commitCount  Int?
+  additions    Int?
+  deletions    Int?
+  branch       String?
+  timestamp    DateTime @default(now())
+  user         User     @relation("UserGitHubEvents", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([timestamp])
+  @@index([userId, timestamp])
+}
+
+model ActivityMetric {
+  id         String   @id @default(cuid())
+  userId     String
+  metricType String
+  value      Float
+  date       DateTime @default(now())
+  period     String
+  metadata   Json?
+  user       User     @relation("UserActivityMetrics", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, metricType, date, period])
+  @@index([userId])
+  @@index([metricType])
+  @@index([date])
 }

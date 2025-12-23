@@ -23,7 +23,7 @@ export const translations = {
 
     // Home Page
     'home.heroTitle': 'Welcome to TokuWebDev',
-    'home.heroSubtitle': 'Online school of application design, programming and AI engineering',
+    'home.heroSubtitle': 'Online school of programming, application design and AI engineering',
     'home.browseCourses': 'Browse Courses',
     'home.tryAssessment': 'Try Assessment',
     'home.learnMore': 'Learn More',
@@ -329,7 +329,7 @@ export const translations = {
 
     // Home Page
     'home.heroTitle': 'TokuWebDevへようこそ',
-    'home.heroSubtitle': 'アプリケーション設計、プログラミング、AIエンジニアリングのオンラインスクール',
+    'home.heroSubtitle': 'プログラミング、アプリケーション設計、AIエンジニアリングのオンラインスクール',
     'home.browseCourses': 'コースを見る',
     'home.tryAssessment': '評価を試す',
     'home.learnMore': '詳しく見る',
