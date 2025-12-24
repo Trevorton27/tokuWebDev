@@ -16,9 +16,12 @@ model User {
   role               Role                 @default(STUDENT)
   avatarUrl          String?
   adminNotes         String?
-  githubUsername     String?
-  githubRepoUrl      String?
-  lastActiveAt       DateTime?
+  githubUsername            String?
+  githubEmail               String?
+  githubRepoUrl             String?
+  githubWebhookToken        String?
+  githubPersonalAccessToken String?
+  lastActiveAt              DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   attempts           Attempt[]
@@ -31,6 +34,7 @@ model User {
   loginSessions      LoginSession[]       @relation("UserLoginSessions")
   githubEvents       GitHubEvent[]        @relation("UserGitHubEvents")
   activityMetrics    ActivityMetric[]     @relation("UserActivityMetrics")
+  connectedRepos     ConnectedRepository[] @relation("UserConnectedRepos")
 
   @@index([email])
   @@index([clerkId])
@@ -367,4 +371,20 @@ model ActivityMetric {
   @@index([userId])
   @@index([metricType])
   @@index([date])
+}
+
+model ConnectedRepository {
+  id          String   @id @default(cuid())
+  userId      String
+  repoName    String
+  repoUrl     String
+  isActive    Boolean  @default(true)
+  connectedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  metadata    Json?
+  user        User     @relation("UserConnectedRepos", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, repoName])
+  @@index([userId])
+  @@index([isActive])
 }

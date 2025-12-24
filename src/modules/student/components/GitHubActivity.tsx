@@ -1,45 +1,74 @@
+/**
+ * GitHub Activity Dashboard Widget
+ * Shows GitHub connectivity status and connected projects
+ * Links to /student/github for full management
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { formatRelativeTime } from '@/lib/activityUtils';
+import Link from 'next/link';
 
-interface GitHubData {
-  username: string | null;
-  repoUrl: string | null;
-  recentEvents: Array<{
-    eventType: string;
-    action: string | null;
-    repository: string;
-    timestamp: string;
-    commitCount?: number;
-  }>;
-  weeklyStats: {
-    commits: number;
-    prs: number;
-    additions: number;
-    deletions: number;
+interface ConnectedRepo {
+  id: string;
+  name: string;
+  url: string;
+  metadata?: {
+    description?: string;
+    language?: string;
+    stars?: number;
   };
 }
 
+interface GitHubStatus {
+  isConfigured: boolean;
+  username?: string;
+  email?: string;
+  connectedRepos: ConnectedRepo[];
+}
+
 export default function GitHubActivity() {
-  const [data, setData] = useState<GitHubData | null>(null);
+  const [status, setStatus] = useState<GitHubStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchGitHubActivity();
+    fetchGitHubStatus();
   }, []);
 
-  const fetchGitHubActivity = async () => {
+  const fetchGitHubStatus = async () => {
     try {
-      const response = await axios.get('/api/activity/github');
-      if (response.data.success) {
-        setData(response.data.data);
+      // Check if user has configured GitHub profile
+      const profileResponse = await axios.get('/api/github/profile');
+      const hasUsername = !!profileResponse.data.profile?.username;
+      const hasEmail = !!profileResponse.data.profile?.email;
+      const isConfigured = hasUsername && hasEmail;
+
+      // Fetch connected repos if configured
+      let connectedRepos: ConnectedRepo[] = [];
+      if (isConfigured) {
+        try {
+          const reposResponse = await axios.get('/api/github/connected-repos');
+          if (reposResponse.data.success) {
+            connectedRepos = reposResponse.data.repositories;
+          }
+        } catch (err) {
+          console.error('Failed to fetch connected repos:', err);
+        }
       }
+
+      setStatus({
+        isConfigured,
+        username: profileResponse.data.profile?.username,
+        email: profileResponse.data.profile?.email,
+        connectedRepos,
+      });
     } catch (err) {
-      console.error('Failed to fetch GitHub activity:', err);
-      setError('Failed to load GitHub data');
+      console.error('Failed to fetch GitHub status:', err);
+      setStatus({
+        isConfigured: false,
+        connectedRepos: [],
+      });
     } finally {
       setLoading(false);
     }
@@ -57,150 +86,121 @@ export default function GitHubActivity() {
     );
   }
 
-  if (error || !data) {
-    return (
-      <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          GitHub Activity
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {error || 'Unable to load GitHub data'}
-        </p>
-      </div>
-    );
-  }
-
-  if (!data.username) {
-    return (
-      <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          GitHub Activity
-        </h2>
-        <div className="text-center py-8">
-          <div className="text-4xl mb-3">🔗</div>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Connect your GitHub account to track repository activity
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-500">
-            Contact your instructor to link your GitHub username
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const formatEventType = (type: string) => {
-    switch (type) {
-      case 'push':
-        return 'Pushed commits';
-      case 'pull_request':
-        return 'Pull request';
-      default:
-        return type;
-    }
-  };
-
-  const getEventIcon = (type: string) => {
-    switch (type) {
-      case 'push':
-        return '📤';
-      case 'pull_request':
-        return '🔀';
-      default:
-        return '📝';
-    }
-  };
-
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          GitHub Activity
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span>GitHub Activity</span>
         </h2>
-        <a
-          href={data.repoUrl || `https://github.com/${data.username}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+        <Link
+          href="/student/github"
+          className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
         >
-          View on GitHub →
-        </a>
+          View All →
+        </Link>
       </div>
 
-      {/* Weekly Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-4">
-          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-            {data.weeklyStats.commits}
-          </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400">
-            Commits (7d)
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg p-4">
-          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-            {data.weeklyStats.prs}
-          </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400">
-            Pull Requests
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Events */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Recent Activity
-        </h3>
-        {data.recentEvents.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            No recent activity
+      {!status?.isConfigured ? (
+        // Not Configured State
+        <div className="text-center py-8">
+          <div className="text-5xl mb-3">⚙️</div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Configure GitHub Connectivity
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Connect your GitHub account to track your coding activity
           </p>
-        ) : (
-          data.recentEvents.slice(0, 5).map((event, idx) => (
-            <div
-              key={idx}
-              className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-dark-surface rounded-lg"
-            >
-              <span className="text-xl">{getEventIcon(event.eventType)}</span>
+          <Link
+            href="/student/github"
+            className="inline-block px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+          >
+            Get Started
+          </Link>
+        </div>
+      ) : (
+        // Configured State - Show Connected Projects
+        <div>
+          <div className="mb-4">
+            <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <span className="text-green-600 dark:text-green-400 text-lg">✓</span>
               <div className="flex-1">
-                <p className="text-sm text-gray-900 dark:text-white">
-                  <span className="font-semibold">
-                    {formatEventType(event.eventType)}
-                  </span>
-                  {event.commitCount && ` (${event.commitCount} commits)`}
+                <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                  Connected as @{status.username}
                 </p>
-                <div className="flex items-center space-x-2 mt-1">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {event.repository}
-                  </span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">
-                    •
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatRelativeTime(event.timestamp)}
-                  </span>
-                </div>
+                <p className="text-xs text-green-700 dark:text-green-300">
+                  {status.email}
+                </p>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          </div>
 
-      {/* Code Changes */}
-      {(data.weeklyStats.additions > 0 || data.weeklyStats.deletions > 0) && (
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-dark-border">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">This Week</span>
-            <span>
-              <span className="text-green-600 dark:text-green-400">
-                +{data.weeklyStats.additions}
-              </span>
-              <span className="text-gray-400 dark:text-gray-500 mx-2">|</span>
-              <span className="text-red-600 dark:text-red-400">
-                -{data.weeklyStats.deletions}
-              </span>
-            </span>
+          {/* Connected Projects */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              Connected Projects
+            </h3>
+
+            {status.connectedRepos.length === 0 ? (
+              <div className="text-center py-6 bg-gray-50 dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-dark-border">
+                <div className="text-3xl mb-2">📦</div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  No projects connected yet
+                </p>
+                <Link
+                  href="/student/github"
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                >
+                  Connect a Repository →
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {status.connectedRepos.slice(0, 3).map((repo) => (
+                  <div
+                    key={repo.id}
+                    className="p-3 bg-gray-50 dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-dark-border hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="text-lg">📂</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {repo.name.split('/').pop()}
+                        </p>
+                        {repo.metadata?.description && (
+                          <p className="text-xs text-gray-600 dark:text-gray-400 truncate mt-0.5">
+                            {repo.metadata.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-3 mt-1">
+                          {repo.metadata?.language && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                              {repo.metadata.language}
+                            </span>
+                          )}
+                          {repo.metadata?.stars !== undefined && repo.metadata.stars > 0 && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              ⭐ {repo.metadata.stars}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {status.connectedRepos.length > 3 && (
+                  <div className="pt-2 text-center">
+                    <Link
+                      href="/student/github"
+                      className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                    >
+                      View {status.connectedRepos.length - 3} more →
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
