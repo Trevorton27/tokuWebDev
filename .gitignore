@@ -49,3 +49,6 @@ prisma/dev.db-journal
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Google Docs service account key (DO NOT COMMIT)
+toku-web-doc-storage-f2937c9ad2ee.json

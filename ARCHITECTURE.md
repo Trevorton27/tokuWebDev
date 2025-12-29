@@ -776,6 +776,221 @@ JDOODLE_CLIENT_SECRET=...
 
 ---
 
+## 11. Google Docs Roadmap Integration (New Feature)
+
+### Overview
+
+The Google Docs Roadmap integration allows instructors and admins to create personalized curriculum roadmaps in Google Docs and assign them to individual students. This provides a flexible, instructor-controlled alternative to the automated roadmap system.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  Google Cloud Platform                  │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  Service Account: toku-web-doc-reader              │  │
+│  │  Email: ...@toku-web-doc-storage.iam.gserviceacc  │  │
+│  │  Permissions: Read-only access to shared docs     │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         │ Google Docs API (read-only)
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│              Instructor's Google Doc                     │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  Title: "John Doe's Learning Roadmap"             │  │
+│  │  Shared with: Service Account Email               │  │
+│  │  Document ID: 1AkKlxCz5F2Zi...                    │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         │ Assigned via Admin UI
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│                  Database (User Table)                   │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  User: John Doe (STUDENT)                         │  │
+│  │  roadmapDocumentId: "1AkKlxCz5F2Zi..."            │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         │ Student views /student/curriculum
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│           Student Curriculum Page                        │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  1. Fetch user's roadmapDocumentId                │  │
+│  │  2. Call Google Docs API via service account     │  │
+│  │  3. Convert Doc structure to HTML                │  │
+│  │  4. Render with Tailwind styling                 │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/lib/googleDocs.ts` | Google Docs API client and HTML converter |
+| `src/app/api/roadmap/document/route.ts` | Student endpoint to fetch assigned doc |
+| `src/app/api/admin/students/[studentId]/roadmap-document/route.ts` | Admin endpoint to assign docs |
+| `src/app/admin/students/page.tsx` | Admin UI with "Configure" button |
+| `src/app/student/curriculum/page.tsx` | Student view of assigned curriculum |
+| `src/app/roadmap/page.tsx` | Public roadmap page (interactive) |
+
+### Setup Instructions
+
+1. **Google Cloud Setup**:
+   ```bash
+   # 1. Create project in Google Cloud Console
+   # 2. Enable Google Docs API
+   # 3. Create service account
+   # 4. Download JSON credentials
+   ```
+
+2. **Environment Variables**:
+   ```env
+   GOOGLE_SERVICE_ACCOUNT_EMAIL=account@project.iam.gserviceaccount.com
+   GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+   ```
+
+3. **Share Documents**:
+   - Open Google Doc
+   - Click "Share"
+   - Add service account email
+   - Set permission: "Viewer"
+
+### Admin Workflow
+
+1. Navigate to `/admin/students`
+2. Find student in table
+3. Click "Configure" button (or "View" if already assigned)
+4. Enter Google Doc ID in modal
+5. Click "Save"
+
+**Google Doc ID Extraction**:
+```
+URL: https://docs.google.com/document/d/1AkKlxCz5F2ZihNYQuQ9XP-TAVBWP84h5Hh9flVJ4a8I/edit
+ID:  1AkKlxCz5F2ZihNYQuQ9XP-TAVBWP84h5Hh9flVJ4a8I
+```
+
+### Student Experience
+
+1. Student logs in
+2. Navigates to `/student/curriculum`
+3. System checks if `roadmapDocumentId` is assigned
+4. If assigned:
+   - Fetches document via Google Docs API
+   - Converts to HTML
+   - Displays formatted content
+5. If not assigned:
+   - Shows message to contact instructor
+
+### API Endpoints
+
+#### PUT `/api/admin/students/[studentId]/roadmap-document`
+Assigns a Google Doc to a student.
+
+**Request**:
+```json
+{
+  "roadmapDocumentId": "1AkKlxCz5F2ZihNYQuQ9XP-TAVBWP84h5Hh9flVJ4a8I"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Roadmap document assigned successfully",
+  "student": {
+    "id": "cm1abc123",
+    "email": "student@example.com",
+    "name": "John Doe",
+    "roadmapDocumentId": "1AkKlxCz5F2ZihNYQuQ9XP-TAVBWP84h5Hh9flVJ4a8I"
+  }
+}
+```
+
+#### GET `/api/admin/students/[studentId]/roadmap-document`
+Retrieves student's assigned roadmap document ID.
+
+#### GET `/api/roadmap/document`
+Student endpoint to fetch their assigned document content.
+
+**Response**:
+```json
+{
+  "success": true,
+  "title": "John Doe's Learning Roadmap",
+  "content": "<h1>...</h1><p>...</p>",
+  "documentId": "1AkKlxCz5F2ZihNYQuQ9XP-TAVBWP84h5Hh9flVJ4a8I",
+  "lastModified": "123456"
+}
+```
+
+### Important: Clerk ID vs Database ID
+
+The API routes accept **both** Clerk IDs and database IDs for the `studentId` parameter:
+
+- **Clerk ID**: `user_abc123` (from admin UI)
+- **Database ID**: `cm1abc123` (internal)
+
+Routes use `findFirst` with `OR` condition to support both:
+
+```typescript
+const student = await prisma.user.findFirst({
+  where: {
+    OR: [
+      { id: studentId },       // Database ID
+      { clerkId: studentId },  // Clerk ID
+    ],
+  },
+});
+```
+
+This ensures compatibility when the admin UI passes Clerk IDs.
+
+### HTML Conversion
+
+The `convertGoogleDocToHTML()` function supports:
+
+✅ **Supported**:
+- Headings (H1-H4)
+- Paragraphs
+- Bold, italic, underline
+- Hyperlinks (with security attributes)
+- Tables
+- Line breaks
+
+❌ **Not Yet Supported**:
+- Images
+- Ordered/unordered lists
+- Text colors
+- Background colors
+- Advanced table styling
+- Footnotes
+
+### Security Considerations
+
+1. **Read-Only Access**: Service account has `documents.readonly` scope
+2. **Link Security**: External links include `rel="noopener noreferrer"`
+3. **Input Validation**: Document ID format is validated with regex
+4. **Role Checking**: Only ADMIN and INSTRUCTOR can assign documents
+5. **Student Privacy**: Students can only view their own assigned document
+
+### Future Enhancements
+
+- Support for images and lists in HTML conversion
+- Version tracking (track when document was last updated)
+- Document templates for common roadmap types
+- Bulk assignment interface
+- Document preview in admin UI
+- Real-time collaboration tracking
+
+---
+
 ## Summary
 
 Signal Works LMS is a comprehensive learning platform with:

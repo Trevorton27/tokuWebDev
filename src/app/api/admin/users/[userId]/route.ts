@@ -11,8 +11,14 @@ export async function GET(
   try {
     await requireRole(['ADMIN']);
 
-    const user = await prisma.user.findUnique({
-      where: { id: params.userId },
+    // Find user by database ID or Clerk ID
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: params.userId },
+          { clerkId: params.userId },
+        ],
+      },
       select: {
         id: true,
         email: true,
@@ -92,6 +98,24 @@ export async function PUT(
     const body = await request.json();
     const { email, name, role, password, avatarUrl, adminNotes } = body;
 
+    // First find the user by either database ID or Clerk ID
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: params.userId },
+          { clerkId: params.userId },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     const updateData: any = {};
 
     if (email) updateData.email = email;
@@ -108,7 +132,7 @@ export async function PUT(
     }
 
     const user = await prisma.user.update({
-      where: { id: params.userId },
+      where: { id: existingUser.id },
       data: updateData,
       select: {
         id: true,
@@ -152,8 +176,26 @@ export async function DELETE(
   try {
     await requireRole(['ADMIN']);
 
+    // First find the user by either database ID or Clerk ID
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: params.userId },
+          { clerkId: params.userId },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     await prisma.user.delete({
-      where: { id: params.userId },
+      where: { id: existingUser.id },
     });
 
     return NextResponse.json({

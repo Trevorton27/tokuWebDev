@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
         clerkId: true,
         adminNotes: true,
         role: true,
+        roadmapDocumentId: true,
         _count: {
           select: {
             enrollments: true,
@@ -182,6 +183,7 @@ export async function GET(request: NextRequest) {
         role: userRole,
         avatarUrl: clerkUser.imageUrl,
         adminNotes: dbUser?.adminNotes || null,
+        roadmapDocumentId: dbUser?.roadmapDocumentId || null,
         createdAt: new Date(clerkUser.createdAt).toISOString(),
         updatedAt: new Date(clerkUser.updatedAt).toISOString(),
         _count: dbUser?._count || {

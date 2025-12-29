@@ -9,6 +9,7 @@ interface Student {
   name: string | null;
   role: string;
   adminNotes: string | null;
+  roadmapDocumentId: string | null;
   createdAt: string;
   currentEnrollment: {
     id: string;
@@ -31,6 +32,10 @@ export default function StudentManagement() {
   const [notes, setNotes] = useState<{ [key: string]: string }>({});
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showRoadmapModal, setShowRoadmapModal] = useState(false);
+  const [roadmapStudent, setRoadmapStudent] = useState<Student | null>(null);
+  const [roadmapDocId, setRoadmapDocId] = useState('');
+  const [savingRoadmap, setSavingRoadmap] = useState(false);
   const [dateForm, setDateForm] = useState({
     startDate: '',
     finishDate: '',
@@ -131,6 +136,78 @@ export default function StudentManagement() {
     } catch (error) {
       console.error('Error updating dates:', error);
       alert('Failed to update dates');
+    }
+  };
+
+  const handleOpenRoadmapModal = (student: Student) => {
+    setRoadmapStudent(student);
+    setRoadmapDocId(student.roadmapDocumentId || '');
+    setShowRoadmapModal(true);
+  };
+
+  /**
+   * Extract Google Docs Document ID from URL or return input as-is
+   *
+   * Accepts both formats:
+   * - Full URL: https://docs.google.com/document/d/DOCUMENT_ID/edit?tab=t.0
+   * - Document ID only: DOCUMENT_ID
+   *
+   * @param {string} input - Google Docs URL or document ID
+   * @returns {string | null} Extracted document ID or null if invalid URL format
+   */
+  const extractDocumentId = (input: string): string | null => {
+    const trimmed = input.trim();
+
+    // Check if input looks like a URL
+    if (trimmed.includes('docs.google.com')) {
+      // Extract ID from URL pattern: /document/d/{DOCUMENT_ID}/
+      const match = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
+    }
+
+    // Otherwise, assume it's already a document ID
+    return trimmed;
+  };
+
+  const handleSaveRoadmap = async () => {
+    if (!roadmapStudent) return;
+    if (!roadmapDocId.trim()) {
+      alert('Please enter a valid Google Docs URL or document ID');
+      return;
+    }
+
+    // Extract document ID from URL or use input as-is
+    const documentId = extractDocumentId(roadmapDocId);
+
+    if (!documentId) {
+      alert('Could not extract document ID from the URL. Please check the format.');
+      return;
+    }
+
+    try {
+      setSavingRoadmap(true);
+      const res = await fetch(`/api/admin/students/${roadmapStudent.id}/roadmap-document`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roadmapDocumentId: documentId }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setShowRoadmapModal(false);
+        setRoadmapStudent(null);
+        setRoadmapDocId('');
+        fetchStudents(); // Refresh the list
+        alert('Roadmap document assigned successfully!');
+      } else {
+        alert('Failed to assign roadmap: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error assigning roadmap:', error);
+      alert('Failed to assign roadmap');
+    } finally {
+      setSavingRoadmap(false);
     }
   };
 
@@ -296,25 +373,75 @@ export default function StudentManagement() {
                         </Link>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <Link
-                          href={`/admin/${student.name || student.email.split('@')[0]}/roadmap`}
-                          className="inline-flex items-center px-2 py-1 border border-blue-300 dark:border-blue-700 rounded-md text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-xs"
-                        >
-                          <svg
-                            className="w-4 h-4 mr-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        {student.roadmapDocumentId ? (
+                          <div className="flex items-center justify-center gap-1">
+                            <a
+                              href={`https://docs.google.com/document/d/${student.roadmapDocumentId}/preview`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-2 py-1 border border-blue-300 dark:border-blue-700 rounded-md text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-xs"
+                            >
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                              View
+                            </a>
+                            <button
+                              onClick={() => handleOpenRoadmapModal(student)}
+                              className="inline-flex items-center px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleOpenRoadmapModal(student)}
+                            className="inline-flex items-center px-2 py-1 border border-orange-300 dark:border-orange-700 rounded-md text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-xs"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                            />
-                          </svg>
-                          View
-                        </Link>
+                            <svg
+                              className="w-4 h-4 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                              />
+                            </svg>
+                            Configure
+                          </button>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <input
@@ -416,6 +543,82 @@ export default function StudentManagement() {
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 rounded-md hover:bg-blue-700 dark:hover:bg-blue-800"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Configure Roadmap Modal */}
+      {showRoadmapModal && roadmapStudent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg max-w-2xl w-full p-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              {roadmapStudent.roadmapDocumentId ? 'Edit' : 'Configure'} Roadmap Document
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
+              {roadmapStudent.roadmapDocumentId ? 'Update' : 'Assign'} Google Docs roadmap for{' '}
+              <span className="font-semibold">{roadmapStudent.name || roadmapStudent.email}</span>
+            </p>
+
+            {/* Instructions */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+              <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-2">How to Assign</h3>
+              <ol className="list-decimal list-inside space-y-1 text-xs text-blue-800 dark:text-blue-300">
+                <li>Create a Google Doc with the student's personalized roadmap</li>
+                <li>
+                  Share it with:{' '}
+                  <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded text-xs">
+                    toku-web-doc-reader@toku-web-doc-storage.iam.gserviceaccount.com
+                  </code>
+                </li>
+                <li>
+                  Copy the full URL or just the document ID from:{' '}
+                  <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded">
+                    https://docs.google.com/document/d/DOCUMENT_ID/edit
+                  </code>
+                </li>
+                <li>Paste it below and click "Save"</li>
+              </ol>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Google Docs URL or Document ID
+              </label>
+              <input
+                type="text"
+                value={roadmapDocId}
+                onChange={(e) => setRoadmapDocId(e.target.value)}
+                placeholder="https://docs.google.com/document/d/1AkKlxCz5F2ZihNYQuQ9XP-TAVBWP84h5Hh9flVJ4a8I/edit"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-surface text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 font-mono text-sm"
+                autoFocus
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Paste the full Google Docs URL or just the document ID
+              </p>
+            </div>
+
+            <div className="mt-6 flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRoadmapModal(false);
+                  setRoadmapStudent(null);
+                  setRoadmapDocId('');
+                }}
+                disabled={savingRoadmap}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-dark-surface border border-gray-300 dark:border-dark-border rounded-md hover:bg-gray-50 dark:hover:bg-dark-hover disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveRoadmap}
+                disabled={savingRoadmap || !roadmapDocId.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50"
+              >
+                {savingRoadmap ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

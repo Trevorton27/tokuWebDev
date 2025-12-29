@@ -24,6 +24,7 @@ import {
   getProfileSummary,
   type MasteryUpdate,
 } from './skillProfileService';
+import { extractAndSaveStudentProfile } from './profileExtraction';
 
 // ============================================
 // TYPES
@@ -305,6 +306,15 @@ export async function submitStepAnswer(
           currentStep: 'summary',
           completedAt: new Date(),
         },
+      });
+
+      // Extract and save student profile (goals, interests) for project recommendations
+      // This runs asynchronously and doesn't block assessment completion
+      extractAndSaveStudentProfile(session.userId, sessionId).catch((err) => {
+        logger.error('Failed to extract student profile (non-blocking)', err, {
+          userId: session.userId,
+          sessionId,
+        });
       });
     } else if (nextStep) {
       await prisma.assessmentSession.update({

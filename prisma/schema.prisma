@@ -21,6 +21,11 @@ model User {
   githubRepoUrl             String?
   githubWebhookToken        String?
   githubPersonalAccessToken String?
+  roadmapDocumentId         String?              // Google Docs document ID for student's personalized roadmap
+  interests                 String[]             @default([]) // Student's interests/tags for project recommendations
+  shortTermGoal             String?              // Student's short-term learning goal
+  mediumTermGoal            String?              // Student's medium-term learning goal
+  longTermGoal              String?              // Student's long-term learning goal
   lastActiveAt              DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
