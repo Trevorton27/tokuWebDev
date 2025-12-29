@@ -54,10 +54,11 @@ export function useSessionTracking() {
       }
     }, 5 * 60 * 1000); // 5 minutes
 
-    // Note: Sessions are now kept active across page refreshes/navigation
+    // Note: Sessions are kept active across page refreshes/navigation
     // They will be automatically ended by:
-    // 1. Stale session cleanup job (24+ hours inactive) - see /api/cron/cleanup-sessions
-    // 2. Future: Explicit logout button integration
+    // 1. New session creation (closes previous active sessions)
+    // 2. Stale session cleanup job (30 minutes inactive) - see /api/cron/cleanup-sessions
+    // 3. Explicit logout via Clerk
 
     // Handle page/tab close and navigation
     const handleBeforeUnload = () => {
@@ -112,9 +113,9 @@ export function useSessionTracking() {
 
       // Don't end session on unmount - this happens on every navigation
       // Sessions will be ended by:
-      // 1. Explicit logout (when user clicks Sign Out)
-      // 2. Stale session cleanup (24+ hours inactive)
-      // 3. User closing all tabs (detected by pagehide with delay)
+      // 1. New session creation (auto-closes previous sessions)
+      // 2. Stale session cleanup (30 minutes inactive)
+      // 3. Explicit logout via Clerk
     };
   }, [isSignedIn, sessionId]);
 }

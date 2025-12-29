@@ -76,7 +76,7 @@ export default function GitHubActivity() {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border animate-pulse">
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border animate-pulse h-[580px]">
         <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
         <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
         <div className="space-y-2">
@@ -87,7 +87,7 @@ export default function GitHubActivity() {
   }
 
   return (
-    <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
+    <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border h-[580px] flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <span>GitHub Activity</span>
@@ -102,7 +102,7 @@ export default function GitHubActivity() {
 
       {!status?.isConfigured ? (
         // Not Configured State
-        <div className="text-center py-8">
+        <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
           <div className="text-5xl mb-3">⚙️</div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Configure GitHub Connectivity
@@ -119,7 +119,7 @@ export default function GitHubActivity() {
         </div>
       ) : (
         // Configured State - Show Connected Projects
-        <div>
+        <div className="flex-1 flex flex-col">
           <div className="mb-4">
             <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
               <span className="text-green-600 dark:text-green-400 text-lg">✓</span>
@@ -135,13 +135,13 @@ export default function GitHubActivity() {
           </div>
 
           {/* Connected Projects */}
-          <div>
+          <div className="flex-1 flex flex-col">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
               Connected Projects
             </h3>
 
             {status.connectedRepos.length === 0 ? (
-              <div className="text-center py-6 bg-gray-50 dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-dark-border">
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-6 bg-gray-50 dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-dark-border">
                 <div className="text-3xl mb-2">📦</div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   No projects connected yet
@@ -154,7 +154,7 @@ export default function GitHubActivity() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 flex-1">
                 {status.connectedRepos.slice(0, 3).map((repo) => (
                   <div
                     key={repo.id}

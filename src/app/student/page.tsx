@@ -3,20 +3,16 @@
 import { useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useSessionTracking } from '@/hooks/useSessionTracking';
-import CurrentFocus from '@/modules/student/components/CurrentFocus';
-import RoadmapProgress from '@/modules/student/components/RoadmapProgress';
-import ActiveChallenges from '@/modules/student/components/ActiveChallenges';
 import ProjectSummary from '@/modules/student/components/ProjectSummary';
+import CourseRoadmap from '@/modules/student/components/CourseRoadmap';
 import CalendarEvents from '@/modules/student/components/CalendarEvents';
 import StudyStreak from '@/modules/student/components/StudyStreak';
-import AIRecommendations from '@/modules/student/components/AIRecommendations';
+import RecommendedResources from '@/modules/student/components/RecommendedResources';
 import Notifications from '@/modules/student/components/Notifications';
 import QuickNav from '@/modules/student/components/QuickNav';
-import MyCourses from '@/modules/student/components/MyCourses';
 import OnboardingCheck from '@/modules/student/components/OnboardingCheck';
-import LoginSessionHistory from '@/modules/student/components/LoginSessionHistory';
+import ActivityOverview from '@/modules/student/components/ActivityOverview';
 import GitHubActivity from '@/modules/student/components/GitHubActivity';
-import EngagementMetrics from '@/modules/student/components/EngagementMetrics';
 
 export default function StudentDashboard() {
   const { user } = useUser();
@@ -39,66 +35,80 @@ export default function StudentDashboard() {
         {/* Header Section */}
         <div className="bg-white dark:bg-dark-surface shadow-sm border-b border-gray-200 dark:border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {t('student.welcome')}, {userName}! 👋
-              </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
-                {t('student.subtitle')}
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {t('student.lastActive')}: <span className="font-medium text-gray-900 dark:text-white">{t('student.todayAt')} 2:30 PM</span>
-              </span>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {t('student.welcome')}, {userName}! 👋
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              {t('student.subtitle')}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Main Dashboard Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Top Row: Current Focus & Progress */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-6">
-          <CurrentFocus />
-          <RoadmapProgress />
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+        {/* RIGHT NOW Section */}
+        <section>
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">
+            Right Now
+          </h2>
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Hero: Current Project - Spans 2 columns */}
+            <div className="lg:col-span-2">
+              <ProjectSummary />
+            </div>
 
-        {/* Second Row: My Courses */}
-        <div className="mb-6">
-          <MyCourses />
-        </div>
+            {/* Upcoming Events - Prioritized */}
+            <div>
+              <CalendarEvents />
+            </div>
+          </div>
+        </section>
 
-        {/* Activity Tracking Row */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-6">
-          <LoginSessionHistory />
-          <GitHubActivity />
-          <EngagementMetrics />
-        </div>
+        {/* THIS WEEK Section */}
+        <section>
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">
+            This Week
+          </h2>
+          <div className="grid lg:grid-cols-3 gap-6 items-start">
+            {/* Activity Overview - Simplified */}
+            <div className="h-full">
+              <ActivityOverview />
+            </div>
 
-        {/* Third Row: Active Tasks & Project */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-6">
-          <ActiveChallenges />
-          <ProjectSummary />
-        </div>
+            {/* GitHub Activity */}
+            <div className="h-full">
+              <GitHubActivity />
+            </div>
 
-        {/* Fourth Row: 3-Column Layout */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-6">
-          <StudyStreak />
-          <CalendarEvents />
-          <Notifications />
-        </div>
+            {/* Course Roadmap */}
+            <div className="h-full">
+              <CourseRoadmap />
+            </div>
+          </div>
+        </section>
 
-        {/* Fifth Row: AI Recommendations */}
-        <div className="mb-6">
-          <AIRecommendations />
-        </div>
+        {/* RESOURCES & PROGRESS Section - Aligned */}
+        <section>
+          <div className="grid lg:grid-cols-3 gap-6 items-start">
+            {/* Recommended Resources - Left side, spans 2 columns */}
+            <div className="lg:col-span-2">
+              <RecommendedResources />
+            </div>
 
-        {/* Bottom Row: Quick Navigation */}
-        <div>
+            {/* Your Progress - Right side */}
+            <div className="space-y-6">
+              <StudyStreak />
+              <Notifications />
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Navigation */}
+        <section>
           <QuickNav />
-        </div>
+        </section>
       </div>
 
         {/* Motivational Footer */}

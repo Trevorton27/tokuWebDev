@@ -79,6 +79,13 @@ export default function LoginSessionHistory() {
     }
   };
 
+  // Separate active and ended sessions
+  const activeSessions = data.recentSessions.filter((s) => s.isActive);
+  const endedSessions = data.recentSessions.filter((s) => !s.isActive);
+
+  // Get the most recent active session (there should ideally be only one)
+  const currentSession = activeSessions.length > 0 ? activeSessions[0] : null;
+
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
@@ -113,63 +120,85 @@ export default function LoginSessionHistory() {
         </div>
       </div>
 
-      {/* Recent Sessions */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Recent Sessions
-        </h3>
-        {data.recentSessions.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            No recent sessions
-          </p>
-        ) : (
-          data.recentSessions.slice(0, 5).map((session, idx) => (
-            <div
-              key={idx}
-              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-surface rounded-lg"
-            >
+      {/* Current Session */}
+      {currentSession && (
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Current Session
+          </h3>
+          <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800/30">
+            <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <span className="text-2xl">
-                  {getDeviceIcon(session.deviceType)}
+                  {getDeviceIcon(currentSession.deviceType)}
                 </span>
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {formatDateTime(session.loginAt)}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {session.browser} • {session.deviceType}
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                {session.isActive ? (
-                  <>
+                  <div className="flex items-center gap-2 mb-1">
                     <div className="flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
                       <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                       </span>
-                      Active
+                      Active Now
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {formatDuration(session.duration)}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Ended
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {formatDuration(session.duration)}
-                    </div>
-                  </>
-                )}
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                    {currentSession.browser} • {currentSession.deviceType}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Started {formatDateTime(currentSession.loginAt)}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  {formatDuration(currentSession.duration)}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  session time
+                </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          </div>
+        </div>
+      )}
+
+      {/* Session Timeline */}
+      {endedSessions.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Recent Activity
+          </h3>
+          <div className="space-y-2">
+            {endedSessions.slice(0, 4).map((session, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-surface rounded-lg hover:bg-gray-100 dark:hover:bg-dark-border/30 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-lg opacity-60">
+                    {getDeviceIcon(session.deviceType)}
+                  </span>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {formatDateTime(session.loginAt)}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {session.browser} • {formatDuration(session.duration)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!currentSession && endedSessions.length === 0 && (
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+          No session activity found
+        </p>
+      )}
     </div>
   );
 }

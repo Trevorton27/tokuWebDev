@@ -32,6 +32,27 @@ export async function createLoginSession(
     const deviceType = parseDeviceType(userAgent);
     const browser = parseBrowser(userAgent);
 
+    // End any other active sessions for this user before creating new one
+    // This prevents multiple active sessions accumulating
+    const closedSessions = await prisma.loginSession.updateMany({
+      where: {
+        userId,
+        isActive: true,
+        sessionToken: { not: sessionToken || null },
+      },
+      data: {
+        logoutAt: new Date(),
+        isActive: false,
+      },
+    });
+
+    if (closedSessions.count > 0) {
+      logger.info('Closed previous active sessions', {
+        userId,
+        count: closedSessions.count,
+      });
+    }
+
     const session = await prisma.loginSession.create({
       data: {
         userId,
@@ -243,17 +264,17 @@ export async function getSessionStatistics(
 }
 
 /**
- * End stale sessions (inactive for more than 24 hours)
+ * End stale sessions (inactive for more than 30 minutes)
  * Should be run periodically as a cleanup job
  */
 export async function endStaleSessions(): Promise<number> {
   try {
-    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
     const result = await prisma.loginSession.updateMany({
       where: {
         isActive: true,
-        lastActivity: { lt: dayAgo },
+        lastActivity: { lt: thirtyMinutesAgo },
       },
       data: {
         isActive: false,
