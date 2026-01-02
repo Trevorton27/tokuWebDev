@@ -119,7 +119,7 @@ export default function AssignCourseModal({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">-- Select a course --</option>
-                {courses.map((course) => (
+                {(courses || []).map((course) => (
                   <option key={course.id} value={course.id}>
                     {course.title} {!course.published && '(Draft)'}
                     {course.instructor.name && ` - Currently: ${course.instructor.name}`}

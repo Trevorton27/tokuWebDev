@@ -1,0 +1,142 @@
+/* react-big-calendar dark mode and custom styles */
+
+/* Light mode styles */
+.rbc-calendar {
+  background-color: transparent;
+}
+
+.rbc-header {
+  padding: 10px 3px;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.rbc-today {
+  background-color: #eff6ff;
+}
+
+.rbc-off-range-bg {
+  background-color: #f9fafb;
+}
+
+.rbc-event {
+  cursor: pointer;
+}
+
+.rbc-event:hover {
+  opacity: 1 !important;
+}
+
+.rbc-toolbar button {
+  color: #374151;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f3f4f6;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* Dark mode styles */
+.dark .rbc-header {
+  color: #e5e7eb;
+  border-bottom-color: #374151;
+}
+
+.dark .rbc-today {
+  background-color: #1e3a8a;
+}
+
+.dark .rbc-off-range-bg {
+  background-color: #111827;
+}
+
+.dark .rbc-month-view,
+.dark .rbc-time-view,
+.dark .rbc-agenda-view {
+  background-color: transparent;
+  color: #e5e7eb;
+}
+
+.dark .rbc-day-bg {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.dark .rbc-month-row {
+  border-color: #374151;
+}
+
+.dark .rbc-day-slot .rbc-time-slot {
+  border-color: #374151;
+}
+
+.dark .rbc-time-header-content {
+  border-left-color: #374151;
+}
+
+.dark .rbc-current-time-indicator {
+  background-color: #3b82f6;
+}
+
+.dark .rbc-toolbar button {
+  color: #e5e7eb;
+  border-color: #4b5563;
+  background-color: #374151;
+}
+
+.dark .rbc-toolbar button:hover {
+  background-color: #4b5563;
+}
+
+.dark .rbc-toolbar button.rbc-active {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.dark .rbc-toolbar-label {
+  color: #f3f4f6;
+}
+
+.dark .rbc-agenda-view table {
+  border-color: #374151;
+}
+
+.dark .rbc-agenda-view table thead {
+  background-color: #1f2937;
+}
+
+.dark .rbc-agenda-view table tbody tr {
+  border-color: #374151;
+}
+
+.dark .rbc-agenda-date-cell,
+.dark .rbc-agenda-time-cell {
+  color: #9ca3af;
+}
+
+.dark .rbc-agenda-event-cell {
+  color: #e5e7eb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .rbc-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rbc-toolbar-label {
+    margin: 10px 0;
+  }
+}

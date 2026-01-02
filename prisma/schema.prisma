@@ -21,6 +21,12 @@ model User {
   githubRepoUrl             String?
   githubWebhookToken        String?
   githubPersonalAccessToken String?
+  googleAccessToken          String?             // Encrypted Google OAuth access token
+  googleRefreshToken         String?             // Encrypted Google OAuth refresh token
+  googleTokenExpiry          DateTime?           // When the access token expires
+  googleCalendarSyncEnabled  Boolean             @default(false)
+  googleCalendarId           String?             // Google Calendar ID (usually "primary")
+  googleCalendarLastSync     DateTime?           // Last successful sync timestamp
   roadmapDocumentId         String?              // Google Docs document ID for student's personalized roadmap
   interests                 String[]             @default([]) // Student's interests/tags for project recommendations
   shortTermGoal             String?              // Student's short-term learning goal
@@ -40,6 +46,7 @@ model User {
   githubEvents       GitHubEvent[]        @relation("UserGitHubEvents")
   activityMetrics    ActivityMetric[]     @relation("UserActivityMetrics")
   connectedRepos     ConnectedRepository[] @relation("UserConnectedRepos")
+  createdEvents      CalendarEvent[]      @relation("CreatedEvents")
 
   @@index([email])
   @@index([clerkId])
@@ -58,6 +65,7 @@ model Course {
   instructor   User         @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
   enrollments  Enrollment[]
   lessons      Lesson[]
+  calendarEvents CalendarEvent[] @relation("CourseEvents")
 
   @@index([instructorId])
   @@index([published])
@@ -392,4 +400,54 @@ model ConnectedRepository {
   @@unique([userId, repoName])
   @@index([userId])
   @@index([isActive])
+}
+
+model CalendarEvent {
+  id                String        @id @default(cuid())
+  title             String
+  description       String?
+  startTime         DateTime
+  endTime           DateTime
+  location          String?
+  meetingUrl        String?
+  eventType         EventType
+  createdBy         String        // User ID of creator
+  createdByRole     Role          // Role of creator (ADMIN, INSTRUCTOR, STUDENT)
+  isAllDay          Boolean       @default(false)
+  recurrence        String?       // RRULE string for recurring events
+  googleEventId     String?       @unique // Google Calendar event ID for sync
+  googleCalendarId  String?       // Google Calendar ID where event is stored
+  courseId          String?       // Optional: link to specific course
+  attendees         String[]      @default([]) // Array of user IDs who should see this event
+  visibility        EventVisibility @default(PUBLIC)
+  reminderMinutes   Int?          // Minutes before event to send reminder
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  creator           User          @relation("CreatedEvents", fields: [createdBy], references: [id], onDelete: Cascade)
+  course            Course?       @relation("CourseEvents", fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([createdBy])
+  @@index([courseId])
+  @@index([startTime])
+  @@index([eventType])
+  @@index([visibility])
+}
+
+enum EventType {
+  MEETING           // Scheduled meeting/office hours
+  DEADLINE          // Assignment/project deadline
+  LIVE_CODING       // Live coding session
+  QA_SESSION        // Q&A session
+  WORKSHOP          // Workshop or special session
+  STUDY_TIME        // Personal study time (student-created)
+  EXAM              // Exam or assessment
+  HOLIDAY           // Holiday/break
+  OTHER             // Other event types
+}
+
+enum EventVisibility {
+  PUBLIC            // Visible to all students
+  COURSE            // Visible to students in specific course
+  PRIVATE           // Visible only to creator
 }

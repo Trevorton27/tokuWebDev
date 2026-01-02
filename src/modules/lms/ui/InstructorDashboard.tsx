@@ -62,7 +62,7 @@ export default function InstructorDashboard() {
         </div>
       ) : (
         <div className="grid gap-6">
-          {courses.map((course) => (
+          {(courses || []).map((course) => (
             <div
               key={course.id}
               className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition"

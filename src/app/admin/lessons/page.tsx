@@ -196,7 +196,7 @@ export default function LessonManagement() {
             className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="all">All Courses</option>
-            {courses.map((course) => (
+            {(courses || []).map((course) => (
               <option key={course.id} value={course.id}>
                 {course.title}
               </option>
@@ -394,7 +394,7 @@ export default function LessonManagement() {
                     required
                   >
                     <option value="">Select a course</option>
-                    {courses.map((course) => (
+                    {(courses || []).map((course) => (
                       <option key={course.id} value={course.id}>
                         {course.title}
                       </option>

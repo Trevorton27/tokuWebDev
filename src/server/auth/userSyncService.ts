@@ -77,8 +77,14 @@ export async function getOrCreateUser(userData: ClerkUserData) {
     logger.info('New user created from Clerk', { userId: user.id, clerkId: userData.clerkId });
     return user;
   } catch (error) {
-    logger.error('Failed to get or create user', error, { clerkId: userData.clerkId });
-    throw new Error('Failed to sync user with database');
+    logger.error('Failed to get or create user', error, {
+      clerkId: userData.clerkId,
+      email: userData.email,
+      role: userData.role,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+    // Re-throw the original error for better debugging
+    throw error;
   }
 }
 
