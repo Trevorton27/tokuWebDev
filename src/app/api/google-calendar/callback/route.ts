@@ -21,14 +21,14 @@ export async function GET(request: NextRequest) {
     if (error) {
       logger.warn('Google Calendar OAuth denied by user', { error });
       return NextResponse.redirect(
-        new URL('/student/settings?error=google_calendar_denied', request.url)
+        new URL('/student/calendar-config?error=google_calendar_denied', request.url)
       );
     }
 
     if (!code || !state) {
       logger.error('Missing code or state in OAuth callback');
       return NextResponse.redirect(
-        new URL('/student/settings?error=invalid_callback', request.url)
+        new URL('/student/calendar-config?error=invalid_callback', request.url)
       );
     }
 
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     } catch (err) {
       logger.error('Invalid state parameter in OAuth callback', err);
       return NextResponse.redirect(
-        new URL('/student/settings?error=invalid_state', request.url)
+        new URL('/student/calendar-config?error=invalid_state', request.url)
       );
     }
 
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     ) {
       logger.error('Google Calendar OAuth environment variables not configured');
       return NextResponse.redirect(
-        new URL('/student/settings?error=config_error', request.url)
+        new URL('/student/calendar-config?error=config_error', request.url)
       );
     }
 
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
         hasExpiry: !!tokens.expiry_date,
       });
       return NextResponse.redirect(
-        new URL('/student/settings?error=incomplete_tokens', request.url)
+        new URL('/student/calendar-config?error=incomplete_tokens', request.url)
       );
     }
 
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
 
     // Redirect to success page
     return NextResponse.redirect(
-      new URL('/student/settings?success=google_calendar_connected', request.url)
+      new URL('/student/calendar-config?success=google_calendar_connected', request.url)
     );
   } catch (error: any) {
     logger.error('Google Calendar OAuth callback failed', error);
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
     // Redirect to error page
     return NextResponse.redirect(
       new URL(
-        `/student/settings?error=${encodeURIComponent(error.message || 'callback_failed')}`,
+        `/student/calendar-config?error=${encodeURIComponent(error.message || 'callback_failed')}`,
         request.url
       )
     );

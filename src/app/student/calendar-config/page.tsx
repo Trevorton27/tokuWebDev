@@ -25,7 +25,7 @@ function SettingsContent() {
         message: 'Google Calendar connected successfully! Your events will now sync automatically.',
       });
       // Clear URL parameters
-      router.replace('/student/settings');
+      router.replace('/student/calendar-config');
     } else if (error) {
       const errorMessages: Record<string, string> = {
         google_calendar_denied: 'Google Calendar connection was denied.',
@@ -40,7 +40,7 @@ function SettingsContent() {
         message: errorMessages[error] || `Error: ${error}`,
       });
       // Clear URL parameters
-      router.replace('/student/settings');
+      router.replace('/student/calendar-config');
     }
   }, [searchParams, router]);
 
@@ -62,9 +62,9 @@ function SettingsContent() {
       <div className="bg-white dark:bg-dark-surface shadow-sm border-b border-gray-200 dark:border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar Integration</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              Manage your account and integration settings
+              Connect your Google Calendar to receive notifications and sync events
             </p>
           </div>
         </div>
@@ -103,39 +103,20 @@ function SettingsContent() {
           </div>
         )}
 
-        {/* Settings Sections */}
-        <div className="space-y-6">
-          {/* Google Calendar Integration */}
-          {user?.id && <GoogleCalendarSettings userId={user.id} />}
-
-          {/* Account Settings Placeholder */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
-            <p className="text-sm text-gray-600">
-              Additional account settings coming soon...
-            </p>
-          </div>
-
-          {/* Notification Preferences Placeholder */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Notification Preferences</h2>
-            <p className="text-sm text-gray-600">
-              Notification preferences coming soon...
-            </p>
-          </div>
-        </div>
+        {/* Google Calendar Integration */}
+        {user?.id && <GoogleCalendarSettings userId={user.id} />}
       </div>
     </div>
   );
 }
 
-export default function StudentSettings() {
+export default function CalendarConfigPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
         <div className="bg-white dark:bg-dark-surface shadow-sm border-b border-gray-200 dark:border-dark-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar Integration</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">Loading...</p>
           </div>
         </div>

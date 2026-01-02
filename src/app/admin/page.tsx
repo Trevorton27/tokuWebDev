@@ -308,6 +308,12 @@ export default function AdminDashboard() {
                 >
                   + Create Roadmap
                 </Link>
+                <Link
+                  href="/admin/calendar"
+                  className="px-4 py-2 bg-teal-600 dark:bg-teal-700 text-white rounded-md hover:bg-teal-700 dark:hover:bg-teal-800 transition-colors"
+                >
+                  Manage Calendar
+                </Link>
               </div>
             </div>
           </>

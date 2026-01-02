@@ -283,7 +283,7 @@ export default function StudentCalendarPage() {
               </div>
             </div>
             <a
-              href="/student/settings"
+              href="/student/calendar-config"
               className={`text-xs font-medium px-3 py-1.5 rounded-md transition-colors ${
                 googleCalendarStatus.connected
                   ? 'text-blue-700 dark:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-900/40'
