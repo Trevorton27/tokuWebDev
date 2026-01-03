@@ -6,6 +6,7 @@ import { useSessionTracking } from '@/hooks/useSessionTracking';
 import Link from 'next/link';
 import StudentActivityTable from '@/modules/instructor/components/StudentActivityTable';
 import AtRiskAlerts from '@/modules/instructor/components/AtRiskAlerts';
+import CalendarEvents from '@/components/calendar/CalendarEvents';
 
 export default function InstructorDashboard() {
   const { user } = useUser();
@@ -335,21 +336,7 @@ export default function InstructorDashboard() {
           </div>
 
           {/* 9. Schedule & Upcoming Sessions */}
-          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">{t('instructor.schedule')}</h2>
-            {/* TODO: Integrate with Google Calendar API to fetch events */}
-            {/* TODO: Generate Zoom links or pull from calendar event metadata */}
-            {/* TODO: Allow navigation to "Manage schedule" page */}
-            <div className="space-y-3">
-              {schedule.map((event) => (
-                <div key={event.id} className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-3 border border-purple-200">
-                  <h3 className="font-semibold text-gray-900 text-sm">{event.title}</h3>
-                  <p className="text-xs text-gray-600 mt-1">{event.date}</p>
-                  <span className="text-xs px-2 py-0.5 mt-2 inline-block rounded bg-purple-100 text-purple-700">{event.type}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CalendarEvents configPath="/instructor/calendar-config" />
 
           {/* 10. Announcements & Broadcast */}
           <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
+import Link from 'next/link';
 import AdminCalendarGrid from '@/components/calendar/AdminCalendarGrid';
 import AdminCalendarTable from '@/components/calendar/AdminCalendarTable';
 import EventFormModal from '@/components/calendar/EventFormModal';
@@ -202,6 +203,15 @@ export default function AdminCalendarPage() {
           >
             Table View
           </button>
+          <Link
+            href="/admin/calendar/list"
+            className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium inline-flex items-center"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            View and Manage Event List
+          </Link>
           <button
             onClick={handleCreateEvent}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -310,6 +320,19 @@ export default function AdminCalendarPage() {
             setSelectedEvent(null);
           }}
           onSave={handleSaveEvent}
+          onDelete={async (eventId: string) => {
+            try {
+              const response = await axios.delete(`/api/calendar/events/${eventId}`);
+              if (response.data.success) {
+                showMessage('success', 'Event deleted successfully and removed from all users\' Google Calendars');
+                fetchEvents();
+              }
+            } catch (error: any) {
+              console.error('Failed to delete event:', error);
+              const errorMessage = error.response?.data?.error || 'Failed to delete event';
+              showMessage('error', errorMessage);
+            }
+          }}
         />
       )}
 

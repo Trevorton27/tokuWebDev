@@ -78,7 +78,12 @@ export async function GET(request: NextRequest) {
         { visibility: 'PUBLIC' },
         { createdBy: user.id },
         { courseId: { in: courseIds } },
-        { attendees: { has: user.id } }
+        {
+          AND: [
+            { visibility: 'CUSTOM' },
+            { attendees: { has: user.id } }
+          ]
+        }
       ];
     } else {
       // Students see:
@@ -106,9 +111,19 @@ export async function GET(request: NextRequest) {
             { createdBy: user.id }
           ]
         },
-        { attendees: { has: user.id } }
+        {
+          AND: [
+            { visibility: 'CUSTOM' },
+            { attendees: { has: user.id } }
+          ]
+        }
       ];
     }
+
+    console.log('🔍 Calendar Events API - Query Details:');
+    console.log('User ID:', user.id);
+    console.log('User Role:', user.role);
+    console.log('Where Clause:', JSON.stringify(where, null, 2));
 
     // Fetch events
     const events = await prisma.calendarEvent.findMany({
@@ -133,6 +148,18 @@ export async function GET(request: NextRequest) {
         startTime: 'asc'
       }
     });
+
+    console.log('📊 Events Found:', events.length);
+    console.log('Event Details:', events.map(e => ({
+      id: e.id,
+      title: e.title,
+      visibility: e.visibility,
+      eventType: e.eventType,
+      startTime: e.startTime,
+      attendees: (e as any).attendees,
+      createdBy: e.createdBy,
+      courseId: e.courseId
+    })));
 
     return NextResponse.json({
       success: true,
@@ -210,6 +237,14 @@ export async function POST(request: NextRequest) {
     if (start >= end) {
       return NextResponse.json(
         { success: false, error: 'End time must be after start time' },
+        { status: 400 }
+      );
+    }
+
+    // Validate CUSTOM visibility requires attendees
+    if (visibility === 'CUSTOM' && (!attendees || attendees.length === 0)) {
+      return NextResponse.json(
+        { success: false, error: 'CUSTOM visibility requires at least one attendee' },
         { status: 400 }
       );
     }

@@ -47,6 +47,7 @@ model User {
   activityMetrics    ActivityMetric[]     @relation("UserActivityMetrics")
   connectedRepos     ConnectedRepository[] @relation("UserConnectedRepos")
   createdEvents      CalendarEvent[]      @relation("CreatedEvents")
+  studentProjects    StudentProject[]     @relation("UserProjects")
 
   @@index([email])
   @@index([clerkId])
@@ -450,4 +451,121 @@ enum EventVisibility {
   PUBLIC            // Visible to all students
   COURSE            // Visible to students in specific course
   PRIVATE           // Visible only to creator
+  CUSTOM            // Visible to custom list of attendees
+}
+
+model StudentProject {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("UserProjects", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Repository info
+  repoUrl         String
+  repoFullName    String   // "username/repo"
+  repoOwner       String   // GitHub username
+  repoName        String   // Repository name
+  defaultBranch   String   @default("main")
+
+  // Project metadata
+  title           String
+  description     String?
+  status          ProjectStatus @default(IN_PROGRESS)
+  isCurrent       Boolean  @default(false) // Is this the student's current active project?
+
+  // GitHub data (cached from API)
+  lastCommitSha   String?
+  lastCommitMsg   String?
+  lastCommitDate  DateTime?
+  totalCommits    Int      @default(0)
+  openPRs         Int      @default(0)
+  closedPRs       Int      @default(0)
+
+  // Deployment tracking
+  lastDeployment  DateTime?
+  deploymentUrl   String?
+  deploymentStatus DeploymentStatus?
+
+  // Milestones
+  milestones      ProjectMilestone[]
+
+  // Activity timeline
+  activities      ProjectActivity[] @relation("ProjectActivities")
+
+  // Sync metadata
+  lastSyncedAt    DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([isCurrent])
+  @@index([userId, isCurrent])
+}
+
+model ProjectMilestone {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     StudentProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  order       Int      // Display order
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+
+  // Auto-completion criteria (optional)
+  linkedToBranch  String?  // Complete when branch merged to main
+  linkedToFile    String?  // Complete when file exists in repo
+  linkedToCommitMsg String? // Complete when commit message contains this pattern (regex)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([projectId, order])
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+  ARCHIVED
+}
+
+enum DeploymentStatus {
+  SUCCESS
+  FAILED
+  IN_PROGRESS
+  PENDING
+}
+
+model ProjectActivity {
+  id           String       @id @default(cuid())
+  projectId    String
+  project      StudentProject @relation("ProjectActivities", fields: [projectId], references: [id], onDelete: Cascade)
+
+  activityType ActivityType
+  title        String       // Brief description (e.g., "Pushed 3 commits")
+  description  String?      // Longer description (e.g., commit message)
+  metadata     Json?        // Extra data (commit SHA, PR number, branch name, etc.)
+  url          String?      // Link to GitHub (commit, PR, etc.)
+
+  timestamp    DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+
+  @@index([projectId])
+  @@index([projectId, timestamp])
+  @@index([activityType])
+}
+
+enum ActivityType {
+  COMMIT
+  PULL_REQUEST_OPENED
+  PULL_REQUEST_MERGED
+  PULL_REQUEST_CLOSED
+  DEPLOYMENT_SUCCESS
+  DEPLOYMENT_FAILED
+  MILESTONE_COMPLETED
 }

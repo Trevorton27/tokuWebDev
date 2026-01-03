@@ -5,7 +5,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useSessionTracking } from '@/hooks/useSessionTracking';
 import ProjectSummary from '@/modules/student/components/ProjectSummary';
 import CourseRoadmap from '@/modules/student/components/CourseRoadmap';
-import CalendarEvents from '@/modules/student/components/CalendarEvents';
+import CalendarEvents from '@/components/calendar/CalendarEvents';
 import StudyStreak from '@/modules/student/components/StudyStreak';
 import RecommendedResources from '@/modules/student/components/RecommendedResources';
 import Notifications from '@/modules/student/components/Notifications';
@@ -61,7 +61,7 @@ export default function StudentDashboard() {
 
             {/* Upcoming Events - Prioritized */}
             <div>
-              <CalendarEvents />
+              <CalendarEvents configPath="/student/calendar-config" />
             </div>
           </div>
         </section>

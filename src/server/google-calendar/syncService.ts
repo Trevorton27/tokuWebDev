@@ -48,6 +48,12 @@ export async function syncEventToGoogleCalendar(
   event: CalendarEvent
 ): Promise<SyncResult> {
   try {
+    console.log(`🔄 syncEventToGoogleCalendar called for event "${event.title}" (${event.id})`, {
+      userId,
+      visibility: event.visibility,
+      hasGoogleEventId: !!event.googleEventId,
+    });
+
     // Check if user has sync enabled
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -58,6 +64,7 @@ export async function syncEventToGoogleCalendar(
     });
 
     if (!user || !user.googleCalendarSyncEnabled) {
+      console.log(`  ⏭️  Skipping - sync not enabled for user ${userId}`);
       return { success: true }; // Skip if sync not enabled
     }
 
@@ -80,19 +87,51 @@ export async function syncEventToGoogleCalendar(
     let googleEventId: string;
 
     if (event.googleEventId) {
-      // Update existing event
-      const result = await retryWithBackoff(async () => {
-        return await client.updateEvent(calendarId, event.googleEventId!, googleEvent);
-      });
-      googleEventId = result.id!;
+      // Try to update existing event
+      console.log(`  📝 Attempting to update existing event in Google Calendar (googleEventId: ${event.googleEventId})`);
+      try {
+        const result = await retryWithBackoff(async () => {
+          return await client.updateEvent(calendarId, event.googleEventId!, googleEvent);
+        });
+        googleEventId = result.id!;
 
-      logger.info('Event updated in Google Calendar', {
-        userId,
-        eventId: event.id,
-        googleEventId,
-      });
+        console.log(`  ✅ Event updated successfully (googleEventId: ${googleEventId})`);
+        logger.info('Event updated in Google Calendar', {
+          userId,
+          eventId: event.id,
+          googleEventId,
+        });
+      } catch (updateError: any) {
+        // If event not found (404), fall back to creating a new event
+        if (updateError instanceof GoogleCalendarNotFoundError) {
+          console.log(`  ⚠️  Event not found in Google Calendar, creating new event instead`);
+
+          const result = await retryWithBackoff(async () => {
+            return await client.createEvent(calendarId, googleEvent);
+          });
+          googleEventId = result.id!;
+
+          // Update the database with new Google event ID
+          await prisma.calendarEvent.update({
+            where: { id: event.id },
+            data: { googleEventId, googleCalendarId: calendarId },
+          });
+
+          console.log(`  ✨ New event created successfully (googleEventId: ${googleEventId})`);
+          logger.info('Event created in Google Calendar (after 404)', {
+            userId,
+            eventId: event.id,
+            googleEventId,
+            oldGoogleEventId: event.googleEventId,
+          });
+        } else {
+          // Re-throw other errors
+          throw updateError;
+        }
+      }
     } else {
       // Create new event
+      console.log(`  ✨ Creating new event in Google Calendar`);
       const result = await retryWithBackoff(async () => {
         return await client.createEvent(calendarId, googleEvent);
       });
@@ -104,6 +143,7 @@ export async function syncEventToGoogleCalendar(
         data: { googleEventId, googleCalendarId: calendarId },
       });
 
+      console.log(`  ✅ Event created successfully and googleEventId stored (googleEventId: ${googleEventId})`);
       logger.info('Event created in Google Calendar', {
         userId,
         eventId: event.id,
@@ -111,8 +151,10 @@ export async function syncEventToGoogleCalendar(
       });
     }
 
+    console.log(`  ✅ Returning success for event "${event.title}"`);
     return { success: true, googleEventId };
   } catch (error: any) {
+    console.log(`  ❌ Error syncing event "${event.title}":`, error.message, error);
     logger.error('Failed to sync event to Google Calendar', error, {
       userId,
       eventId: event.id,
@@ -120,6 +162,7 @@ export async function syncEventToGoogleCalendar(
 
     // Handle auth errors by disabling sync
     if (error instanceof GoogleCalendarAuthError) {
+      console.log(`  🔐 Auth error - disabling sync for user ${userId}`);
       await disableSync(userId);
       return {
         success: false,
@@ -127,6 +170,7 @@ export async function syncEventToGoogleCalendar(
       };
     }
 
+    console.log(`  ❌ Returning failure:`, error.message);
     return {
       success: false,
       error: error.message || 'Failed to sync event',
@@ -227,6 +271,18 @@ export async function batchSyncEvents(userId: string): Promise<BatchSyncResult> 
     const events = await getEventsVisibleToUser(userId);
     result.total = events.length;
 
+    console.log('📅 Starting batch sync:', {
+      userId,
+      totalEvents: events.length,
+      eventTitles: events.map(e => ({
+        id: e.id,
+        title: e.title,
+        visibility: e.visibility,
+        hasGoogleEventId: !!e.googleEventId,
+        attendees: e.attendees,
+      })),
+    });
+
     logger.info('Starting batch sync', { userId, totalEvents: events.length });
 
     // Process events in batches to avoid overwhelming the API
@@ -241,28 +297,39 @@ export async function batchSyncEvents(userId: string): Promise<BatchSyncResult> 
 
       // Tally results
       results.forEach((promiseResult, index) => {
+        const event = batch[index];
+        console.log(`🔍 Sync result for event "${event.title}" (${event.id}):`, {
+          status: promiseResult.status,
+          hadGoogleEventId: !!event.googleEventId,
+        });
+
         if (promiseResult.status === 'fulfilled') {
           const syncResult = promiseResult.value;
+          console.log('  ✅ Promise fulfilled, syncResult:', syncResult);
+
           if (syncResult.success) {
-            const event = batch[index];
             if (event.googleEventId) {
               result.updated++;
+              console.log('  📝 Counted as UPDATED (had googleEventId)');
             } else {
               result.created++;
+              console.log('  ✨ Counted as CREATED (no googleEventId before)');
             }
           } else {
             result.failed++;
             result.errors.push({
-              eventId: batch[index].id,
+              eventId: event.id,
               error: syncResult.error || 'Unknown error',
             });
+            console.log('  ❌ Counted as FAILED:', syncResult.error);
           }
         } else {
           result.failed++;
           result.errors.push({
-            eventId: batch[index].id,
+            eventId: event.id,
             error: promiseResult.reason?.message || 'Unknown error',
           });
+          console.log('  ❌ Promise rejected:', promiseResult.reason?.message);
         }
       });
 
@@ -465,7 +532,15 @@ async function getUsersWhoShouldSeeEvent(
     );
   }
 
-  // Attendees
+  if (event.visibility === 'CUSTOM') {
+    // Only users explicitly listed in attendees array
+    if (event.attendees && event.attendees.length > 0) {
+      return syncEnabledUsers.filter((u) => event.attendees.includes(u.id));
+    }
+    return [];
+  }
+
+  // Fallback: check attendees array (for backwards compatibility)
   if (event.attendees && event.attendees.length > 0) {
     return syncEnabledUsers.filter((u) => event.attendees.includes(u.id));
   }

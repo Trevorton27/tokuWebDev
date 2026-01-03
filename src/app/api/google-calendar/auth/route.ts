@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     const authUrl = oauth2Client.generateAuthUrl({
       access_type: 'offline', // Gets refresh token
       scope: [
-        'https://www.googleapis.com/auth/calendar.events', // Manage calendar events
+        'https://www.googleapis.com/auth/calendar', // Full calendar access (read/write)
         'https://www.googleapis.com/auth/userinfo.email', // Get user email
       ],
       state: stateWithUser,

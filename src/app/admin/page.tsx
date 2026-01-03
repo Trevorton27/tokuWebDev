@@ -277,6 +277,13 @@ export default function AdminDashboard() {
                   icon="🗺️"
                   color="border-pink-500 dark:border-pink-400"
                 />
+                <ManagementCard
+                  title="Calendar Events"
+                  description="View and manage event list with Google Calendar sync"
+                  href="/admin/calendar"
+                  icon="📅"
+                  color="border-teal-500 dark:border-teal-400"
+                />
               </div>
             </div>
 

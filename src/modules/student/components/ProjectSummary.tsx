@@ -1,48 +1,109 @@
+'use client';
+
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import useSWR from 'swr';
+import { formatDistanceToNow } from 'date-fns';
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ProjectSummary() {
   const { t } = useLanguage();
-  // TODO: Fetch project data from DB (projects, student_projects tables)
-  // TODO: Query: SELECT * FROM student_projects WHERE student_id = ? AND status = 'active' LIMIT 1
-  // TODO: Populate last commit via GitHub webhook logs
-  // TODO: Query: SELECT timestamp FROM github_webhooks WHERE repo_url = ? ORDER BY timestamp DESC LIMIT 1
-  // TODO: Replace checklist with dynamic milestones from project_milestones table
 
-  // Placeholder data
-  const project = {
-    name: 'E-commerce Dashboard',
-    githubRepo: 'https://github.com/username/ecommerce-dashboard',
-    instructionsUrl: '/projects/proj-001/instructions',
-    lastCommit: '2 hours ago',
-    status: 'in-progress',
+  // Fetch current project from API
+  const { data, error, isLoading } = useSWR('/api/student/current-project', fetcher, {
+    refreshInterval: 30000, // Refresh every 30 seconds
+  });
+
+  if (isLoading) {
+    return (
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 border-2 border-blue-100 dark:border-blue-900/30">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data?.success) {
+    return (
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 border-2 border-red-100 dark:border-red-900/30">
+        <div className="text-center text-red-600 dark:text-red-400">
+          <p>Failed to load current project</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-2 text-sm underline hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const project = data.project;
+
+  // No current project set
+  if (!project) {
+    return (
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 border-2 border-gray-100 dark:border-gray-800">
+        <div className="text-center py-8">
+          <svg className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            No Active Project
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            Link your first GitHub repository to track your progress
+          </p>
+          <Link
+            href="/student/projects"
+            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Link Project
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const milestones = project.milestones || [];
+
+  // Format status badge
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, { bg: string; text: string; label: string }> = {
+      IN_PROGRESS: { bg: 'bg-blue-100 dark:bg-blue-900/50', text: 'text-blue-700 dark:text-blue-300', label: t('student.inProgress') },
+      NOT_STARTED: { bg: 'bg-gray-100 dark:bg-gray-900/50', text: 'text-gray-700 dark:text-gray-300', label: 'Not Started' },
+      BLOCKED: { bg: 'bg-red-100 dark:bg-red-900/50', text: 'text-red-700 dark:text-red-300', label: 'Blocked' },
+      COMPLETED: { bg: 'bg-green-100 dark:bg-green-900/50', text: 'text-green-700 dark:text-green-300', label: 'Completed' },
+      ARCHIVED: { bg: 'bg-gray-100 dark:bg-gray-900/50', text: 'text-gray-700 dark:text-gray-300', label: 'Archived' },
+    };
+    return statusMap[status] || statusMap.IN_PROGRESS;
   };
 
-  const milestones = [
-    { id: 1, title: 'Setup', completed: true },
-    { id: 2, title: 'Product Listing Feature', completed: true },
-    { id: 3, title: 'Shopping Cart', completed: false },
-    { id: 4, title: 'Checkout Flow', completed: false },
-    { id: 5, title: 'Deployment', completed: false },
-  ];
+  const statusBadge = getStatusBadge(project.status);
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 border-2 border-blue-100 dark:border-blue-900/30 hover:border-blue-200 dark:hover:border-blue-800/40 transition-colors">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('student.currentProject')}</h2>
-        <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold px-3 py-1.5 rounded-full capitalize">
-          {project.status === 'in-progress' ? t('student.inProgress') : project.status}
+        <span className={`${statusBadge.bg} ${statusBadge.text} text-xs font-semibold px-3 py-1.5 rounded-full`}>
+          {statusBadge.label}
         </span>
       </div>
 
       {/* Project Info */}
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{project.name}</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{project.title}</h3>
 
         <div className="space-y-2">
           {/* GitHub Repo Link */}
           <a
-            href={project.githubRepo}
+            href={project.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
@@ -53,23 +114,41 @@ export default function ProjectSummary() {
             {t('student.viewRepository')}
           </a>
 
-          {/* Instructions Link */}
-          <Link
-            href={project.instructionsUrl}
-            className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            {t('student.projectInstructions')}
-          </Link>
+          {/* Project Description */}
+          {project.description && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+              {project.description}
+            </p>
+          )}
 
           {/* Last Commit */}
-          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {t('student.lastCommit')}: {project.lastCommit}
+          {project.lastCommitDate && (
+            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {t('student.lastCommit')}: {formatDistanceToNow(new Date(project.lastCommitDate))} ago
+            </div>
+          )}
+
+          {/* Commit Message */}
+          {project.lastCommitMsg && (
+            <div className="text-xs text-gray-500 dark:text-gray-500 italic truncate">
+              &quot;{project.lastCommitMsg}&quot;
+            </div>
+          )}
+
+          {/* GitHub Stats */}
+          <div className="flex gap-4 text-xs text-gray-500 dark:text-gray-400">
+            {project.totalCommits > 0 && (
+              <span>{project.totalCommits} commits</span>
+            )}
+            {project.openPRs > 0 && (
+              <span>{project.openPRs} open PRs</span>
+            )}
+            {project.closedPRs > 0 && (
+              <span>{project.closedPRs} merged PRs</span>
+            )}
           </div>
         </div>
       </div>
@@ -77,42 +156,64 @@ export default function ProjectSummary() {
       {/* Milestones Checklist */}
       <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-5 border border-gray-200 dark:border-gray-800/50">
         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">{t('student.projectMilestones')}</h4>
-        <div className="space-y-2.5">
-          {milestones.map((milestone, index) => (
-            <div key={milestone.id} className="flex items-center">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
-                milestone.completed
-                  ? 'bg-green-500 dark:bg-green-600'
-                  : 'bg-gray-300 dark:bg-gray-700'
-              }`}>
-                {milestone.completed && (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-              <span className={`text-sm ${
-                milestone.completed ? 'text-gray-500 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-white font-medium'
-              }`}>
-                {milestone.title}
-              </span>
+
+        {milestones.length > 0 ? (
+          <>
+            <div className="space-y-2.5">
+              {milestones.map((milestone: any) => (
+                <div key={milestone.id} className="flex items-center">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
+                    milestone.completed
+                      ? 'bg-green-500 dark:bg-green-600'
+                      : 'bg-gray-300 dark:bg-gray-700'
+                  }`}>
+                    {milestone.completed && (
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <span className={`text-sm ${
+                      milestone.completed ? 'text-gray-500 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-white font-medium'
+                    }`}>
+                      {milestone.title}
+                    </span>
+                    {milestone.description && (
+                      <p className="text-xs text-gray-500 dark:text-gray-600 mt-0.5">
+                        {milestone.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 mb-2">
-            <span>{t('student.progress')}</span>
-            <span className="font-semibold">
-              {milestones.filter(m => m.completed).length} / {milestones.length}
-            </span>
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 mb-2">
+                <span>{t('student.progress')}</span>
+                <span className="font-semibold">
+                  {project.stats?.completedMilestones || 0} / {project.stats?.totalMilestones || 0}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-green-500 dark:bg-green-600 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${project.stats?.progress || 0}%` }}
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
+            No milestones defined yet.
+            <Link
+              href="/student/projects"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline ml-1"
+            >
+              Add milestones
+            </Link>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div
-              className="bg-green-500 dark:bg-green-600 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${(milestones.filter(m => m.completed).length / milestones.length) * 100}%` }}
-            />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

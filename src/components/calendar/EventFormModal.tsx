@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import UserSelector from './UserSelector';
 
 interface CalendarEvent {
   id: string;
@@ -37,6 +38,7 @@ interface EventFormModalProps {
   courses: Course[];
   onClose: () => void;
   onSave: (eventData: any) => void;
+  onDelete?: (eventId: string) => void;
 }
 
 export default function EventFormModal({
@@ -44,7 +46,9 @@ export default function EventFormModal({
   courses,
   onClose,
   onSave,
+  onDelete,
 }: EventFormModalProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -57,6 +61,7 @@ export default function EventFormModal({
     courseId: '',
     isAllDay: false,
     reminderMinutes: '',
+    attendees: [] as string[],
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -79,6 +84,7 @@ export default function EventFormModal({
         courseId: event.courseId || '',
         isAllDay: event.isAllDay,
         reminderMinutes: '',
+        attendees: (event as any).attendees || [],
       });
     } else {
       // Creating new event - set default start time to now
@@ -89,6 +95,7 @@ export default function EventFormModal({
         ...formData,
         startTime: format(now, "yyyy-MM-dd'T'HH:mm"),
         endTime: format(oneHourLater, "yyyy-MM-dd'T'HH:mm"),
+        attendees: [],
       });
     }
   }, [event]);
@@ -138,6 +145,10 @@ export default function EventFormModal({
       newErrors.courseId = 'Course is required for COURSE visibility';
     }
 
+    if (formData.visibility === 'CUSTOM' && formData.attendees.length === 0) {
+      newErrors.attendees = 'At least one attendee is required for CUSTOM visibility';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -163,9 +174,18 @@ export default function EventFormModal({
       reminderMinutes: formData.reminderMinutes
         ? parseInt(formData.reminderMinutes)
         : undefined,
+      attendees: formData.visibility === 'CUSTOM' ? formData.attendees : undefined,
     };
 
     onSave(eventData);
+  };
+
+  const handleDelete = () => {
+    if (event && onDelete) {
+      onDelete(event.id);
+      setShowDeleteConfirm(false);
+      onClose();
+    }
   };
 
   const eventTypes = [
@@ -183,6 +203,7 @@ export default function EventFormModal({
   const visibilityOptions = [
     { value: 'PUBLIC', label: 'Public', description: 'Visible to all students' },
     { value: 'COURSE', label: 'Course', description: 'Visible to enrolled students' },
+    { value: 'CUSTOM', label: 'Custom', description: 'Visible to selected users' },
     { value: 'PRIVATE', label: 'Private', description: 'Visible only to you' },
   ];
 
@@ -198,7 +219,7 @@ export default function EventFormModal({
         {/* Center modal */}
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
-        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-[740px] sm:w-full sm:p-6">
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
@@ -338,6 +359,32 @@ export default function EventFormModal({
                 </div>
               )}
 
+              {/* Custom Attendees (conditional) */}
+              {formData.visibility === 'CUSTOM' && (
+                <div>
+                  <UserSelector
+                    selectedUserIds={formData.attendees}
+                    onChange={(userIds) => {
+                      setFormData({ ...formData, attendees: userIds });
+                      if (errors.attendees && userIds.length > 0) {
+                        setErrors({ ...errors, attendees: '' });
+                      }
+                    }}
+                    role="ALL"
+                    label="Select Attendees *"
+                    placeholder="Search students or instructors..."
+                  />
+                  {errors.attendees && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {errors.attendees}
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Select individual students or instructors who should see this event.
+                  </p>
+                </div>
+              )}
+
               {/* All Day Checkbox */}
               <div className="flex items-center">
                 <input
@@ -468,20 +515,68 @@ export default function EventFormModal({
             </div>
 
             {/* Actions */}
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                {event ? 'Update Event' : 'Create Event'}
-              </button>
+            <div className="mt-6 flex justify-between items-center">
+              {/* Delete button (only show when editing) */}
+              {event && onDelete && (
+                <div>
+                  {showDeleteConfirm ? (
+                    <div className="flex gap-2 items-center">
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                      >
+                        Confirm Delete
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-md hover:bg-red-100 dark:hover:bg-red-900/30"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                      Delete Event
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Right side buttons */}
+              <div className="flex gap-3 ml-auto">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  {event ? 'Update Event' : 'Create Event'}
+                </button>
+              </div>
             </div>
           </form>
         </div>
