@@ -217,16 +217,31 @@ export class GoogleCalendarClient {
       timeMax?: string;
       maxResults?: number;
       singleEvents?: boolean;
+      orderBy?: string;
     }
   ): Promise<calendar_v3.Schema$Event[]> {
     try {
-      const response = await this.calendar.events.list({
+      const queryParams = {
         calendarId,
         timeMin: options?.timeMin,
         timeMax: options?.timeMax,
         maxResults: options?.maxResults || 250,
         singleEvents: options?.singleEvents !== false, // Default to true
-        orderBy: 'startTime',
+        orderBy: options?.orderBy || 'startTime',
+      };
+
+      console.log('🔍 Google Calendar API listEvents query:', queryParams);
+
+      const response = await this.calendar.events.list(queryParams);
+
+      console.log('📦 Google Calendar API response:', {
+        itemCount: response.data.items?.length || 0,
+        items: response.data.items?.map((item) => ({
+          id: item.id,
+          summary: item.summary,
+          start: item.start,
+          end: item.end,
+        })),
       });
 
       return response.data.items || [];

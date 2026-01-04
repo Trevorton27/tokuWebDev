@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/server/auth/requireAuth";
+import { requireAuth } from "@/lib/auth";
 import { Role } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireAuth(req);
+    const user = await requireAuth();
 
     // Only admins and instructors can fetch user lists
     if (user.role === Role.STUDENT) {

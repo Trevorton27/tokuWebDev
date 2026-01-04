@@ -47,7 +47,7 @@ export default function CalendarEvents() {
     try {
       setLoading(true);
       const now = new Date();
-      const endDate = addDays(now, 7); // Get events for next 7 days
+      const endDate = addDays(now, 21); // Get events for next 3 weeks
 
       console.log('📅 Fetching upcoming events...');
       console.log('Date range:', { from: now.toISOString(), to: endDate.toISOString() });
@@ -109,7 +109,7 @@ export default function CalendarEvents() {
       try {
         console.log('🔄 Attempting fallback to LMS events...');
         const now = new Date();
-        const endDate = addDays(now, 7);
+        const endDate = addDays(now, 21);
         const lmsResponse = await axios.get('/api/calendar/events', {
           params: {
             startDate: now.toISOString(),

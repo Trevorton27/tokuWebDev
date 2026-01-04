@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
         logger.info('Unhandled GitHub webhook event', { event });
         return NextResponse.json({
           success: true,
-          message: \`Event type '\${event}' received but not handled\`,
+          message: `Event type '${event}' received but not handled`,
         });
     }
 

@@ -73,10 +73,22 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch events from Google Calendar
+    console.log('📞 Calling Google Calendar API with params:', {
+      calendarId,
+      params,
+      userId: user.id,
+    });
+
     const response = await client.listEvents(calendarId, params);
 
+    console.log('📥 Raw response from Google Calendar API:', {
+      itemCount: response?.length || 0,
+      hasItems: !!response,
+      items: response,
+    });
+
     // Transform events to our format
-    const events = (response.items || []).map((event: any) => ({
+    const events = (response || []).map((event: any) => ({
       id: event.id,
       title: event.summary || 'Untitled Event',
       description: event.description,
