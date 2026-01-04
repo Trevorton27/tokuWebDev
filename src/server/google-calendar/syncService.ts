@@ -51,7 +51,6 @@ export async function syncEventToGoogleCalendar(
     console.log(`🔄 syncEventToGoogleCalendar called for event "${event.title}" (${event.id})`, {
       userId,
       visibility: event.visibility,
-      hasGoogleEventId: !!event.googleEventId,
     });
 
     // Check if user has sync enabled
@@ -83,17 +82,53 @@ export async function syncEventToGoogleCalendar(
     // Convert LMS event to Google Calendar format
     const googleEvent = convertToGoogleCalendarEvent(event);
 
-    // Determine if this is create or update
+    // Check if this user already has a Google Calendar event for this LMS event
+    let existingUserEvent = await prisma.userGoogleCalendarEvent.findUnique({
+      where: {
+        userId_calendarEventId: {
+          userId,
+          calendarEventId: event.id,
+        },
+      },
+    });
+
+    // MIGRATION: If no mapping exists but event has old googleEventId, migrate it
+    if (!existingUserEvent && event.googleEventId) {
+      console.log(`  🔄 Migrating old googleEventId to new mapping system`);
+      try {
+        existingUserEvent = await prisma.userGoogleCalendarEvent.create({
+          data: {
+            userId,
+            calendarEventId: event.id,
+            googleEventId: event.googleEventId,
+            googleCalendarId: calendarId,
+          },
+        });
+        console.log(`  ✅ Migration successful - created mapping for existing event`);
+      } catch (migrationError) {
+        console.log(`  ⚠️  Migration failed (event might already exist for another user):`, migrationError);
+        // Continue to creation logic below
+      }
+    }
+
     let googleEventId: string;
 
-    if (event.googleEventId) {
+    if (existingUserEvent) {
       // Try to update existing event
-      console.log(`  📝 Attempting to update existing event in Google Calendar (googleEventId: ${event.googleEventId})`);
+      console.log(`  📝 Attempting to update existing event in Google Calendar (googleEventId: ${existingUserEvent.googleEventId})`);
       try {
         const result = await retryWithBackoff(async () => {
-          return await client.updateEvent(calendarId, event.googleEventId!, googleEvent);
+          return await client.updateEvent(calendarId, existingUserEvent.googleEventId, googleEvent);
         });
         googleEventId = result.id!;
+
+        // Update the mapping if Google changed the ID (shouldn't happen, but defensive)
+        if (googleEventId !== existingUserEvent.googleEventId) {
+          await prisma.userGoogleCalendarEvent.update({
+            where: { id: existingUserEvent.id },
+            data: { googleEventId, googleCalendarId: calendarId },
+          });
+        }
 
         console.log(`  ✅ Event updated successfully (googleEventId: ${googleEventId})`);
         logger.info('Event updated in Google Calendar', {
@@ -111,9 +146,9 @@ export async function syncEventToGoogleCalendar(
           });
           googleEventId = result.id!;
 
-          // Update the database with new Google event ID
-          await prisma.calendarEvent.update({
-            where: { id: event.id },
+          // Update the mapping with new Google event ID
+          await prisma.userGoogleCalendarEvent.update({
+            where: { id: existingUserEvent.id },
             data: { googleEventId, googleCalendarId: calendarId },
           });
 
@@ -122,7 +157,7 @@ export async function syncEventToGoogleCalendar(
             userId,
             eventId: event.id,
             googleEventId,
-            oldGoogleEventId: event.googleEventId,
+            oldGoogleEventId: existingUserEvent.googleEventId,
           });
         } else {
           // Re-throw other errors
@@ -137,13 +172,17 @@ export async function syncEventToGoogleCalendar(
       });
       googleEventId = result.id!;
 
-      // Store Google event ID in LMS database
-      await prisma.calendarEvent.update({
-        where: { id: event.id },
-        data: { googleEventId, googleCalendarId: calendarId },
+      // Store mapping in database
+      await prisma.userGoogleCalendarEvent.create({
+        data: {
+          userId,
+          calendarEventId: event.id,
+          googleEventId,
+          googleCalendarId: calendarId,
+        },
       });
 
-      console.log(`  ✅ Event created successfully and googleEventId stored (googleEventId: ${googleEventId})`);
+      console.log(`  ✅ Event created successfully and mapping stored (googleEventId: ${googleEventId})`);
       logger.info('Event created in Google Calendar', {
         userId,
         eventId: event.id,
@@ -188,8 +227,17 @@ export async function deleteEventFromGoogleCalendar(
   event: CalendarEvent
 ): Promise<SyncResult> {
   try {
-    // Check if event has been synced to Google Calendar
-    if (!event.googleEventId) {
+    // Check if this user has a synced event
+    const userEvent = await prisma.userGoogleCalendarEvent.findUnique({
+      where: {
+        userId_calendarEventId: {
+          userId,
+          calendarEventId: event.id,
+        },
+      },
+    });
+
+    if (!userEvent) {
       return { success: true }; // Nothing to delete
     }
 
@@ -203,7 +251,11 @@ export async function deleteEventFromGoogleCalendar(
     });
 
     if (!user || !user.googleCalendarSyncEnabled) {
-      return { success: true }; // Skip if sync not enabled
+      // Still delete the mapping even if sync is disabled
+      await prisma.userGoogleCalendarEvent.delete({
+        where: { id: userEvent.id },
+      });
+      return { success: true };
     }
 
     const calendarId = user.googleCalendarId || 'primary';
@@ -220,19 +272,32 @@ export async function deleteEventFromGoogleCalendar(
 
     // Delete event from Google Calendar
     await retryWithBackoff(async () => {
-      await client.deleteEvent(calendarId, event.googleEventId!);
+      await client.deleteEvent(calendarId, userEvent.googleEventId);
+    });
+
+    // Delete the mapping
+    await prisma.userGoogleCalendarEvent.delete({
+      where: { id: userEvent.id },
     });
 
     logger.info('Event deleted from Google Calendar', {
       userId,
       eventId: event.id,
-      googleEventId: event.googleEventId,
+      googleEventId: userEvent.googleEventId,
     });
 
     return { success: true };
   } catch (error: any) {
-    // If event not found, that's OK (already deleted)
+    // If event not found, that's OK (already deleted) - still cleanup the mapping
     if (error instanceof GoogleCalendarNotFoundError) {
+      // Try to delete the mapping
+      await prisma.userGoogleCalendarEvent.deleteMany({
+        where: {
+          userId,
+          calendarEventId: event.id,
+        },
+      }).catch(() => {}); // Ignore errors
+
       logger.warn('Event already deleted from Google Calendar', {
         userId,
         eventId: event.id,
@@ -285,6 +350,16 @@ export async function batchSyncEvents(userId: string): Promise<BatchSyncResult> 
 
     logger.info('Starting batch sync', { userId, totalEvents: events.length });
 
+    // Get existing mappings to determine create vs update
+    const existingMappings = await prisma.userGoogleCalendarEvent.findMany({
+      where: {
+        userId,
+        calendarEventId: { in: events.map(e => e.id) },
+      },
+      select: { calendarEventId: true },
+    });
+    const existingEventIds = new Set(existingMappings.map(m => m.calendarEventId));
+
     // Process events in batches to avoid overwhelming the API
     const BATCH_SIZE = 10;
     for (let i = 0; i < events.length; i += BATCH_SIZE) {
@@ -298,9 +373,10 @@ export async function batchSyncEvents(userId: string): Promise<BatchSyncResult> 
       // Tally results
       results.forEach((promiseResult, index) => {
         const event = batch[index];
+        const wasExisting = existingEventIds.has(event.id);
         console.log(`🔍 Sync result for event "${event.title}" (${event.id}):`, {
           status: promiseResult.status,
-          hadGoogleEventId: !!event.googleEventId,
+          wasExisting,
         });
 
         if (promiseResult.status === 'fulfilled') {
@@ -308,12 +384,12 @@ export async function batchSyncEvents(userId: string): Promise<BatchSyncResult> 
           console.log('  ✅ Promise fulfilled, syncResult:', syncResult);
 
           if (syncResult.success) {
-            if (event.googleEventId) {
+            if (wasExisting) {
               result.updated++;
-              console.log('  📝 Counted as UPDATED (had googleEventId)');
+              console.log('  📝 Counted as UPDATED (had existing mapping)');
             } else {
               result.created++;
-              console.log('  ✨ Counted as CREATED (no googleEventId before)');
+              console.log('  ✨ Counted as CREATED (no existing mapping)');
             }
           } else {
             result.failed++;

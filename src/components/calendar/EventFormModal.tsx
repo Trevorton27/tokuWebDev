@@ -515,10 +515,10 @@ export default function EventFormModal({
             </div>
 
             {/* Actions */}
-            <div className="mt-6 flex justify-between items-center">
+            <div className="mt-6 flex justify-between items-center w-full gap-4">
               {/* Delete button (only show when editing) */}
-              {event && onDelete && (
-                <div>
+              {event && onDelete ? (
+                <div className="flex-shrink-0">
                   {showDeleteConfirm ? (
                     <div className="flex gap-2 items-center">
                       <button
@@ -559,10 +559,12 @@ export default function EventFormModal({
                     </button>
                   )}
                 </div>
+              ) : (
+                <div className="flex-shrink-0"></div>
               )}
 
               {/* Right side buttons */}
-              <div className="flex gap-3 ml-auto">
+              <div className="flex gap-3 flex-shrink-0">
                 <button
                   type="button"
                   onClick={onClose}

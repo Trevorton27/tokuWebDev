@@ -48,6 +48,7 @@ model User {
   connectedRepos     ConnectedRepository[] @relation("UserConnectedRepos")
   createdEvents      CalendarEvent[]      @relation("CreatedEvents")
   studentProjects    StudentProject[]     @relation("UserProjects")
+  googleCalendarEvents UserGoogleCalendarEvent[] @relation("UserGoogleCalendarEvents")
 
   @@index([email])
   @@index([clerkId])
@@ -416,8 +417,8 @@ model CalendarEvent {
   createdByRole     Role          // Role of creator (ADMIN, INSTRUCTOR, STUDENT)
   isAllDay          Boolean       @default(false)
   recurrence        String?       // RRULE string for recurring events
-  googleEventId     String?       @unique // Google Calendar event ID for sync
-  googleCalendarId  String?       // Google Calendar ID where event is stored
+  googleEventId     String?       @unique // Google Calendar event ID for sync (deprecated - use userGoogleEvents)
+  googleCalendarId  String?       // Google Calendar ID where event is stored (deprecated)
   courseId          String?       // Optional: link to specific course
   attendees         String[]      @default([]) // Array of user IDs who should see this event
   visibility        EventVisibility @default(PUBLIC)
@@ -427,12 +428,33 @@ model CalendarEvent {
   updatedAt         DateTime      @updatedAt
   creator           User          @relation("CreatedEvents", fields: [createdBy], references: [id], onDelete: Cascade)
   course            Course?       @relation("CourseEvents", fields: [courseId], references: [id], onDelete: SetNull)
+  userGoogleEvents  UserGoogleCalendarEvent[] @relation("CalendarEventGoogleEvents")
 
   @@index([createdBy])
   @@index([courseId])
   @@index([startTime])
   @@index([eventType])
   @@index([visibility])
+}
+
+// Tracks per-user Google Calendar event IDs
+// Since one LMS event can be synced to multiple users' calendars,
+// each with their own unique Google Calendar event ID
+model UserGoogleCalendarEvent {
+  id               String        @id @default(cuid())
+  userId           String
+  calendarEventId  String
+  googleEventId    String        // The Google Calendar event ID for this specific user
+  googleCalendarId String        @default("primary") // Which Google Calendar it's in
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  user             User          @relation("UserGoogleCalendarEvents", fields: [userId], references: [id], onDelete: Cascade)
+  calendarEvent    CalendarEvent @relation("CalendarEventGoogleEvents", fields: [calendarEventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, calendarEventId])
+  @@index([userId])
+  @@index([calendarEventId])
+  @@index([googleEventId])
 }
 
 enum EventType {
