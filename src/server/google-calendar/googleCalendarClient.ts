@@ -83,6 +83,7 @@ export class GoogleCalendarClient {
     event: calendar_v3.Schema$Event
   ): Promise<calendar_v3.Schema$Event> {
     try {
+      console.log('🔵 [Google Calendar API] Creating event:', { calendarId, summary: event.summary });
       logger.info('Creating Google Calendar event', {
         calendarId,
         summary: event.summary,
@@ -96,6 +97,9 @@ export class GoogleCalendarClient {
       if (!response.data) {
         throw new GoogleCalendarError('No data returned from Google Calendar');
       }
+
+      console.log('🟢 [Google Calendar API] Event created successfully:', { eventId: response.data.id });
+
 
       logger.info('Google Calendar event created successfully', {
         eventId: response.data.id,
@@ -121,6 +125,7 @@ export class GoogleCalendarClient {
     event: calendar_v3.Schema$Event
   ): Promise<calendar_v3.Schema$Event> {
     try {
+      console.log('🔵 [Google Calendar API] Updating event:', { calendarId, eventId, summary: event.summary });
       logger.info('Updating Google Calendar event', {
         calendarId,
         eventId,
@@ -136,6 +141,9 @@ export class GoogleCalendarClient {
       if (!response.data) {
         throw new GoogleCalendarError('No data returned from Google Calendar');
       }
+
+      console.log('🟢 [Google Calendar API] Event updated successfully:', { eventId: response.data.id });
+
 
       logger.info('Google Calendar event updated successfully', {
         eventId: response.data.id,
@@ -155,6 +163,7 @@ export class GoogleCalendarClient {
    */
   async deleteEvent(calendarId: string, eventId: string): Promise<void> {
     try {
+      console.log('🔵 [Google Calendar API] Deleting event:', { calendarId, eventId });
       logger.info('Deleting Google Calendar event', {
         calendarId,
         eventId,
@@ -164,6 +173,9 @@ export class GoogleCalendarClient {
         calendarId,
         eventId,
       });
+
+      console.log('🟢 [Google Calendar API] Event deleted successfully:', { eventId });
+
 
       logger.info('Google Calendar event deleted successfully', {
         eventId,
@@ -189,6 +201,7 @@ export class GoogleCalendarClient {
     eventId: string
   ): Promise<calendar_v3.Schema$Event> {
     try {
+      console.log('🔵 [Google Calendar API] Fetching event:', { calendarId, eventId });
       const response = await this.calendar.events.get({
         calendarId,
         eventId,
@@ -197,6 +210,9 @@ export class GoogleCalendarClient {
       if (!response.data) {
         throw new GoogleCalendarError('No data returned from Google Calendar');
       }
+
+      console.log('🟢 [Google Calendar API] Event fetched successfully');
+
 
       return response.data;
     } catch (error: any) {
@@ -230,11 +246,11 @@ export class GoogleCalendarClient {
         orderBy: options?.orderBy || 'startTime',
       };
 
-      console.log('🔍 Google Calendar API listEvents query:', queryParams);
+      console.log('🔵 [Google Calendar API] listEvents query:', queryParams);
 
       const response = await this.calendar.events.list(queryParams);
 
-      console.log('📦 Google Calendar API response:', {
+      console.log('🟢 [Google Calendar API] listEvents response:', {
         itemCount: response.data.items?.length || 0,
         items: response.data.items?.map((item) => ({
           id: item.id,
@@ -243,6 +259,7 @@ export class GoogleCalendarClient {
           end: item.end,
         })),
       });
+
 
       return response.data.items || [];
     } catch (error: any) {
@@ -256,6 +273,7 @@ export class GoogleCalendarClient {
    */
   async getPrimaryCalendar(): Promise<calendar_v3.Schema$Calendar> {
     try {
+      console.log('🔵 [Google Calendar API] Fetching primary calendar');
       const response = await this.calendar.calendars.get({
         calendarId: 'primary',
       });
@@ -263,6 +281,8 @@ export class GoogleCalendarClient {
       if (!response.data) {
         throw new GoogleCalendarError('No calendar data returned');
       }
+      console.log('🟢 [Google Calendar API] Primary calendar fetched successfully');
+
 
       return response.data;
     } catch (error: any) {
@@ -276,6 +296,7 @@ export class GoogleCalendarClient {
    */
   async refreshAccessToken(): Promise<{ accessToken: string; expiry: Date }> {
     try {
+      console.log('🔵 [Google Calendar API] Refreshing access token');
       const { credentials } = await this.oauth2Client.refreshAccessToken();
 
       if (!credentials.access_token || !credentials.expiry_date) {
@@ -285,10 +306,13 @@ export class GoogleCalendarClient {
       // Update client credentials
       this.oauth2Client.setCredentials(credentials);
 
+      console.log('🟢 [Google Calendar API] Token refreshed successfully');
+
       return {
         accessToken: credentials.access_token,
         expiry: new Date(credentials.expiry_date),
       };
+
     } catch (error: any) {
       logger.error('Failed to refresh Google Calendar token', error);
       throw new GoogleCalendarAuthError('Token refresh failed');
@@ -305,10 +329,12 @@ export class GoogleCalendarClient {
     const status = error.response?.status || error.code;
     const message = error.message || 'Unknown error';
 
+    console.error(`🔴 [Google Calendar API] ${operation} failed:`, { status, message });
     logger.error(`Google Calendar ${operation} failed`, error, {
       status,
       message,
     });
+
 
     // Handle specific error codes
     switch (status) {
