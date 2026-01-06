@@ -263,7 +263,7 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
+    <div className="h-full bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Upcoming Events</h2>
       </div>

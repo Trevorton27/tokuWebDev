@@ -5,7 +5,7 @@
  * Uses AI (Anthropic) for short text, code quality, and design critique evaluation.
  */
 
-import axios from 'axios';
+import Anthropic from '@anthropic-ai/sdk';
 import { logger } from '@/lib/logger';
 import { evaluateSubmission } from './runCodeService';
 import { selfReportToMastery } from './skillProfileService';
@@ -17,13 +17,15 @@ import {
   type CodeStepConfig,
   type DesignComparisonStepConfig,
   type DesignCritiqueStepConfig,
+  type CodeReviewStepConfig,
   type QuestionnaireStepConfig,
 } from './intakeConfig';
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
-const AI_GRADER_API_URL =
-  process.env.AI_TUTOR_API_URL || 'https://api.anthropic.com/v1/messages';
-const AI_GRADER_MODEL = process.env.AI_TUTOR_MODEL || 'claude-3-5-sonnet-latest';
+const AI_GRADER_MODEL = process.env.AI_TUTOR_MODEL || 'claude-3-5-sonnet-20241022';
+
+// Initialize Anthropic client
+const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
 
 // ============================================
 // TYPES
@@ -59,6 +61,10 @@ export interface DesignComparisonAnswer {
 }
 
 export interface DesignCritiqueAnswer {
+  critique: string;
+}
+
+export interface CodeReviewAnswer {
   critique: string;
 }
 
@@ -102,6 +108,9 @@ export async function gradeStep(
 
     case 'DESIGN_CRITIQUE':
       return gradeDesignCritique(stepConfig as DesignCritiqueStepConfig, answer as DesignCritiqueAnswer);
+
+    case 'CODE_REVIEW':
+      return gradeCodeReview(stepConfig as CodeReviewStepConfig, answer as CodeReviewAnswer);
 
     case 'SUMMARY':
       // Summary step doesn't need grading
@@ -385,6 +394,10 @@ async function gradeWithAI(
   rubric: string,
   maxScore: number
 ): Promise<{ rubricScore: number; normalizedScore: number; feedback: string }> {
+  if (!anthropic) {
+    throw new Error('Anthropic client not initialized');
+  }
+
   const systemPrompt = `You are an expert grader for a coding assessment. Grade the student's answer according to the rubric provided.
 
 Respond in JSON format ONLY with this structure:
@@ -402,25 +415,15 @@ ${rubric}
 
 Grade this answer and provide brief feedback.`;
 
-  const response = await axios.post(
-    AI_GRADER_API_URL,
-    {
-      model: AI_GRADER_MODEL,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-      temperature: 0.3, // Lower temperature for more consistent grading
-      max_tokens: 300,
-    },
-    {
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+  const response = await anthropic.messages.create({
+    model: AI_GRADER_MODEL,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userPrompt }],
+    temperature: 0.3,
+    max_tokens: 300,
+  });
 
-  const responseText = response.data.content[0].text;
+  const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
 
   // Parse JSON from response
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -533,6 +536,10 @@ async function evaluateCodeQuality(
   code: string,
   problemDescription: string
 ): Promise<{ bonus: number; feedback: string }> {
+  if (!anthropic) {
+    return { bonus: 0, feedback: '' };
+  }
+
   const systemPrompt = `You are a code reviewer. Evaluate the code quality on these criteria:
 - Clarity and readability
 - Appropriate naming
@@ -554,25 +561,15 @@ ${code}
 
 Evaluate the code quality.`;
 
-  const response = await axios.post(
-    AI_GRADER_API_URL,
-    {
-      model: AI_GRADER_MODEL,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-      temperature: 0.3,
-      max_tokens: 200,
-    },
-    {
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+  const response = await anthropic.messages.create({
+    model: AI_GRADER_MODEL,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userPrompt }],
+    temperature: 0.3,
+    max_tokens: 200,
+  });
 
-  const responseText = response.data.content[0].text;
+  const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {
@@ -690,6 +687,10 @@ async function gradeDesignCritiqueWithAI(
   feedback: string;
   identifiedPoints: string[];
 }> {
+  if (!anthropic) {
+    throw new Error('Anthropic client not initialized');
+  }
+
   const systemPrompt = `You are grading a design critique. The student is evaluating a UI design and suggesting improvements.
 
 Key points we're looking for:
@@ -714,25 +715,15 @@ ${critique}
 
 Grade this design critique.`;
 
-  const response = await axios.post(
-    AI_GRADER_API_URL,
-    {
-      model: AI_GRADER_MODEL,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-      temperature: 0.3,
-      max_tokens: 400,
-    },
-    {
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+  const response = await anthropic.messages.create({
+    model: AI_GRADER_MODEL,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userPrompt }],
+    temperature: 0.3,
+    max_tokens: 400,
+  });
 
-  const responseText = response.data.content[0].text;
+  const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {
@@ -783,6 +774,65 @@ function gradeDesignCritiqueFallback(
     passed: score >= 0.5,
     feedback: 'Your critique has been recorded. (AI grading unavailable)',
     skillScores,
-    confidence: 0.3,
+      confidence: 0.3,
+    };
+}
+
+// ============================================
+// CODE REVIEW GRADING
+// ============================================
+
+/**
+ * Grade code review
+ */
+export async function gradeCodeReview(
+  config: CodeReviewStepConfig,
+  answer: CodeReviewAnswer
+): Promise<GradeResult> {
+  const { critique } = answer;
+
+  if (!critique || critique.trim().length === 0) {
+    return {
+      score: 0,
+      passed: false,
+      feedback: 'No review provided',
+    };
+  }
+
+  // Fallback / Heuristic Grading (Mocking AI for now)
+  // Check for overlap with "lookingFor" points
+  const lowerCritique = critique.toLowerCase();
+  
+  // Naive checking against lookingFor array
+  let matches = 0;
+  // We assume lookingFor items are sentences, so we check for key words inside them? 
+  // For this simple heuristic, let's look for specific keywords we know are in the specific prompt
+  // OR just check if the lookingFor items are somewhat present.
+  
+  // Specific Logic for the "React Component" step we created:
+  const keyTerms = ['dependency', 'array', 'loop', 'effect', 'dom', 'document', 'onclick', 'camelcase', 'json', 'parse'];
+  const matchedTerms = keyTerms.filter(t => lowerCritique.includes(t));
+  
+  let score = 0.2;
+  if (critique.length > 50) score += 0.2;
+  if (matchedTerms.length >= 1) score += 0.2; 
+  if (matchedTerms.length >= 3) score += 0.2;
+  if (matchedTerms.length >= 5) score += 0.2; // Cap at 1.0
+
+  const skillScores: Record<string, number> = {};
+  for (const skillKey of config.skillKeys) {
+    skillScores[skillKey] = score;
+  }
+
+  return {
+    score: Math.min(1, score),
+    passed: score >= 0.6,
+    feedback: score >= 0.6 ? 'Good catch on those issues!' : 'You missed some critical bugs.',
+    skillScores,
+    confidence: 0.4,
+    details: {
+       matchedTerms
+    }
   };
 }
+

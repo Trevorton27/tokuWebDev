@@ -20,6 +20,7 @@ export type IntakeStepKind =
   | 'CODE'
   | 'DESIGN_COMPARISON'
   | 'DESIGN_CRITIQUE'
+  | 'CODE_REVIEW'
   | 'SUMMARY';
 
 export interface BaseStepConfig {
@@ -30,6 +31,11 @@ export interface BaseStepConfig {
   skillKeys: string[]; // Skills this step assesses
   order: number;
   estimatedMinutes: number;
+  skipRules?: {
+    dependsOnStepId: string;
+    condition: 'CORRECT' | 'SCORE_GT';
+    value?: number;
+  };
 }
 
 export interface QuestionnaireField {
@@ -140,6 +146,15 @@ export interface DesignCritiqueStepConfig extends BaseStepConfig {
   lookingFor: string[]; // Key points to identify
 }
 
+export interface CodeReviewStepConfig extends BaseStepConfig {
+  kind: 'CODE_REVIEW';
+  prompt: string;
+  codeSnippet: string;
+  language: 'javascript' | 'typescript' | 'python';
+  rubric: string;
+  lookingFor: string[]; // Issues to find
+}
+
 export interface SummaryStepConfig extends BaseStepConfig {
   kind: 'SUMMARY';
   showRoadmapGeneration?: boolean; // NEW: Whether to show roadmap generation button
@@ -153,6 +168,7 @@ export type IntakeStepConfig =
   | CodeStepConfig
   | DesignComparisonStepConfig
   | DesignCritiqueStepConfig
+  | CodeReviewStepConfig
   | SummaryStepConfig;
 
 // ============================================
@@ -475,7 +491,7 @@ export const INTAKE_STEPS: IntakeStepConfig[] = [
   // SECTION 2: MULTIPLE CHOICE — EXTENDED (9 steps)
   // ============================================
 
-  // Challenge 4 — Type Coercion
+  // Challenge 4 — Type Coercion (SKIPPABLE)
   {
     id: 'mcq_variables',
     kind: 'MCQ',
@@ -493,6 +509,12 @@ export const INTAKE_STEPS: IntakeStepConfig[] = [
       { id: 'd', text: 'Error', isCorrect: false },
     ],
     explanation: 'When you add a number and a string in JavaScript, the number is converted to a string and concatenated. So 5 + "3" = "53".',
+    // NEW: Adaptive Logic - Skip if they nailed the probe
+    skipRules: {
+      dependsOnStepId: 'quick_skill_probe',
+      condition: 'SCORE_GT',
+      value: 1 // If they got ≥ 2/3 correct on probe, skip this beginner question
+    }
   } as McqStepConfig,
 
   // Challenge 5 — Array Methods

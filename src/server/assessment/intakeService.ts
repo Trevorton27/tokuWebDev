@@ -293,8 +293,55 @@ export async function submitStepAnswer(
       },
     });
 
-    // Determine next step
-    const nextStep = getNextStep(stepId);
+    // Determine next step with ADAPTIVE LOGIC
+    let nextStep = getNextStep(stepId);
+    
+    // Check if next step should be skipped
+    if (nextStep && nextStep.skipRules) {
+        const { dependsOnStepId, condition, value } = nextStep.skipRules;
+        
+        // Find result of the dependency step
+        const dependencyResponse = await prisma.assessmentResponse.findUnique({
+            where: {
+                sessionId_stepId: {
+                    sessionId,
+                    stepId: dependsOnStepId
+                }
+            }
+        });
+
+        if (dependencyResponse && dependencyResponse.gradeResult) {
+            const grade = dependencyResponse.gradeResult as any;
+            let shouldSkip = false;
+
+            if (condition === 'CORRECT' && grade.passed) {
+                shouldSkip = true;
+            } else if (condition === 'SCORE_GT' && value !== undefined) {
+                // Assuming score is normalized 0-1 or raw count. 
+                // For MicroMcq, we might store 'correctCount' in details or just use score.
+                // Let's assume score is 0-1 for now.
+                if (grade.score >= value) shouldSkip = true;
+                
+                // Special case for MicroMcq raw count if stored in details
+                if (grade.details && typeof grade.details.correctCount === 'number') {
+                     if (grade.details.correctCount >= value) shouldSkip = true;
+                }
+            }
+
+            if (shouldSkip) {
+                logger.info(`Skipping step ${nextStep.id} due to adaptive logic (Dependency: ${dependsOnStepId})`);
+                // Auto-pass the skipped step? Or just skip it?
+                // For now, just skip to the one after it effectively by calling getNextStep again recursively or loop
+                // but getNextStep only gets the immediate next. 
+                // Simple hack: Just get the next of the next.
+                const stepAfterSkip = getNextStep(nextStep.id);
+                if (stepAfterSkip) {
+                    nextStep = stepAfterSkip;
+                }
+            }
+        }
+    }
+
     const isComplete = isLastStep(stepId) || nextStep?.kind === 'SUMMARY';
 
     // Update session

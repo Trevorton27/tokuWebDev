@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { DesignCritiqueStepConfig } from '@/server/assessment/intakeConfig';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Props {
   config: DesignCritiqueStepConfig;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function DesignCritiqueStep({ config, onSubmit, previousAnswer, isSubmitting }: Props) {
+  const { t } = useLanguage();
   const [critique, setCritique] = useState(previousAnswer?.critique || '');
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function DesignCritiqueStep({ config, onSubmit, previousAnswer, i
         </div>
 
         <div className="bg-white border-2 border-gray-200 rounded-xl p-6 mb-4">
-          <h3 className="text-sm font-medium text-gray-500 mb-3">Design to Critique:</h3>
+          <h3 className="text-sm font-medium text-gray-500 mb-3">{t('assessment.designToCritique')}</h3>
 
           {config.inlineHtml && (
             <div
@@ -71,11 +73,11 @@ export default function DesignCritiqueStep({ config, onSubmit, previousAnswer, i
         </div>
 
         <div className="relative">
-          <label className="block font-medium text-gray-900 mb-2">Your Critique</label>
+          <label className="block font-medium text-gray-900 mb-2">{t('assessment.yourCritique')}</label>
           <textarea
             value={critique}
             onChange={(e) => setCritique(e.target.value)}
-            placeholder="I would improve this design by..."
+            placeholder={t('assessment.critiquePlaceholder')}
             rows={6}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
           />
@@ -89,7 +91,7 @@ export default function DesignCritiqueStep({ config, onSubmit, previousAnswer, i
 
         {charCount < minLength && charCount > 0 && (
           <p className="mt-2 text-sm text-red-500">
-            Please write at least {minLength} characters ({minLength - charCount} more needed)
+            {t('assessment.minCharsNeeded').replace('{min}', String(minLength)).replace('{remaining}', String(minLength - charCount))}
           </p>
         )}
       </div>
@@ -100,13 +102,13 @@ export default function DesignCritiqueStep({ config, onSubmit, previousAnswer, i
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
           <div>
-            <p className="text-yellow-800 text-sm font-medium">Things to consider:</p>
+            <p className="text-yellow-800 text-sm font-medium">{t('assessment.thingsToConsider')}</p>
             <ul className="text-yellow-700 text-sm mt-1 list-disc list-inside">
-              <li>Color choices and contrast</li>
-              <li>Typography and readability</li>
-              <li>Layout and alignment</li>
-              <li>User experience and accessibility</li>
-              <li>Visual hierarchy</li>
+              <li>{t('assessment.colorContrast')}</li>
+              <li>{t('assessment.typography')}</li>
+              <li>{t('assessment.layout')}</li>
+              <li>{t('assessment.uxAccessibility')}</li>
+              <li>{t('assessment.visualHierarchy')}</li>
             </ul>
           </div>
         </div>
@@ -116,15 +118,15 @@ export default function DesignCritiqueStep({ config, onSubmit, previousAnswer, i
         <button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className={`px-6 py-3 rounded-lg font-medium ${
-            isValid && !isSubmitting
+          className={`px-6 py-3 rounded-lg font-medium ${isValid && !isSubmitting
               ? 'bg-indigo-600 text-white hover:bg-indigo-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+            }`}
         >
-          {isSubmitting ? 'Saving...' : 'Continue →'}
+          {isSubmitting ? t('assessment.saving') : t('assessment.continue')}
         </button>
       </div>
     </form>
   );
 }
+

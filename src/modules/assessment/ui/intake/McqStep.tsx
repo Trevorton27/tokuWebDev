@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { McqStepConfig } from '@/server/assessment/intakeConfig';
 import type { SubmitAnswerResponse } from '@/lib/intakeClient';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Props {
   config: McqStepConfig;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function McqStep({ config, onSubmit, previousAnswer, isSubmitting, lastResult }: Props) {
+  const { t } = useLanguage();
   const [selectedOption, setSelectedOption] = useState<string | null>(
     previousAnswer?.selectedOption || null
   );
@@ -39,13 +41,22 @@ export default function McqStep({ config, onSubmit, previousAnswer, isSubmitting
     return colors[difficulty as keyof typeof colors] || colors.beginner;
   };
 
+  const getDifficultyLabel = (difficulty: string) => {
+    const labels: Record<string, string> = {
+      beginner: t('assessment.difficultyBeginner'),
+      intermediate: t('assessment.difficultyIntermediate'),
+      advanced: t('assessment.difficultyAdvanced'),
+    };
+    return labels[difficulty] || difficulty;
+  };
+
   return (
     <div className="p-6">
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <h2 className="text-2xl font-bold text-gray-900">{config.title}</h2>
           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyBadge(config.difficulty)}`}>
-            {config.difficulty}
+            {getDifficultyLabel(config.difficulty)}
           </span>
         </div>
         <p className="text-gray-600">{config.description}</p>
@@ -64,19 +75,17 @@ export default function McqStep({ config, onSubmit, previousAnswer, isSubmitting
               key={option.id}
               type="button"
               onClick={() => setSelectedOption(option.id)}
-              className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                selectedOption === option.id
+              className={`w-full text-left p-4 rounded-lg border-2 transition-all ${selectedOption === option.id
                   ? 'border-indigo-500 bg-indigo-50'
                   : 'border-gray-200 hover:border-gray-300 bg-white'
-              }`}
+                }`}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    selectedOption === option.id
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${selectedOption === option.id
                       ? 'border-indigo-500 bg-indigo-500'
                       : 'border-gray-300'
-                  }`}
+                    }`}
                 >
                   {selectedOption === option.id && (
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -112,22 +121,22 @@ export default function McqStep({ config, onSubmit, previousAnswer, isSubmitting
           onClick={() => setShowExplanation(!showExplanation)}
           className="text-sm text-gray-500 hover:text-gray-700"
         >
-          {showExplanation ? 'Hide hint' : 'Need a hint?'}
+          {showExplanation ? t('assessment.hideHint') : t('assessment.needHint')}
         </button>
 
         <button
           type="button"
           onClick={handleSubmit}
           disabled={!selectedOption || isSubmitting}
-          className={`px-6 py-3 rounded-lg font-medium ${
-            selectedOption && !isSubmitting
+          className={`px-6 py-3 rounded-lg font-medium ${selectedOption && !isSubmitting
               ? 'bg-indigo-600 text-white hover:bg-indigo-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+            }`}
         >
-          {isSubmitting ? 'Saving...' : 'Continue →'}
+          {isSubmitting ? t('assessment.saving') : t('assessment.continue')}
         </button>
       </div>
     </div>
   );
 }
+

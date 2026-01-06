@@ -20,6 +20,7 @@ import type {
   CodeStepConfig,
   DesignComparisonStepConfig,
   DesignCritiqueStepConfig,
+  CodeReviewStepConfig,
 } from '@/server/assessment/intakeConfig';
 
 // Step Components
@@ -30,6 +31,7 @@ import ShortTextStep from '@/modules/assessment/ui/intake/ShortTextStep';
 import CodeStep from '@/modules/assessment/ui/intake/CodeStep';
 import DesignComparisonStep from '@/modules/assessment/ui/intake/DesignComparisonStep';
 import DesignCritiqueStep from '@/modules/assessment/ui/intake/DesignCritiqueStep';
+import CodeReviewStep from '@/modules/assessment/ui/intake/CodeReviewStep';
 import SummaryStep from '@/modules/assessment/ui/intake/SummaryStep';
 
 type WizardState = 'loading' | 'active' | 'submitting' | 'complete' | 'error';
@@ -183,10 +185,18 @@ export default function IntakeAssessmentPage() {
             lastResult={lastResult}
           />
         );
-      case 'DESIGN_CRITIQUE':
         return (
           <DesignCritiqueStep
             config={currentStep as DesignCritiqueStepConfig}
+            onSubmit={handleSubmit}
+            previousAnswer={previousAnswer}
+            isSubmitting={isSubmittingNow}
+          />
+        );
+      case 'CODE_REVIEW':
+        return (
+          <CodeReviewStep
+            config={currentStep as CodeReviewStepConfig}
             onSubmit={handleSubmit}
             previousAnswer={previousAnswer}
             isSubmitting={isSubmittingNow}
@@ -291,11 +301,10 @@ export default function IntakeAssessmentPage() {
             <button
               onClick={handleBack}
               disabled={!canGoBack || state === 'submitting'}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                canGoBack && state !== 'submitting'
-                  ? 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-hover'
-                  : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition ${canGoBack && state !== 'submitting'
+                ? 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-hover'
+                : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                }`}
             >
               ← Back
             </button>

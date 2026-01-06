@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { CodeStepConfig } from '@/server/assessment/intakeConfig';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Props {
   config: CodeStepConfig;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function CodeStep({ config, onSubmit, previousAnswer, isSubmitting }: Props) {
+  const { t } = useLanguage();
   const [code, setCode] = useState(previousAnswer?.code || config.starterCode);
   const [showHints, setShowHints] = useState(false);
   const [currentHint, setCurrentHint] = useState(0);
@@ -30,10 +32,37 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
     setCode(config.starterCode);
   };
 
+  const [aiHint, setAiHint] = useState<string | null>(previousAnswer?.aiHint || null);
+  const [loadingHint, setLoadingHint] = useState(false);
+
   const revealNextHint = () => {
     if (config.hints && currentHint < config.hints.length) {
       setShowHints(true);
       setCurrentHint((prev) => Math.min(prev + 1, config.hints?.length || 0));
+    }
+  };
+
+  const getAIHint = async () => {
+    if (loadingHint) return;
+    setLoadingHint(true);
+    try {
+      const res = await fetch('/api/ai/hint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          problemDescription: config.problemDescription,
+          language: config.language
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAiHint(data.hint);
+      }
+    } catch (err) {
+      console.error("Failed to get AI hint");
+    } finally {
+      setLoadingHint(false);
     }
   };
 
@@ -56,7 +85,7 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
 
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <label className="block font-medium text-gray-900">Your Solution</label>
+            <label className="block font-medium text-gray-900">{t('assessment.yourSolution')}</label>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                 {config.language}
@@ -66,7 +95,7 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
                 onClick={handleReset}
                 className="text-xs text-gray-500 hover:text-gray-700"
               >
-                Reset code
+                {t('assessment.resetCode')}
               </button>
             </div>
           </div>
@@ -79,18 +108,18 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
         </div>
 
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <h3 className="font-medium text-gray-900 mb-3">Test Cases</h3>
+          <h3 className="font-medium text-gray-900 mb-3">{t('assessment.testCases')}</h3>
           <div className="space-y-2">
             {visibleTestCases.map((tc, index) => (
               <div key={index} className="flex items-start gap-4 text-sm">
                 <div className="flex-1">
-                  <span className="text-gray-500">Input:</span>
+                  <span className="text-gray-500">{t('assessment.input')}</span>
                   <code className="ml-2 bg-gray-200 px-2 py-1 rounded text-gray-800">
                     {tc.input}
                   </code>
                 </div>
                 <div className="flex-1">
-                  <span className="text-gray-500">Expected:</span>
+                  <span className="text-gray-500">{t('assessment.expected')}</span>
                   <code className="ml-2 bg-green-100 px-2 py-1 rounded text-green-800">
                     {tc.expectedOutput}
                   </code>
@@ -99,7 +128,7 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
             ))}
             {config.testCases.some((tc) => tc.isHidden) && (
               <p className="text-xs text-gray-500 italic mt-2">
-                + {config.testCases.filter((tc) => tc.isHidden).length} hidden test cases
+                + {config.testCases.filter((tc) => tc.isHidden).length} {t('assessment.hiddenTestCases')}
               </p>
             )}
           </div>
@@ -110,7 +139,7 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
             {showHints && currentHint > 0 && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-3">
                 <h4 className="font-medium text-yellow-800 mb-2">
-                  Hints ({currentHint}/{config.hints.length})
+                  {t('assessment.hints')} ({currentHint}/{config.hints.length})
                 </h4>
                 <ul className="space-y-1">
                   {config.hints.slice(0, currentHint).map((hint, index) => (
@@ -128,7 +157,7 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
                 onClick={revealNextHint}
                 className="text-sm text-indigo-600 hover:text-indigo-700"
               >
-                {showHints ? 'Show next hint' : 'Need a hint?'}
+                {showHints ? t('assessment.showNextHint') : t('assessment.needHint')}
               </button>
             )}
           </div>
@@ -139,15 +168,15 @@ export default function CodeStep({ config, onSubmit, previousAnswer, isSubmittin
         <button
           type="submit"
           disabled={!hasCode || isSubmitting}
-          className={`px-6 py-3 rounded-lg font-medium ${
-            hasCode && !isSubmitting
-              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+          className={`px-6 py-3 rounded-lg font-medium ${hasCode && !isSubmitting
+            ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
         >
-          {isSubmitting ? 'Running tests...' : 'Submit & Continue →'}
+          {isSubmitting ? t('assessment.runningTests') : t('assessment.submitContinue')}
         </button>
       </div>
     </form>
   );
 }
+

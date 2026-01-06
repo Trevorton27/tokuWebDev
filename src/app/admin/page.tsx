@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useSessionTracking } from '@/hooks/useSessionTracking';
+import ReviewQueue from '@/components/reviews/ReviewQueue';
 
 interface DashboardStats {
+
   users: {
     total: number;
     students: number;
@@ -231,8 +233,14 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            {/* Code Review Queue */}
+            <div className="mb-8">
+              <ReviewQueue />
+            </div>
+
             {/* Management Sections */}
             <div>
+
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Management</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <ManagementCard

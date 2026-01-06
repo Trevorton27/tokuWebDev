@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { DesignComparisonStepConfig } from '@/server/assessment/intakeConfig';
 import type { SubmitAnswerResponse } from '@/lib/intakeClient';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Props {
   config: DesignComparisonStepConfig;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function DesignComparisonStep({ config, onSubmit, previousAnswer, isSubmitting, lastResult }: Props) {
+  const { t } = useLanguage();
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | null>(
     previousAnswer?.selectedOption || null
   );
@@ -31,25 +33,24 @@ export default function DesignComparisonStep({ config, onSubmit, previousAnswer,
 
   const renderDesignOption = (option: typeof config.optionA, label: 'A' | 'B') => {
     const isSelected = selectedOption === label;
+    const optionLabel = label === 'A' ? t('assessment.optionA') : t('assessment.optionB');
 
     return (
       <button
         type="button"
         onClick={() => setSelectedOption(label)}
-        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-          isSelected
+        className={`flex-1 p-4 rounded-xl border-2 transition-all ${isSelected
             ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-200'
             : 'border-gray-200 hover:border-gray-300 bg-white'
-        }`}
+          }`}
       >
         <div className="flex items-center justify-between mb-3">
           <span className={`font-bold text-lg ${isSelected ? 'text-indigo-700' : 'text-gray-700'}`}>
-            Option {label}
+            {optionLabel}
           </span>
           <div
-            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-              isSelected ? 'border-indigo-500 bg-indigo-500' : 'border-gray-300'
-            }`}
+            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-indigo-500 bg-indigo-500' : 'border-gray-300'
+              }`}
           >
             {isSelected && (
               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -109,7 +110,7 @@ export default function DesignComparisonStep({ config, onSubmit, previousAnswer,
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-blue-800 text-sm">
-            Consider factors like visual hierarchy, readability, user experience, and design principles.
+            {t('assessment.designTip')}
           </p>
         </div>
       </div>
@@ -119,15 +120,15 @@ export default function DesignComparisonStep({ config, onSubmit, previousAnswer,
           type="button"
           onClick={handleSubmit}
           disabled={!selectedOption || isSubmitting}
-          className={`px-6 py-3 rounded-lg font-medium ${
-            selectedOption && !isSubmitting
+          className={`px-6 py-3 rounded-lg font-medium ${selectedOption && !isSubmitting
               ? 'bg-indigo-600 text-white hover:bg-indigo-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+            }`}
         >
-          {isSubmitting ? 'Saving...' : 'Continue →'}
+          {isSubmitting ? t('assessment.saving') : t('assessment.continue')}
         </button>
       </div>
     </div>
   );
 }
+

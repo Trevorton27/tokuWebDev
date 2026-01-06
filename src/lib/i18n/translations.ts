@@ -370,6 +370,114 @@ export const translations = {
     'instructor.topStrugglingTopics': 'Top Struggling Topics',
     'instructor.atRiskStudentsInsight': 'At-Risk Students',
     'instructor.contentImprovements': 'Content Improvements',
+
+    // Assessment - Common
+    'assessment.analyzing': 'Analyzing your results...',
+    'assessment.tryAgain': 'Try again',
+    'assessment.unableToLoad': 'Unable to load summary',
+    'assessment.continue': 'Continue →',
+    'assessment.saving': 'Saving...',
+    'assessment.submitting': 'Submitting...',
+    'assessment.back': '← Back',
+    'assessment.loading': 'Loading...',
+
+    // Assessment - Summary
+    'assessment.complete': 'Assessment Complete!',
+    'assessment.personalizedProfile': "Here's your personalized skill profile",
+    'assessment.skillProfile': 'Your Skill Profile',
+    'assessment.mastery': 'mastery',
+    'assessment.confidence': 'confidence',
+    'assessment.recommendations': 'Recommendations',
+    'assessment.strong': 'Strong',
+    'assessment.developing': 'Developing',
+    'assessment.beginner': 'Beginner',
+    'assessment.readyToLearn': 'Ready to Start Learning?',
+    'assessment.creatingRoadmap': 'Creating your personalized learning roadmap...',
+    'assessment.roadmapCreated': "We've created a personalized learning roadmap based on your skills and goals.",
+    'assessment.viewPath': 'View your personalized learning path.',
+    'assessment.viewRoadmap': 'View Your Roadmap →',
+    'assessment.generatingRoadmap': 'Generating roadmap...',
+    'assessment.returnToDashboard': 'Return to Dashboard',
+    'assessment.aiGeneratedCapstone': 'AI Generated Capstone',
+    'assessment.techStack': 'Tech Stack',
+    'assessment.milestones': 'Milestones',
+
+    // Assessment - MCQ
+    'assessment.hideHint': 'Hide hint',
+    'assessment.needHint': 'Need a hint?',
+    'assessment.difficultyBeginner': 'beginner',
+    'assessment.difficultyIntermediate': 'intermediate',
+    'assessment.difficultyAdvanced': 'advanced',
+
+    // Assessment - Code
+    'assessment.yourSolution': 'Your Solution',
+    'assessment.resetCode': 'Reset code',
+    'assessment.testCases': 'Test Cases',
+    'assessment.input': 'Input:',
+    'assessment.expected': 'Expected:',
+    'assessment.hiddenTestCases': 'hidden test cases',
+    'assessment.hints': 'Hints',
+    'assessment.showNextHint': 'Show next hint',
+    'assessment.runningTests': 'Running tests...',
+    'assessment.submitContinue': 'Submit & Continue →',
+
+    // Assessment - Short Text
+    'assessment.writeAnswer': 'Write your answer here...',
+    'assessment.minChars': 'Minimum {min} characters',
+    'assessment.currentChars': '{current} characters',
+    'assessment.charactersRemaining': '{remaining} more characters needed',
+
+    // Assessment - Design
+    'assessment.optionA': 'Option A',
+    'assessment.optionB': 'Option B',
+    'assessment.selectOption': 'Select an option to continue',
+    'assessment.whichBetter': 'Which option is better?',
+    'assessment.writeCritique': 'Write your critique...',
+
+    // Assessment - Questionnaire
+    'assessment.selectLevel': 'Select your level',
+    'assessment.selectExperience': 'Select your experience',
+    'assessment.selectOne': 'Select one option',
+
+    // Assessment - Code Review
+    'assessment.reviewCode': 'Review the code below and identify any issues',
+    'assessment.identifyIssues': 'Write your review here...',
+
+    // Assessment - Micro MCQ Burst
+    'assessment.quickCheck': 'Quick Check',
+    'assessment.questionOf': 'Question {current} of {total}',
+
+    // Assessment Page
+    'assessment.title': 'Skill Assessment',
+    'assessment.startTitle': 'Ready to Start?',
+    'assessment.startDescription': 'This assessment will help us understand your current skill level and create a personalized learning path. Take your time - there are no wrong answers!',
+    'assessment.startButton': 'Begin Assessment',
+    'assessment.progress': 'Progress',
+    'assessment.step': 'Step',
+    'assessment.of': 'of',
+    'assessment.errorLoading': 'Error loading assessment',
+    'assessment.sessionError': 'Failed to start assessment session',
+
+    // Short Text Tips
+    'assessment.tipsTitle': 'Tips for a good answer:',
+    'assessment.tip1': 'Be specific and use examples when possible',
+    'assessment.tip2': 'Explain your reasoning, not just the facts',
+    'assessment.tip3': 'Use proper terminology if you know it',
+    'assessment.minCharsNeeded': 'Please write at least {min} characters ({remaining} more needed)',
+
+    // Design Critique
+    'assessment.designToCritique': 'Design to Critique:',
+    'assessment.yourCritique': 'Your Critique',
+    'assessment.critiquePlaceholder': 'I would improve this design by...',
+    'assessment.thingsToConsider': 'Things to consider:',
+    'assessment.colorContrast': 'Color choices and contrast',
+    'assessment.typography': 'Typography and readability',
+    'assessment.layout': 'Layout and alignment',
+    'assessment.uxAccessibility': 'User experience and accessibility',
+    'assessment.visualHierarchy': 'Visual hierarchy',
+
+    // Design Comparison
+    'assessment.designTip': 'Consider factors like visual hierarchy, readability, user experience, and design principles.',
   },
   ja: {
     // Navigation
@@ -742,6 +850,114 @@ export const translations = {
     'instructor.topStrugglingTopics': '苦手なトピック',
     'instructor.atRiskStudentsInsight': 'リスクのある学生',
     'instructor.contentImprovements': 'コンテンツ改善',
+
+    // Assessment - Common
+    'assessment.analyzing': '結果を分析中...',
+    'assessment.tryAgain': 'もう一度試す',
+    'assessment.unableToLoad': '概要を読み込めません',
+    'assessment.continue': '続ける →',
+    'assessment.saving': '保存中...',
+    'assessment.submitting': '送信中...',
+    'assessment.back': '← 戻る',
+    'assessment.loading': '読み込み中...',
+
+    // Assessment - Summary
+    'assessment.complete': '評価完了！',
+    'assessment.personalizedProfile': 'あなたのスキルプロファイルです',
+    'assessment.skillProfile': 'スキルプロファイル',
+    'assessment.mastery': '習熟度',
+    'assessment.confidence': '確信度',
+    'assessment.recommendations': 'おすすめ',
+    'assessment.strong': '優秀',
+    'assessment.developing': '発展中',
+    'assessment.beginner': '初心者',
+    'assessment.readyToLearn': '学習を始める準備はできましたか？',
+    'assessment.creatingRoadmap': 'パーソナライズされた学習ロードマップを作成中...',
+    'assessment.roadmapCreated': 'スキルと目標に基づいたパーソナライズされた学習ロードマップを作成しました。',
+    'assessment.viewPath': 'パーソナライズされた学習パスを見る。',
+    'assessment.viewRoadmap': 'ロードマップを見る →',
+    'assessment.generatingRoadmap': 'ロードマップを生成中...',
+    'assessment.returnToDashboard': 'ダッシュボードに戻る',
+    'assessment.aiGeneratedCapstone': 'AI生成キャップストーン',
+    'assessment.techStack': '技術スタック',
+    'assessment.milestones': 'マイルストーン',
+
+    // Assessment - MCQ
+    'assessment.hideHint': 'ヒントを隠す',
+    'assessment.needHint': 'ヒントが必要ですか？',
+    'assessment.difficultyBeginner': '初級',
+    'assessment.difficultyIntermediate': '中級',
+    'assessment.difficultyAdvanced': '上級',
+
+    // Assessment - Code
+    'assessment.yourSolution': 'あなたの解答',
+    'assessment.resetCode': 'コードをリセット',
+    'assessment.testCases': 'テストケース',
+    'assessment.input': '入力:',
+    'assessment.expected': '期待値:',
+    'assessment.hiddenTestCases': '非表示のテストケース',
+    'assessment.hints': 'ヒント',
+    'assessment.showNextHint': '次のヒントを表示',
+    'assessment.runningTests': 'テスト実行中...',
+    'assessment.submitContinue': '送信して続ける →',
+
+    // Assessment - Short Text
+    'assessment.writeAnswer': 'ここに回答を書いてください...',
+    'assessment.minChars': '最低{min}文字',
+    'assessment.currentChars': '{current}文字',
+    'assessment.charactersRemaining': 'あと{remaining}文字必要',
+
+    // Assessment - Design
+    'assessment.optionA': 'オプションA',
+    'assessment.optionB': 'オプションB',
+    'assessment.selectOption': '続けるにはオプションを選択してください',
+    'assessment.whichBetter': 'どちらのオプションが良いですか？',
+    'assessment.writeCritique': '批評を書いてください...',
+
+    // Assessment - Questionnaire
+    'assessment.selectLevel': 'レベルを選択',
+    'assessment.selectExperience': '経験を選択',
+    'assessment.selectOne': '1つ選択してください',
+
+    // Assessment - Code Review
+    'assessment.reviewCode': '以下のコードをレビューして問題を特定してください',
+    'assessment.identifyIssues': 'ここにレビューを書いてください...',
+
+    // Assessment - Micro MCQ Burst
+    'assessment.quickCheck': 'クイックチェック',
+    'assessment.questionOf': '質問 {current} / {total}',
+
+    // Assessment Page
+    'assessment.title': 'スキル評価',
+    'assessment.startTitle': '準備はできましたか？',
+    'assessment.startDescription': 'この評価は、現在のスキルレベルを理解し、パーソナライズされた学習パスを作成するのに役立ちます。ゆっくり時間をかけてください - 間違いはありません！',
+    'assessment.startButton': '評価を開始',
+    'assessment.progress': '進捗',
+    'assessment.step': 'ステップ',
+    'assessment.of': '/',
+    'assessment.errorLoading': '評価の読み込みエラー',
+    'assessment.sessionError': '評価セッションの開始に失敗しました',
+
+    // Short Text Tips
+    'assessment.tipsTitle': '良い回答のコツ：',
+    'assessment.tip1': '具体的に、可能な限り例を使ってください',
+    'assessment.tip2': '事実だけでなく、理由を説明してください',
+    'assessment.tip3': '知っている場合は適切な用語を使用してください',
+    'assessment.minCharsNeeded': '最低{min}文字を入力してください（あと{remaining}文字必要）',
+
+    // Design Critique
+    'assessment.designToCritique': '批評するデザイン:',
+    'assessment.yourCritique': 'あなたの批評',
+    'assessment.critiquePlaceholder': 'このデザインを改善するには...',
+    'assessment.thingsToConsider': '考慮すべき点:',
+    'assessment.colorContrast': '色の選択とコントラスト',
+    'assessment.typography': 'タイポグラフィと可読性',
+    'assessment.layout': 'レイアウトと配置',
+    'assessment.uxAccessibility': 'ユーザー体験とアクセシビリティ',
+    'assessment.visualHierarchy': '視覚的階層',
+
+    // Design Comparison
+    'assessment.designTip': '視覚的階層、可読性、ユーザー体験、デザイン原則などの要素を考慮してください。',
   },
 };
 

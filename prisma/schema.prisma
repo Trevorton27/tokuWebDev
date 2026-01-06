@@ -49,6 +49,8 @@ model User {
   createdEvents      CalendarEvent[]      @relation("CreatedEvents")
   studentProjects    StudentProject[]     @relation("UserProjects")
   googleCalendarEvents UserGoogleCalendarEvent[] @relation("UserGoogleCalendarEvents")
+  reviewRequests      CodeReviewRequest[]      @relation("UserReviewRequests")
+  assignedReviews     CodeReviewRequest[]      @relation("UserReviewAssignments")
 
   @@index([email])
   @@index([clerkId])
@@ -512,6 +514,7 @@ model StudentProject {
 
   // Activity timeline
   activities      ProjectActivity[] @relation("ProjectActivities")
+  reviews         CodeReviewRequest[] @relation("ProjectReviews")
 
   // Sync metadata
   lastSyncedAt    DateTime?
@@ -590,4 +593,38 @@ enum ActivityType {
   DEPLOYMENT_SUCCESS
   DEPLOYMENT_FAILED
   MILESTONE_COMPLETED
+}
+
+model CodeReviewRequest {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation("UserReviewRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  projectId   String?
+  project     StudentProject? @relation("ProjectReviews", fields: [projectId], references: [id])
+
+  repoUrl     String        // URL to repo or PR
+  notes       String?       // Student notes
+
+  status      ReviewStatus  @default(PENDING)
+
+  reviewerId  String?
+  reviewer    User?         @relation("UserReviewAssignments", fields: [reviewerId], references: [id])
+
+  feedback    String?       // Instructor feedback
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([reviewerId])
+}
+
+enum ReviewStatus {
+  PENDING
+  IN_REVIEW
+  COMPLETED
+  CLOSED
+  REJECTED
 }

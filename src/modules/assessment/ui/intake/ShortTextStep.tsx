@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { ShortTextStepConfig } from '@/server/assessment/intakeConfig';
 import type { SubmitAnswerResponse } from '@/lib/intakeClient';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Props {
   config: ShortTextStepConfig;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function ShortTextStep({ config, onSubmit, previousAnswer, isSubmitting, lastResult }: Props) {
+  const { t } = useLanguage();
   const [answer, setAnswer] = useState(previousAnswer?.text || '');
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function ShortTextStep({ config, onSubmit, previousAnswer, isSubm
           <textarea
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            placeholder={config.placeholder || 'Type your answer here...'}
+            placeholder={config.placeholder || t('assessment.writeAnswer')}
             rows={6}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
           />
@@ -67,7 +69,7 @@ export default function ShortTextStep({ config, onSubmit, previousAnswer, isSubm
 
         {charCount < minLength && charCount > 0 && (
           <p className="mt-2 text-sm text-red-500">
-            Please write at least {minLength} characters ({minLength - charCount} more needed)
+            {t('assessment.minCharsNeeded').replace('{min}', String(minLength)).replace('{remaining}', String(minLength - charCount))}
           </p>
         )}
       </div>
@@ -78,11 +80,11 @@ export default function ShortTextStep({ config, onSubmit, previousAnswer, isSubm
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
           <div>
-            <p className="text-blue-800 text-sm font-medium">Tips for a good answer:</p>
+            <p className="text-blue-800 text-sm font-medium">{t('assessment.tipsTitle')}</p>
             <ul className="text-blue-700 text-sm mt-1 list-disc list-inside">
-              <li>Be specific and use examples when possible</li>
-              <li>Explain your reasoning, not just the facts</li>
-              <li>Use proper terminology if you know it</li>
+              <li>{t('assessment.tip1')}</li>
+              <li>{t('assessment.tip2')}</li>
+              <li>{t('assessment.tip3')}</li>
             </ul>
           </div>
         </div>
@@ -92,15 +94,15 @@ export default function ShortTextStep({ config, onSubmit, previousAnswer, isSubm
         <button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className={`px-6 py-3 rounded-lg font-medium ${
-            isValid && !isSubmitting
+          className={`px-6 py-3 rounded-lg font-medium ${isValid && !isSubmitting
               ? 'bg-indigo-600 text-white hover:bg-indigo-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+            }`}
         >
-          {isSubmitting ? 'Saving...' : 'Continue →'}
+          {isSubmitting ? t('assessment.saving') : t('assessment.continue')}
         </button>
       </div>
     </form>
   );
 }
+
