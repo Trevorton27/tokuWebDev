@@ -245,7 +245,6 @@ export const translations = {
     'student.currentModuleDesc': 'Learn advanced React patterns including render props, compound components, and hooks composition.',
     'student.currentProjectTitle': 'E-commerce Dashboard',
     'student.currentProjectDesc': 'Build a full-stack e-commerce admin dashboard with real-time analytics.',
-    'student.currentProjectDesc': 'Build a full-stack e-commerce admin dashboard with real-time analytics.',
 
     // Courses
     'courses.title': 'Course Catalog',
@@ -1077,7 +1076,6 @@ export const translations = {
     'student.currentModuleTitle': '高度なReactパターン',
     'student.currentModuleDesc': 'レンダープロップス、コンパウンドコンポーネント、フックの合成などの高度なReactパターンを学びます。',
     'student.currentProjectTitle': 'Eコマース・ダッシュボード',
-    'student.currentProjectDesc': 'リアルタイム分析機能を備えたフルスタックのEコマース管理ダッシュボードを構築します。',
     'student.currentProjectDesc': 'リアルタイム分析機能を備えたフルスタックのEコマース管理ダッシュボードを構築します。',
 
     // Courses
