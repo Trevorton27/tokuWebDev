@@ -33,11 +33,13 @@ import DesignComparisonStep from '@/modules/assessment/ui/intake/DesignCompariso
 import DesignCritiqueStep from '@/modules/assessment/ui/intake/DesignCritiqueStep';
 import CodeReviewStep from '@/modules/assessment/ui/intake/CodeReviewStep';
 import SummaryStep from '@/modules/assessment/ui/intake/SummaryStep';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type WizardState = 'loading' | 'active' | 'submitting' | 'complete' | 'error';
 
 export default function IntakeAssessmentPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [state, setState] = useState<WizardState>('loading');
   const [error, setError] = useState<string | null>(null);
 
@@ -68,12 +70,12 @@ export default function IntakeAssessmentPage() {
         setCanGoBack(stepResult.canGoBack);
         setPreviousAnswer(stepResult.previousAnswer);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to start assessment');
+        setError(err instanceof Error ? err.message : t('assessment.sessionError'));
         setState('error');
       }
     }
     init();
-  }, []);
+  }, [t]);
 
   // Handle answer submission
   const handleSubmit = useCallback(async (answer: any) => {
@@ -185,6 +187,7 @@ export default function IntakeAssessmentPage() {
             lastResult={lastResult}
           />
         );
+      case 'DESIGN_CRITIQUE':
         return (
           <DesignCritiqueStep
             config={currentStep as DesignCritiqueStepConfig}
@@ -215,7 +218,7 @@ export default function IntakeAssessmentPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading assessment...</p>
+          <p className="text-gray-600 dark:text-gray-300">{t('assessment.loading')}</p>
         </div>
       </div>
     );
@@ -227,13 +230,13 @@ export default function IntakeAssessmentPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg flex items-center justify-center">
         <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 max-w-md text-center border border-gray-200 dark:border-dark-border">
           <div className="text-red-500 dark:text-red-400 text-5xl mb-4">!</div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Something went wrong</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('assessment.errorTitle')}</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-indigo-600 dark:bg-purple-600 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-purple-700 transition"
           >
-            Try Again
+            {t('assessment.tryAgain')}
           </button>
         </div>
       </div>
@@ -258,10 +261,10 @@ export default function IntakeAssessmentPage() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Skill Assessment
+              {t('assessment.title')}
             </h1>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              ~{estimatedMinutes} min total
+              {t('assessment.estimatedTime').replace('{min}', String(estimatedMinutes))}
             </span>
           </div>
 
@@ -273,7 +276,9 @@ export default function IntakeAssessmentPage() {
             />
           </div>
           <div className="flex justify-between mt-1">
-            <span className="text-xs text-gray-500 dark:text-gray-400">{progress}% complete</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {t('assessment.progressComplete').replace('{percent}', String(progress))}
+            </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {currentStep?.title}
             </span>
@@ -306,10 +311,12 @@ export default function IntakeAssessmentPage() {
                 : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
                 }`}
             >
-              ← Back
+              {t('assessment.back')}
             </button>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              Step {Math.round((progress / 100) * totalSteps)} of {totalSteps}
+              {t('assessment.stepOf')
+                .replace('{current}', String(Math.round((progress / 100) * totalSteps)))
+                .replace('{total}', String(totalSteps))}
             </div>
           </div>
         )}
@@ -317,3 +324,4 @@ export default function IntakeAssessmentPage() {
     </div>
   );
 }
+

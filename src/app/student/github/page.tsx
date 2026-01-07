@@ -18,10 +18,10 @@ export default function GitHubConfigPage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'webhook' | 'repos' | 'activity'>('profile');
 
   const tabs = [
-    { id: 'profile' as const, label: 'Profile', icon: '👤' },
-    { id: 'webhook' as const, label: 'Webhook', icon: '🔐' },
-    { id: 'repos' as const, label: 'Repositories', icon: '📦' },
-    { id: 'activity' as const, label: 'Activity', icon: '📊' },
+    { id: 'profile' as const, label: t('github.profileTab'), icon: '👤' },
+    { id: 'webhook' as const, label: t('github.webhookTab'), icon: '🔐' },
+    { id: 'repos' as const, label: t('github.reposTab'), icon: '📦' },
+    { id: 'activity' as const, label: t('github.activityTab'), icon: '📊' },
   ];
 
   return (
@@ -29,10 +29,10 @@ export default function GitHubConfigPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-slate-100 mb-1.5">
-          GitHub Integration
+          {t('github.title')}
         </h1>
         <p className="text-slate-400">
-          Connect your GitHub account to track your coding activity and showcase your projects
+          {t('github.subtitle')}
         </p>
       </div>
 
@@ -50,19 +50,17 @@ export default function GitHubConfigPage() {
                 className={`
                   py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-all
                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500/50
-                  ${
-                    isActive && isActivityTab
-                      ? 'border-green-500 text-green-400'
-                      : isActive
+                  ${isActive && isActivityTab
+                    ? 'border-green-500 text-green-400'
+                    : isActive
                       ? 'border-blue-500 text-blue-400'
                       : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-700'
                   }
                 `}
               >
                 <span
-                  className={`text-base transition-all ${
-                    isActive ? 'opacity-100' : 'opacity-40 grayscale'
-                  }`}
+                  className={`text-base transition-all ${isActive ? 'opacity-100' : 'opacity-40 grayscale'
+                    }`}
                 >
                   {tab.icon}
                 </span>
@@ -78,10 +76,10 @@ export default function GitHubConfigPage() {
         {activeTab === 'profile' && (
           <div>
             <h2 className="text-lg font-medium text-slate-200 mb-1">
-              GitHub Profile
+              {t('github.profileTitle')}
             </h2>
             <p className="text-sm text-slate-500 mb-5">
-              Configure your GitHub username and email for activity tracking
+              {t('github.profileDesc')}
             </p>
             <GitHubProfileForm />
           </div>
@@ -90,10 +88,10 @@ export default function GitHubConfigPage() {
         {activeTab === 'webhook' && (
           <div>
             <h2 className="text-lg font-medium text-slate-200 mb-1">
-              Webhook Configuration
+              {t('github.webhookTitle')}
             </h2>
             <p className="text-sm text-slate-500 mb-5">
-              Set up webhook token to enable real-time activity tracking from your repositories
+              {t('github.webhookDesc')}
             </p>
             <WebhookTokenManager />
           </div>
@@ -102,10 +100,10 @@ export default function GitHubConfigPage() {
         {activeTab === 'repos' && (
           <div>
             <h2 className="text-lg font-medium text-slate-200 mb-1">
-              Connected Repositories
+              {t('github.reposTitle')}
             </h2>
             <p className="text-sm text-slate-500 mb-5">
-              Select which repositories you want to track for your profile
+              {t('github.reposDesc')}
             </p>
             <RepositorySelector />
           </div>
@@ -115,10 +113,10 @@ export default function GitHubConfigPage() {
           <div className="space-y-5">
             <div>
               <h2 className="text-lg font-medium text-slate-200 mb-1">
-                GitHub Activity
+                {t('github.activityTitle')}
               </h2>
               <p className="text-sm text-slate-500 mb-5">
-                Visual overview of your GitHub contributions and coding activity
+                {t('github.activityDesc')}
               </p>
               <GitHubActivityGraph />
             </div>
@@ -132,20 +130,20 @@ export default function GitHubConfigPage() {
       {/* Help Section */}
       <div className="mt-12 bg-slate-900/40 border border-slate-800/50 rounded-lg p-5">
         <h3 className="text-base font-medium text-slate-200 mb-3">
-          Need Help?
+          {t('github.needHelp')}
         </h3>
         <div className="text-sm text-slate-400 space-y-2">
           <p>
-            <strong className="text-slate-300">Step 1:</strong> Configure your GitHub profile with your username and email.
+            <strong className="text-slate-300">{t('common.step')} 1:</strong> {t('github.helpStep1')}
           </p>
           <p>
-            <strong className="text-slate-300">Step 2:</strong> Set up webhook token and add it to your GitHub repository settings.
+            <strong className="text-slate-300">{t('common.step')} 2:</strong> {t('github.helpStep2')}
           </p>
           <p>
-            <strong className="text-slate-300">Step 3:</strong> Select which repositories you want to track for your profile.
+            <strong className="text-slate-300">{t('common.step')} 3:</strong> {t('github.helpStep3')}
           </p>
           <p>
-            <strong className="text-slate-300">Step 4:</strong> Monitor your activity through the Activity tab.
+            <strong className="text-slate-300">{t('common.step')} 4:</strong> {t('github.helpStep4')}
           </p>
         </div>
       </div>

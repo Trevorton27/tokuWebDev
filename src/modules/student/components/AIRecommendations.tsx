@@ -17,8 +17,8 @@ export default function AIRecommendations() {
       type: 'review',
       icon: '📚',
       titleKey: 'review',
-      title: 'Array Methods',
-      description: 'Your recent challenges show room for improvement with map, filter, and reduce.',
+      displayTitleKey: 'recArrayMethodsTitle',
+      descriptionKey: 'recArrayMethodsDesc',
       actionKey: 'reviewTopic',
       link: '/topics/array-methods',
       color: 'yellow',
@@ -28,8 +28,8 @@ export default function AIRecommendations() {
       type: 'challenge',
       icon: '⚡',
       titleKey: 'try',
-      title: 'Async/Await Challenge',
-      description: 'Based on your progress, you\'re ready to tackle asynchronous JavaScript patterns.',
+      displayTitleKey: 'recAsyncChallengeTitle',
+      descriptionKey: 'recAsyncChallengeDesc',
       actionKey: 'startChallenge',
       link: '/challenges/async-await',
       color: 'blue',
@@ -39,8 +39,8 @@ export default function AIRecommendations() {
       type: 'milestone',
       icon: '🎯',
       titleKey: 'readyFor',
-      title: 'Project Milestone 3',
-      description: 'You\'ve mastered the prerequisites. Time to implement the shopping cart feature!',
+      displayTitleKey: 'recMilestoneTitle',
+      descriptionKey: 'recMilestoneDesc',
       actionKey: 'viewMilestone',
       link: '/projects/proj-001#milestone-3',
       color: 'green',
@@ -50,8 +50,8 @@ export default function AIRecommendations() {
       type: 'concept',
       icon: '💡',
       titleKey: 'strengthen',
-      title: 'State Management',
-      description: 'Consider reviewing Redux or Context API before moving to advanced patterns.',
+      displayTitleKey: 'recStateManagementTitle',
+      descriptionKey: 'recStateManagementDesc',
       actionKey: 'learnMore',
       link: '/topics/state-management',
       color: 'purple',
@@ -61,30 +61,30 @@ export default function AIRecommendations() {
   const getColorClasses = (color: string) => {
     switch (color) {
       case 'yellow':
-        return 'bg-yellow-50 border-yellow-200 hover:border-yellow-300';
+        return 'bg-yellow-50 border-yellow-200 hover:border-yellow-300 dark:bg-yellow-900/10 dark:border-yellow-900/30';
       case 'blue':
-        return 'bg-blue-50 border-blue-200 hover:border-blue-300';
+        return 'bg-blue-50 border-blue-200 hover:border-blue-300 dark:bg-blue-900/10 dark:border-blue-900/30';
       case 'green':
-        return 'bg-green-50 border-green-200 hover:border-green-300';
+        return 'bg-green-50 border-green-200 hover:border-green-300 dark:bg-green-900/10 dark:border-green-900/30';
       case 'purple':
-        return 'bg-purple-50 border-purple-200 hover:border-purple-300';
+        return 'bg-purple-50 border-purple-200 hover:border-purple-300 dark:bg-purple-900/10 dark:border-purple-900/30';
       default:
-        return 'bg-gray-50 border-gray-200 hover:border-gray-300';
+        return 'bg-gray-50 border-gray-200 hover:border-gray-300 dark:bg-slate-900/10 dark:border-slate-800/30';
     }
   };
 
   const getTextColor = (color: string) => {
     switch (color) {
       case 'yellow':
-        return 'text-yellow-700';
+        return 'text-yellow-700 dark:text-yellow-400';
       case 'blue':
-        return 'text-blue-700';
+        return 'text-blue-700 dark:text-blue-400';
       case 'green':
-        return 'text-green-700';
+        return 'text-green-700 dark:text-green-400';
       case 'purple':
-        return 'text-purple-700';
+        return 'text-purple-700 dark:text-purple-400';
       default:
-        return 'text-gray-700';
+        return 'text-gray-700 dark:text-slate-400';
     }
   };
 
@@ -97,7 +97,7 @@ export default function AIRecommendations() {
           </svg>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('student.aiRecommendations')}</h2>
         </div>
-        <button className="text-sm text-indigo-600 dark:text-purple-400 hover:text-indigo-700 dark:hover:text-purple-300 font-medium">
+        <button className="text-sm text-indigo-600 dark:text-purple-400 hover:text-indigo-700 dark:hover:text-purple-300 font-medium transition-colors">
           {t('student.refresh')}
         </button>
       </div>
@@ -113,17 +113,17 @@ export default function AIRecommendations() {
               <span className="text-2xl">{rec.icon}</span>
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-                  {t(`student.${rec.titleKey}`)}: {rec.title}
+                  {t(`student.${rec.titleKey}`)}: {t(`student.${rec.displayTitleKey}`)}
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
-                  {rec.description}
+                <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 leading-relaxed">
+                  {t(`student.${rec.descriptionKey}`)}
                 </p>
-                <span className={`inline-flex items-center text-xs font-semibold ${getTextColor(rec.color)}`}>
+                <div className={`flex items-center text-xs font-semibold ${getTextColor(rec.color)}`}>
                   {t(`student.${rec.actionKey}`)}
-                  <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                   </svg>
-                </span>
+                </div>
               </div>
             </div>
           </Link>

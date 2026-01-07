@@ -15,9 +15,9 @@ export default function Notifications() {
     {
       id: 1,
       type: 'feedback',
-      title: 'Project Feedback Received',
-      message: 'Your instructor reviewed your E-commerce Dashboard project.',
-      time: '2 hours ago',
+      title: t('student.notificationFeedbackTitle'),
+      message: t('student.notificationFeedbackMessage'),
+      time: t('student.hoursAgo', { count: 2 }),
       read: false,
       link: '/projects/proj-001/feedback',
       icon: '📝',
@@ -26,9 +26,9 @@ export default function Notifications() {
     {
       id: 2,
       type: 'reply',
-      title: 'Instructor Reply',
-      message: 'Sarah Johnson replied to your question about React hooks.',
-      time: '5 hours ago',
+      title: t('student.notificationReplyTitle'),
+      message: t('student.notificationReplyMessage'),
+      time: t('student.hoursAgo', { count: 5 }),
       read: false,
       link: '/messages/thread-123',
       icon: '💬',
@@ -37,9 +37,9 @@ export default function Notifications() {
     {
       id: 3,
       type: 'announcement',
-      title: 'New Module Released',
-      message: 'Advanced TypeScript Patterns is now available!',
-      time: '1 day ago',
+      title: t('student.notificationModuleTitle'),
+      message: t('student.notificationModuleMessage'),
+      time: t('student.dayAgo', { count: 1 }),
       read: true,
       link: '/announcements/123',
       icon: '📢',
@@ -48,9 +48,9 @@ export default function Notifications() {
     {
       id: 4,
       type: 'system',
-      title: 'Streak Milestone',
-      message: 'Congratulations! You have reached a 7-day study streak!',
-      time: '1 day ago',
+      title: t('student.notificationStreakTitle'),
+      message: t('student.notificationStreakMessage'),
+      time: t('student.dayAgo', { count: 1 }),
       read: true,
       link: '/achievements',
       icon: '🎉',
@@ -85,19 +85,17 @@ export default function Notifications() {
             <Link
               key={notification.id}
               href={notification.link}
-              className={`block rounded-lg p-3 border transition-all ${
-                notification.read
+              className={`block rounded-lg p-3 border transition-all ${notification.read
                   ? 'bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border hover:border-gray-300 dark:hover:border-gray-600'
                   : 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800/50 hover:border-indigo-300 dark:hover:border-indigo-700'
-              }`}
+                }`}
             >
               <div className="flex items-start space-x-3">
                 <span className="text-xl">{notification.icon}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-1">
-                    <h3 className={`text-sm font-semibold ${
-                      notification.read ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-white'
-                    }`}>
+                    <h3 className={`text-sm font-semibold ${notification.read ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-white'
+                      }`}>
                       {notification.title}
                     </h3>
                     {!notification.read && (

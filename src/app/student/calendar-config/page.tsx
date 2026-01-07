@@ -3,9 +3,11 @@
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import GoogleCalendarSettings from '@/components/calendar/GoogleCalendarSettings';
 
 function SettingsContent() {
+  const { t } = useLanguage();
   const { user } = useUser();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -22,27 +24,27 @@ function SettingsContent() {
     if (success === 'google_calendar_connected') {
       setNotification({
         type: 'success',
-        message: 'Google Calendar connected successfully! Your events will now sync automatically.',
+        message: t('calendar.connectSuccess'),
       });
       // Clear URL parameters
       router.replace('/student/calendar-config');
     } else if (error) {
       const errorMessages: Record<string, string> = {
-        google_calendar_denied: 'Google Calendar connection was denied.',
-        invalid_callback: 'Invalid OAuth callback. Please try again.',
-        invalid_state: 'Invalid OAuth state. Please try again.',
-        config_error: 'Google Calendar is not properly configured. Please contact support.',
-        incomplete_tokens: 'Failed to receive complete tokens from Google. Please try again.',
+        google_calendar_denied: t('calendar.errorDenied'),
+        invalid_callback: t('calendar.errorInvalidCallback'),
+        invalid_state: t('calendar.errorInvalidState'),
+        config_error: t('calendar.errorConfig'),
+        incomplete_tokens: t('calendar.errorIncompleteTokens'),
       };
 
       setNotification({
         type: 'error',
-        message: errorMessages[error] || `Error: ${error}`,
+        message: errorMessages[error] || `${t('common.error')}: ${error}`,
       });
       // Clear URL parameters
       router.replace('/student/calendar-config');
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, t]);
 
   // Auto-dismiss notifications after 5 seconds
   useEffect(() => {
@@ -54,17 +56,15 @@ function SettingsContent() {
     }
   }, [notification]);
 
-  const userName = user?.firstName || user?.fullName || user?.username || 'Student';
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
       {/* Header Section */}
       <div className="bg-white dark:bg-dark-surface shadow-sm border-b border-gray-200 dark:border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar Integration</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('calendar.title')}</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              Connect your Google Calendar to receive notifications and sync events
+              {t('calendar.subtitle')}
             </p>
           </div>
         </div>
@@ -75,11 +75,10 @@ function SettingsContent() {
         {/* Notification Banner */}
         {notification && (
           <div
-            className={`mb-6 p-4 rounded-lg border ${
-              notification.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : 'bg-red-50 border-red-200 text-red-800'
-            }`}
+            className={`mb-6 p-4 rounded-lg border ${notification.type === 'success'
+              ? 'bg-green-50 border-green-200 text-green-800'
+              : 'bg-red-50 border-red-200 text-red-800'
+              }`}
           >
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">{notification.message}</p>
@@ -111,13 +110,15 @@ function SettingsContent() {
 }
 
 export default function CalendarConfigPage() {
+  const { t } = useLanguage();
+
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
         <div className="bg-white dark:bg-dark-surface shadow-sm border-b border-gray-200 dark:border-dark-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar Integration</h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-1">Loading...</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('calendar.title')}</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">{t('common.loading')}</p>
           </div>
         </div>
       </div>

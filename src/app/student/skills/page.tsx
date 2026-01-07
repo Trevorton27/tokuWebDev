@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import SkillRadar from '@/modules/assessment/ui/SkillRadar';
 
 interface SkillDimensionData {
@@ -21,18 +22,22 @@ interface SkillProfileData {
   lastAssessment?: string;
 }
 
-const DIMENSION_LABELS: Record<string, string> = {
-  programming_fundamentals: 'Programming Fundamentals',
-  web_foundations: 'Web Foundations',
-  javascript: 'JavaScript',
-  backend: 'Backend Development',
-  dev_practices: 'Dev Practices',
-  system_thinking: 'System Thinking',
-  design: 'UI/UX Design',
-  meta: 'Meta Skills',
+const getDimensionLabel = (t: any, key: string) => {
+  const labels: Record<string, string> = {
+    programming_fundamentals: t('student.dimProgramming'),
+    web_foundations: t('student.dimWebFoundations'),
+    javascript: t('student.dimJS'),
+    backend: t('student.dimBackend'),
+    dev_practices: t('student.dimDevPractices'),
+    system_thinking: t('student.dimSystemThinking'),
+    design: t('student.dimDesign'),
+    meta: t('student.dimMeta'),
+  };
+  return labels[key] || key;
 };
 
 export default function SkillsPage() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<SkillProfileData | null>(null);
@@ -50,7 +55,7 @@ export default function SkillsPage() {
         // Transform the data
         const dimensions = summary.dimensions.map((d: any) => ({
           dimension: d.key,
-          label: DIMENSION_LABELS[d.key] || d.key,
+          label: getDimensionLabel(t, d.key),
           mastery: d.score,
           confidence: d.confidence,
         }));
@@ -63,13 +68,13 @@ export default function SkillsPage() {
           totalSkills: summary.totalSkills,
         });
       } else {
-        setError(response.data.error || 'Failed to load skill profile');
+        setError(response.data.error || t('student.failedToLoadSkillProfile'));
       }
     } catch (err: any) {
       if (err.response?.status === 404) {
-        setError('No skill profile found. Complete an assessment first.');
+        setError(t('student.noSkillProfile'));
       } else {
-        setError('Failed to load skill profile');
+        setError(t('student.failedToLoadSkillProfile'));
       }
       console.error(err);
     } finally {
@@ -82,7 +87,7 @@ export default function SkillsPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading your skill profile...</p>
+          <p className="text-gray-600 dark:text-gray-300">{t('student.loadingSkillProfile')}</p>
         </div>
       </div>
     );
@@ -94,15 +99,15 @@ export default function SkillsPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 text-center border border-gray-200 dark:border-dark-border">
             <div className="text-6xl mb-4">📊</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Skill Profile Yet</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('student.noSkillProfile')}</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              {error || 'Complete the skill assessment to see your profile.'}
+              {error || t('student.completeAssessmentPrompt')}
             </p>
             <Link
               href="/assessment/intake"
               className="inline-block px-6 py-3 bg-indigo-600 dark:bg-purple-600 text-white rounded-lg font-medium hover:bg-indigo-700 dark:hover:bg-purple-700 transition"
             >
-              Start Assessment
+              {t('student.startAssessment')}
             </Link>
           </div>
         </div>
@@ -111,10 +116,10 @@ export default function SkillsPage() {
   }
 
   const getOverallLevelLabel = (mastery: number) => {
-    if (mastery >= 0.7) return { label: 'Advanced', color: 'text-green-600 dark:text-green-400' };
-    if (mastery >= 0.5) return { label: 'Intermediate', color: 'text-blue-600 dark:text-blue-400' };
-    if (mastery >= 0.3) return { label: 'Beginner', color: 'text-yellow-600 dark:text-yellow-400' };
-    return { label: 'Novice', color: 'text-gray-600 dark:text-gray-400' };
+    if (mastery >= 0.7) return { label: t('student.advanced'), color: 'text-green-600 dark:text-green-400' };
+    if (mastery >= 0.5) return { label: t('student.intermediate'), color: 'text-blue-600 dark:text-blue-400' };
+    if (mastery >= 0.3) return { label: t('student.beginner'), color: 'text-yellow-600 dark:text-yellow-400' };
+    return { label: t('student.novice'), color: 'text-gray-600 dark:text-gray-400' };
   };
 
   const overallLevel = getOverallLevelLabel(profile.overallMastery);
@@ -131,12 +136,12 @@ export default function SkillsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-3">
             <Link href="/student" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">
-              ← Back
+              {t('common.back')}
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Your Skill Profile</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('student.yourSkillProfile')}</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Track your progress across all skill dimensions
+            {t('student.skillProfileDesc')}
           </p>
         </div>
       </div>
@@ -148,7 +153,7 @@ export default function SkillsPage() {
             <div className={`text-3xl font-bold ${overallLevel.color}`}>
               {overallLevel.label}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Overall Level</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('student.overallLevel')}</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
               {Math.round(profile.overallMastery * 100)}%
             </div>
@@ -157,27 +162,27 @@ export default function SkillsPage() {
             <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
               {profile.totalSkillsAssessed}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Skills Assessed</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('student.skillsAssessed')}</div>
             <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              of {profile.totalSkills} total
+              {t('student.ofTotal', { count: profile.totalSkills })}
             </div>
           </div>
           <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-5 border border-gray-100 dark:border-dark-border">
             <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
               {Math.round(profile.overallConfidence * 100)}%
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Confidence</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('student.confidence')}</div>
             <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Based on assessment data
+              {t('student.basedOnAssessmentData')}
             </div>
           </div>
           <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-5 border border-gray-100 dark:border-dark-border">
             <div className="text-3xl font-bold text-green-600 dark:text-green-400">
               {profile.dimensions.filter((d) => d.mastery >= 0.7).length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Strong Areas</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('student.strongAreas')}</div>
             <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              70%+ mastery
+              {t('student.masteryThreshold')}
             </div>
           </div>
         </div>
@@ -193,7 +198,7 @@ export default function SkillsPage() {
             {/* Strongest Areas */}
             <div className="bg-white dark:bg-dark-card rounded-xl p-6 border border-gray-200 dark:border-dark-border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <span>💪</span> Strongest Areas
+                <span>💪</span> {t('student.strongestAreas')}
               </h3>
               <div className="space-y-3">
                 {strongestAreas.map((dim) => (
@@ -208,7 +213,7 @@ export default function SkillsPage() {
             {/* Areas to Improve */}
             <div className="bg-white dark:bg-dark-card rounded-xl p-6 border border-gray-200 dark:border-dark-border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <span>🎯</span> Focus Areas
+                <span>🎯</span> {t('student.focusAreas')}
               </h3>
               <div className="space-y-3">
                 {weakestAreas.map((dim) => (
@@ -222,21 +227,21 @@ export default function SkillsPage() {
                 href="/student/roadmap"
                 className="mt-4 block text-center px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition"
               >
-                View Learning Roadmap
+                {t('student.viewLearningRoadmap')}
               </Link>
             </div>
 
             {/* Retake Assessment */}
             <div className="bg-gradient-to-br from-indigo-500 to-purple-600 dark:from-purple-600 dark:to-indigo-700 rounded-xl p-6 text-white">
-              <h3 className="text-lg font-semibold mb-2">Update Your Profile</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('student.updateProfile')}</h3>
               <p className="text-indigo-100 dark:text-purple-200 text-sm mb-4">
-                Retake the assessment to get updated skill estimates
+                {t('student.retakeAssessmentDesc')}
               </p>
               <Link
                 href="/assessment/intake"
                 className="block text-center px-4 py-2 bg-white text-indigo-600 dark:text-purple-600 rounded-lg font-medium hover:bg-indigo-50 dark:hover:bg-gray-100 transition"
               >
-                Retake Assessment
+                {t('student.retakeAssessment')}
               </Link>
             </div>
           </div>

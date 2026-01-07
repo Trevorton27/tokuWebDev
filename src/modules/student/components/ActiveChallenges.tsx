@@ -12,46 +12,46 @@ export default function ActiveChallenges() {
   const tasks = [
     {
       id: 'ch-001',
-      title: 'Implement Custom Hooks',
+      titleKey: 'taskCustomHooks',
       type: 'challenge',
       difficulty: 'Medium',
-      estimatedTime: '2 hours',
+      estimatedTime: t('student.hourCount', { count: 2 }),
       status: 'in_progress',
       link: '/challenges/ch-001',
     },
     {
       id: 'ch-002',
-      title: 'Build Authentication Flow',
+      titleKey: 'taskAuthFlow',
       type: 'challenge',
       difficulty: 'Hard',
-      estimatedTime: '4 hours',
+      estimatedTime: t('student.hourCount', { count: 4 }),
       status: 'open',
       link: '/challenges/ch-002',
     },
     {
       id: 'proj-001-cp1',
-      title: 'Setup Project Repository',
+      titleKey: 'taskRepoSetup',
       type: 'project-checkpoint',
       difficulty: 'Easy',
-      estimatedTime: '30 min',
+      estimatedTime: t('student.minCount', { count: 30 }),
       status: 'in_progress',
       link: '/projects/proj-001#checkpoint-1',
     },
     {
       id: 'ch-003',
-      title: 'Optimize React Performance',
+      titleKey: 'taskPerformance',
       type: 'challenge',
       difficulty: 'Medium',
-      estimatedTime: '3 hours',
+      estimatedTime: t('student.hourCount', { count: 3 }),
       status: 'open',
       link: '/challenges/ch-003',
     },
     {
       id: 'proj-001-cp2',
-      title: 'Implement Product Listing',
+      titleKey: 'taskProductListing',
       type: 'project-checkpoint',
       difficulty: 'Medium',
-      estimatedTime: '2 hours',
+      estimatedTime: t('student.hourCount', { count: 2 }),
       status: 'open',
       link: '/projects/proj-001#checkpoint-2',
     },
@@ -124,7 +124,7 @@ export default function ActiveChallenges() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                    {task.title}
+                    {t(`student.${task.titleKey}`)}
                   </h3>
                   <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
                     <span className="capitalize">{task.type === 'project-checkpoint' ? t('student.projectCheckpoint') : t('student.challenge')}</span>

@@ -154,7 +154,9 @@ export default function InstructorDashboard() {
                       student.status === 'Behind' ? 'bg-yellow-100 text-yellow-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                      {student.status}
+                      {student.status === 'On track' ? t('instructor.onTrack') :
+                        student.status === 'Behind' ? t('instructor.behind') :
+                          t('instructor.atRisk')}
                     </span>
                   </div>
                   <div className="mt-2">
@@ -300,7 +302,7 @@ export default function InstructorDashboard() {
                   <div className="flex items-start justify-between mb-1">
                     <span className={`text-xs px-2 py-0.5 rounded ${q.status === 'Unanswered' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                       }`}>
-                      {q.status}
+                      {q.status === 'Unanswered' ? t('student.notStarted') : t('student.inProgress')}
                     </span>
                   </div>
                   <p className="text-sm font-medium text-gray-900 mb-1">{q.question}</p>
@@ -359,15 +361,15 @@ export default function InstructorDashboard() {
             <div className="bg-white rounded-lg p-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-2">{t('instructor.topStrugglingTopics')}</h3>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Array manipulation methods</li>
-                <li>• Asynchronous JavaScript</li>
-                <li>• Component lifecycle</li>
+                <li>• {t('student.resourceCategoryWeb')}</li>
+                <li>• {t('student.resourceCategoryTS')}</li>
+                <li>• React Hooks</li>
               </ul>
             </div>
             <div className="bg-white rounded-lg p-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-2">{t('instructor.atRiskStudentsInsight')}</h3>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• 3 students behind schedule</li>
+                <li>• {t('instructor.behind')} - 3 students</li>
                 <li>• Low engagement patterns detected</li>
                 <li>• Recommend 1:1 check-ins</li>
               </ul>

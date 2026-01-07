@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ConnectedRepo {
   id: string;
@@ -29,6 +30,7 @@ interface GitHubStatus {
 }
 
 export default function GitHubActivity() {
+  const { t } = useLanguage();
   const [status, setStatus] = useState<GitHubStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -90,13 +92,13 @@ export default function GitHubActivity() {
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border h-[580px] flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <span>GitHub Activity</span>
+          <span>{t('student.githubActivity')}</span>
         </h2>
         <Link
           href="/student/github"
           className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
         >
-          View All →
+          {t('student.viewAll')} →
         </Link>
       </div>
 
@@ -105,16 +107,16 @@ export default function GitHubActivity() {
         <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
           <div className="text-5xl mb-3">⚙️</div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            Configure GitHub Connectivity
+            {t('student.configureGitHub')}
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Connect your GitHub account to track your coding activity
+            {t('student.connectGitHubDesc')}
           </p>
           <Link
             href="/student/github"
             className="inline-block px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
           >
-            Get Started
+            {t('student.getStartedAction')}
           </Link>
         </div>
       ) : (
@@ -125,7 +127,7 @@ export default function GitHubActivity() {
               <span className="text-green-600 dark:text-green-400 text-lg">✓</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-green-900 dark:text-green-100">
-                  Connected as @{status.username}
+                  {t('student.connectedAs', { username: status?.username || '' })}
                 </p>
                 <p className="text-xs text-green-700 dark:text-green-300">
                   {status.email}
@@ -137,20 +139,20 @@ export default function GitHubActivity() {
           {/* Connected Projects */}
           <div className="flex-1 flex flex-col">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-              Connected Projects
+              {t('student.connectedProjects')}
             </h3>
 
             {status.connectedRepos.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center py-6 bg-gray-50 dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-dark-border">
                 <div className="text-3xl mb-2">📦</div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  No projects connected yet
+                  {t('student.noProjectsConnected')}
                 </p>
                 <Link
                   href="/student/github"
                   className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
                 >
-                  Connect a Repository →
+                  {t('student.connectRepository')}
                 </Link>
               </div>
             ) : (
@@ -195,7 +197,7 @@ export default function GitHubActivity() {
                       href="/student/github"
                       className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
                     >
-                      View {status.connectedRepos.length - 3} more →
+                      {t('student.viewMore', { count: (status?.connectedRepos.length || 0) - 3 })}
                     </Link>
                   </div>
                 )}

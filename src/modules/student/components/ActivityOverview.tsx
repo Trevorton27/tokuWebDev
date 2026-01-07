@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { formatDuration, formatDateTime } from '@/lib/activityUtils';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface SessionData {
   recentSessions: Array<{
@@ -35,6 +36,7 @@ interface MetricsData {
 }
 
 export default function ActivityOverview() {
+  const { t } = useLanguage();
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [metricsData, setMetricsData] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ export default function ActivityOverview() {
       }
     } catch (err) {
       console.error('Failed to fetch activity data:', err);
-      setError('Failed to load activity data');
+      setError(t('student.failedToLoadActivity'));
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,7 @@ export default function ActivityOverview() {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
-            Trending up
+            {t('student.trendingUp')}
           </span>
         );
       case 'down':
@@ -96,13 +98,13 @@ export default function ActivityOverview() {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
             </svg>
-            Trending down
+            {t('student.trendingDown')}
           </span>
         );
       default:
         return (
           <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-            → Stable
+            → {t('student.stable')}
           </span>
         );
     }
@@ -115,18 +117,18 @@ export default function ActivityOverview() {
 
     // Low overall engagement
     if (engagementScore < 30) {
-      return "Start by completing one coding challenge to build momentum";
+      return t('student.trendingUpAction');
     }
 
     // Specific area recommendations
     if (breakdown.coding < 20) {
-      return "Try a coding practice session to boost your skills";
+      return t('student.trendingDownAction');
     }
     if (breakdown.github < 20) {
-      return "Push a commit to your project to improve your GitHub activity";
+      return t('student.stableAction');
     }
     if (breakdown.learning < 20) {
-      return "Review a learning resource to strengthen your foundation";
+      return t('student.learningAction');
     }
 
     return null;
@@ -154,7 +156,7 @@ export default function ActivityOverview() {
         <div>
           <div className="flex items-center justify-between text-xs mb-1">
             <span className="text-gray-500 dark:text-gray-500">{label}</span>
-            <span className="text-gray-400 dark:text-gray-600 text-xs">Not enough data yet</span>
+            <span className="text-gray-400 dark:text-gray-600 text-xs">{t('student.notEnoughData')}</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
             <div
@@ -176,9 +178,8 @@ export default function ActivityOverview() {
         </div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
           <div
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              colorClasses[color as keyof typeof colorClasses]
-            }`}
+            className={`h-1.5 rounded-full transition-all duration-500 ${colorClasses[color as keyof typeof colorClasses]
+              }`}
             style={{ width: `${value}%` }}
           />
         </div>
@@ -208,7 +209,7 @@ export default function ActivityOverview() {
           Your Progress
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {error || 'No activity data available'}
+          {error || t('student.noActivityData')}
         </p>
       </div>
     );
@@ -224,11 +225,11 @@ export default function ActivityOverview() {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Your Progress
+          {t('student.yourProgress')}
         </h2>
         {metricsData.streak > 0 && (
           <span className="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-full font-medium">
-            🔥 {metricsData.streak} day{metricsData.streak > 1 ? 's' : ''}
+            🔥 {metricsData.streak} {t('student.days')}
           </span>
         )}
       </div>
@@ -240,7 +241,7 @@ export default function ActivityOverview() {
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
               {metricsData.engagementScore}<span className="text-sm text-gray-500 dark:text-gray-400 font-normal">/100</span>
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Engagement Score</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('student.engagementScore')}</div>
           </div>
           {getTrendIndicator()}
         </div>
@@ -256,10 +257,10 @@ export default function ActivityOverview() {
 
       {/* Activity Breakdown */}
       <div className="space-y-2.5 mb-4">
-        <MetricBar label="Login Activity" value={metricsData.breakdown.logins} color="blue" />
-        <MetricBar label="Coding Practice" value={metricsData.breakdown.coding} color="green" />
-        <MetricBar label="GitHub Activity" value={metricsData.breakdown.github} color="purple" />
-        <MetricBar label="Learning Time" value={metricsData.breakdown.learning} color="orange" />
+        <MetricBar label={t('student.loginActivity')} value={metricsData.breakdown.logins} color="blue" />
+        <MetricBar label={t('student.codingPractice')} value={metricsData.breakdown.coding} color="green" />
+        <MetricBar label={t('student.githubActivity')} value={metricsData.breakdown.github} color="purple" />
+        <MetricBar label={t('student.learningTime')} value={metricsData.breakdown.learning} color="orange" />
       </div>
 
       {/* Next Best Action */}
@@ -270,7 +271,7 @@ export default function ActivityOverview() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-xs text-blue-900 dark:text-blue-100 leading-relaxed">
-              <span className="font-semibold">Next step:</span> {nextBestAction}
+              <span className="font-semibold">{t('student.nextStep')}</span> {nextBestAction}
             </p>
           </div>
         </div>
@@ -279,23 +280,23 @@ export default function ActivityOverview() {
       {/* Collapsed Consistency Summary */}
       <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Consistency</h3>
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.consistency')}</h3>
           <button
             onClick={() => setShowSessionDetails(!showSessionDetails)}
             className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1"
             aria-expanded={showSessionDetails}
-            aria-label={showSessionDetails ? "Hide session details" : "Show session details"}
+            aria-label={showSessionDetails ? t('student.hideDetails') : t('student.showDetails')}
           >
             {showSessionDetails ? (
               <>
-                Hide details
+                {t('student.hideDetails')}
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                 </svg>
               </>
             ) : (
               <>
-                Show details
+                {t('student.showDetails')}
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -308,15 +309,15 @@ export default function ActivityOverview() {
         <div className="grid grid-cols-3 gap-3">
           <div>
             <div className="text-lg font-bold text-gray-900 dark:text-white">{sessionData.totalSessions}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">Sessions</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{t('student.sessions')}</div>
           </div>
           <div>
             <div className="text-lg font-bold text-gray-900 dark:text-white">{formatDuration(sessionData.totalTime)}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">This week</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{t('student.thisWeekTime')}</div>
           </div>
           <div>
             <div className="text-lg font-bold text-gray-900 dark:text-white">{metricsData.streak}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">Day streak</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{t('student.dayStreak')}</div>
           </div>
         </div>
 
@@ -326,7 +327,7 @@ export default function ActivityOverview() {
             {/* Current Session */}
             {currentSession && (
               <div>
-                <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Current Session</h4>
+                <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">{t('student.currentSession')}</h4>
                 <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800/30">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{getDeviceIcon(currentSession.deviceType)}</span>
@@ -336,7 +337,7 @@ export default function ActivityOverview() {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
                         </span>
-                        Active
+                        {t('student.active')}
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                         {currentSession.browser} • {formatDuration(currentSession.duration)}
@@ -350,7 +351,7 @@ export default function ActivityOverview() {
             {/* Recent Sessions */}
             {endedSessions.length > 0 && (
               <div>
-                <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Recent Activity</h4>
+                <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">{t('student.recentActivity')}</h4>
                 <div className="space-y-2">
                   {endedSessions.slice(0, 3).map((session, idx) => (
                     <div

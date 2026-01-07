@@ -204,20 +204,20 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
   };
 
   const getEventTypeLabel = (type?: string) => {
-    if (!type) return 'Event';
+    if (!type) return t('instructor.eventOther');
 
     const labels: Record<string, string> = {
-      MEETING: 'Meeting',
-      DEADLINE: 'Deadline',
-      LIVE_CODING: 'Live Coding',
-      QA_SESSION: 'Q&A Session',
-      WORKSHOP: 'Workshop',
-      STUDY_TIME: 'Study Time',
-      EXAM: 'Exam',
-      HOLIDAY: 'Holiday',
-      OTHER: 'Event',
+      MEETING: t('instructor.eventMeeting'),
+      DEADLINE: t('instructor.eventDeadline'),
+      LIVE_CODING: t('instructor.eventLiveCoding'),
+      QA_SESSION: t('instructor.eventQASession'),
+      WORKSHOP: t('instructor.eventWorkshop'),
+      STUDY_TIME: t('instructor.eventStudyTime'),
+      EXAM: t('instructor.eventExam'),
+      HOLIDAY: t('instructor.eventHoliday'),
+      OTHER: t('instructor.eventOther'),
     };
-    return labels[type] || 'Event';
+    return labels[type] || t('instructor.eventOther');
   };
 
   const getColorClasses = (type?: string) => {
@@ -242,8 +242,8 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
 
   const formatEventTime = (startTime: string) => {
     const date = new Date(startTime);
-    if (isToday(date)) return 'Today';
-    if (isTomorrow(date)) return 'Tomorrow';
+    if (isToday(date)) return t('instructor.today');
+    if (isTomorrow(date)) return t('instructor.tomorrow');
     return format(date, 'MMM d');
   };
 
@@ -254,7 +254,7 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
   if (loading) {
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Upcoming Events</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('instructor.upcomingEvents')}</h2>
         <div className="flex justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
@@ -265,7 +265,7 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
   return (
     <div className="h-full bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Upcoming Events</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('instructor.upcomingEvents')}</h2>
       </div>
 
       {!googleCalendarConnected && (
@@ -278,10 +278,10 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                Connect Your Google Calendar
+                {t('instructor.connectGoogleCalendar')}
               </h3>
               <p className="text-xs text-blue-700 dark:text-blue-200 mb-3">
-                Sync events to your Google Calendar to receive notifications and view them alongside your personal schedule.
+                {t('instructor.googleCalendarSubtitle')}
               </p>
               <Link
                 href={configPath}
@@ -290,7 +290,7 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
                 </svg>
-                Configure Google Calendar
+                {t('instructor.configureGoogleCalendar')}
               </Link>
             </div>
           </div>
@@ -321,7 +321,7 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
                     <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-300">
                       <span>{formatEventTime(event.startTime)}</span>
                       <span>•</span>
-                      <span>{event.isAllDay ? 'All day' : formatTime(event.startTime)}</span>
+                      <span>{event.isAllDay ? t('instructor.allDay') : formatTime(event.startTime)}</span>
                     </div>
                     {event.course && (
                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -341,7 +341,7 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  Join Meeting
+                  {t('instructor.joinMeeting')}
                 </a>
               )}
             </div>
@@ -352,11 +352,11 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
           <svg className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          <p className="text-sm text-gray-500 dark:text-gray-400">No upcoming events</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{t('instructor.noUpcomingEvents')}</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             {googleCalendarConnected
-              ? 'Check back later for scheduled events'
-              : 'Connect Google Calendar to see your events here'
+              ? t('instructor.checkBackLater')
+              : t('instructor.connectGoogleToSeeEvents')
             }
           </p>
         </div>
@@ -367,13 +367,13 @@ export default function CalendarEvents({ configPath }: CalendarEventsProps) {
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <span>Synced with Google Calendar</span>
+              <span>{t('instructor.syncedWithGoogle')}</span>
             </div>
             <Link
               href={configPath}
               className="text-indigo-600 dark:text-purple-400 hover:text-indigo-700 dark:hover:text-purple-300 font-medium"
             >
-              Manage
+              {t('instructor.manage')}
             </Link>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { QuestionnaireStepConfig } from '@/server/assessment/intakeConfig';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Props {
   config: QuestionnaireStepConfig;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function QuestionnaireStep({ config, onSubmit, previousAnswer, isSubmitting }: Props) {
+  const { t } = useLanguage();
   const [answers, setAnswers] = useState<Record<string, any>>(previousAnswer || {});
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function QuestionnaireStep({ config, onSubmit, previousAnswer, is
                 onChange={(e) => handleChange(field.id, e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
-                <option value="">Select an option...</option>
+                <option value="">{t('assessment.selectOptionPlaceholder')}</option>
                 {field.options?.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
@@ -119,11 +121,11 @@ export default function QuestionnaireStep({ config, onSubmit, previousAnswer, is
                   className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 />
                 <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <span>{field.min || 1} - No experience</span>
+                  <span>{field.min || 1} - {t('assessment.sliderExperienceNone')}</span>
                   <span className="font-medium text-indigo-600 dark:text-indigo-400">
                     {answers[field.id] || field.min || 1}
                   </span>
-                  <span>{field.max || 5} - Very confident</span>
+                  <span>{field.max || 5} - {t('assessment.sliderExperienceConfident')}</span>
                 </div>
               </div>
             )}
@@ -135,15 +137,15 @@ export default function QuestionnaireStep({ config, onSubmit, previousAnswer, is
         <button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className={`px-6 py-3 rounded-lg font-medium ${
-            isValid && !isSubmitting
+          className={`px-6 py-3 rounded-lg font-medium ${isValid && !isSubmitting
               ? 'bg-indigo-600 text-white hover:bg-indigo-700'
               : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-          }`}
+            }`}
         >
-          {isSubmitting ? 'Saving...' : 'Continue →'}
+          {isSubmitting ? t('assessment.saving') : t('assessment.continue')}
         </button>
       </div>
     </form>
   );
 }
+

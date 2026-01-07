@@ -2,6 +2,8 @@
 
 import useSWR from 'swr';
 import { formatDistanceToNow } from 'date-fns';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { enUS, ja } from 'date-fns/locale';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -11,6 +13,7 @@ interface ActivityTimelineProps {
 }
 
 export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTimelineProps) {
+  const { t, language } = useLanguage();
   const { data, error, isLoading } = useSWR(
     `/api/student/projects/${projectId}/activity?limit=${limit}`,
     fetcher,
@@ -19,10 +22,12 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
     }
   );
 
+  const dateLocale = language === 'ja' ? ja : enUS;
+
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-800">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Activity Timeline</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('student.activityTimeline')}</h3>
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
@@ -33,9 +38,9 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
   if (error || !data?.success) {
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border border-red-100 dark:border-red-900/30">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Activity Timeline</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('student.activityTimeline')}</h3>
         <div className="text-center text-red-600 dark:text-red-400">
-          <p>Failed to load activity timeline</p>
+          <p>{t('student.failedToLoadActivityTimeline')}</p>
         </div>
       </div>
     );
@@ -44,7 +49,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
   const activities = data.activities || [];
 
   // Get icon and color for activity type
-  const getActivityIcon = (activityType: string) => {
+  const getActivityInfo = (activityType: string) => {
     switch (activityType) {
       case 'COMMIT':
         return {
@@ -55,6 +60,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-blue-100 dark:bg-blue-900/50',
           textColor: 'text-blue-600 dark:text-blue-400',
+          titleKey: 'student.activityCommit',
         };
       case 'PULL_REQUEST_OPENED':
         return {
@@ -65,6 +71,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-purple-100 dark:bg-purple-900/50',
           textColor: 'text-purple-600 dark:text-purple-400',
+          titleKey: 'student.activityPROpened',
         };
       case 'PULL_REQUEST_MERGED':
         return {
@@ -75,6 +82,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-green-100 dark:bg-green-900/50',
           textColor: 'text-green-600 dark:text-green-400',
+          titleKey: 'student.activityPRMerged',
         };
       case 'PULL_REQUEST_CLOSED':
         return {
@@ -85,6 +93,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-gray-100 dark:bg-gray-900/50',
           textColor: 'text-gray-600 dark:text-gray-400',
+          titleKey: 'student.activityPRClosed',
         };
       case 'DEPLOYMENT_SUCCESS':
         return {
@@ -95,6 +104,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-green-100 dark:bg-green-900/50',
           textColor: 'text-green-600 dark:text-green-400',
+          titleKey: 'student.activityDeploymentSuccess',
         };
       case 'DEPLOYMENT_FAILED':
         return {
@@ -105,6 +115,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-red-100 dark:bg-red-900/50',
           textColor: 'text-red-600 dark:text-red-400',
+          titleKey: 'student.activityDeploymentFailed',
         };
       case 'MILESTONE_COMPLETED':
         return {
@@ -115,6 +126,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-yellow-100 dark:bg-yellow-900/50',
           textColor: 'text-yellow-600 dark:text-yellow-400',
+          titleKey: 'student.activityMilestoneCompleted',
         };
       default:
         return {
@@ -125,13 +137,14 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
           ),
           bgColor: 'bg-gray-100 dark:bg-gray-900/50',
           textColor: 'text-gray-600 dark:text-gray-400',
+          titleKey: 'student.recentActivity',
         };
     }
   };
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-800">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Activity Timeline</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('student.activityTimeline')}</h3>
 
       {activities.length === 0 ? (
         <div className="text-center py-8">
@@ -139,14 +152,14 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            No activity yet. Push some commits to see your timeline!
+            {t('student.noActivityYet')}
           </p>
         </div>
       ) : (
         <div className="flow-root">
           <ul className="-mb-8">
             {activities.map((activity: any, activityIdx: number) => {
-              const { icon, bgColor, textColor } = getActivityIcon(activity.activityType);
+              const { icon, bgColor, textColor, titleKey } = getActivityInfo(activity.activityType);
               const isLast = activityIdx === activities.length - 1;
 
               return (
@@ -168,11 +181,14 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
                         <div>
                           <div className="text-sm">
                             <span className="font-medium text-gray-900 dark:text-white">
-                              {activity.title}
+                              {t(titleKey)}: {activity.title}
                             </span>
                           </div>
                           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                            {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(activity.timestamp), {
+                              addSuffix: true,
+                              locale: dateLocale
+                            })}
                           </p>
                         </div>
                         {activity.description && (
@@ -188,7 +204,7 @@ export default function ActivityTimeline({ projectId, limit = 20 }: ActivityTime
                               rel="noopener noreferrer"
                               className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 inline-flex items-center"
                             >
-                              View on GitHub
+                              {t('student.viewOnGitHub')}
                               <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                               </svg>

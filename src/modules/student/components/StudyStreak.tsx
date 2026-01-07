@@ -81,7 +81,7 @@ export default function StudyStreak() {
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
           {progressPercent >= 100
             ? t('student.goalAchieved')
-            : `${(weeklyGoal - hoursThisWeek).toFixed(1)} ${t('student.hoursToGoal')}`
+            : t('student.hoursToGoal', { count: (weeklyGoal - hoursThisWeek).toFixed(1) })
           }
         </p>
       </div>
@@ -90,7 +90,7 @@ export default function StudyStreak() {
       <div className="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/50">
         <p className="text-xs text-indigo-900 dark:text-indigo-300 font-medium text-center">
           {streak >= 7
-            ? t('student.streakMotivation').replace('{days}', streak.toString())
+            ? t('student.streakMotivation', { days: streak })
             : t('student.streakEncouragement')
           }
         </p>

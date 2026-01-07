@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { formatHours, formatRelativeTime } from '@/lib/activityUtils';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface StudentActivity {
   id: string;
@@ -20,6 +21,7 @@ interface StudentActivity {
 }
 
 export default function StudentActivityTable() {
+  const { t } = useLanguage();
   const [students, setStudents] = useState<StudentActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'active' | 'at-risk'>('all');
@@ -37,7 +39,7 @@ export default function StudentActivityTable() {
       }
     } catch (err) {
       console.error('Failed to fetch student activity:', err);
-      setError('Failed to load student activity');
+      setError(t('student.failedToLoadActivity'));
     } finally {
       setLoading(false);
     }
@@ -63,11 +65,15 @@ export default function StudentActivityTable() {
 
     return (
       <span
-        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-          badgeClasses[status as keyof typeof badgeClasses]
-        }`}
+        className={`px-2 py-1 rounded-full text-xs font-semibold ${badgeClasses[status as keyof typeof badgeClasses]
+          }`}
       >
-        {status === 'at-risk' ? 'At Risk' : status.charAt(0).toUpperCase() + status.slice(1)}
+        {status === 'at-risk'
+          ? t('instructor.atRisk')
+          : status === 'active'
+            ? t('student.active')
+            : t('student.archived') // Using archived as a fallback for inactive if no specific key
+        }
       </span>
     );
   };
@@ -85,11 +91,10 @@ export default function StudentActivityTable() {
   }) => (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-        active
+      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${active
           ? 'bg-indigo-600 text-white'
           : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-      }`}
+        }`}
     >
       {label}
       {count !== undefined && ` (${count})`}
@@ -135,19 +140,19 @@ export default function StudentActivityTable() {
         {/* Filter Tabs */}
         <div className="flex space-x-2">
           <FilterTab
-            label="All"
+            label={t('common.all')}
             active={filter === 'all'}
             onClick={() => setFilter('all')}
             count={students.length}
           />
           <FilterTab
-            label="Active"
+            label={t('student.active')}
             active={filter === 'active'}
             onClick={() => setFilter('active')}
             count={students.filter((s) => s.status === 'active').length}
           />
           <FilterTab
-            label="At Risk"
+            label={t('instructor.atRisk')}
             active={filter === 'at-risk'}
             onClick={() => setFilter('at-risk')}
             count={students.filter((s) => s.status === 'at-risk').length}
@@ -161,28 +166,28 @@ export default function StudentActivityTable() {
           <thead className="bg-gray-50 dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Student
+                {t('instructor.studentName')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Score
+                {t('instructor.avgScore')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Logins
+                {t('instructor.logins')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Time
+                {t('instructor.time')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Commits
+                {t('instructor.commits')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Attempts
+                {t('instructor.attempts')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Last Active
+                {t('instructor.lastActive')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
-                Status
+                {t('instructor.filterStatus')}
               </th>
             </tr>
           </thead>
@@ -228,7 +233,7 @@ export default function StudentActivityTable() {
                 <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-400">
                   {student.lastActiveAt
                     ? formatRelativeTime(student.lastActiveAt)
-                    : 'Never'}
+                    : t('instructor.never')}
                 </td>
                 <td className="px-4 py-3 text-center">
                   {getStatusBadge(student.status)}

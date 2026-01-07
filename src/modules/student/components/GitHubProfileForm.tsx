@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface GitHubUser {
   login: string;
@@ -25,6 +26,7 @@ interface GitHubUser {
 }
 
 export default function GitHubProfileForm() {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
@@ -82,7 +84,7 @@ export default function GitHubProfileForm() {
     if (!username.trim()) {
       setMessage({
         type: 'error',
-        text: 'GitHub username is required',
+        text: t('student.githubUsernameRequired'),
       });
       setSaving(false);
       return;
@@ -91,7 +93,7 @@ export default function GitHubProfileForm() {
     if (!email.trim()) {
       setMessage({
         type: 'error',
-        text: 'Email is required',
+        text: t('student.emailRequired'),
       });
       setSaving(false);
       return;
@@ -106,7 +108,7 @@ export default function GitHubProfileForm() {
       if (response.data.success) {
         setMessage({
           type: 'success',
-          text: 'GitHub profile updated successfully!',
+          text: t('student.profileUpdated'),
         });
 
         // Fetch GitHub profile after successful save
@@ -114,7 +116,7 @@ export default function GitHubProfileForm() {
       }
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || 'Failed to update profile';
+        error.response?.data?.error || t('student.failedToUpdateProfile');
       setMessage({
         type: 'error',
         text: errorMessage,
@@ -171,7 +173,7 @@ export default function GitHubProfileForm() {
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
                 >
-                  View on GitHub
+                  {t('student.viewOnGithub')}
                   <svg
                     className="w-4 h-4"
                     fill="currentColor"
@@ -222,7 +224,7 @@ export default function GitHubProfileForm() {
                     {githubProfile.followers}
                   </span>{' '}
                   <span className="text-gray-600 dark:text-gray-400">
-                    followers
+                    {t('student.followers')}
                   </span>
                 </div>
                 <div>
@@ -230,7 +232,7 @@ export default function GitHubProfileForm() {
                     {githubProfile.following}
                   </span>{' '}
                   <span className="text-gray-600 dark:text-gray-400">
-                    following
+                    {t('student.following')}
                   </span>
                 </div>
                 <div>
@@ -238,7 +240,7 @@ export default function GitHubProfileForm() {
                     {githubProfile.public_repos}
                   </span>{' '}
                   <span className="text-gray-600 dark:text-gray-400">
-                    repositories
+                    {t('student.repositories')}
                   </span>
                 </div>
               </div>
@@ -256,7 +258,7 @@ export default function GitHubProfileForm() {
               htmlFor="github-username"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              GitHub Username <span className="text-red-500">*</span>
+              {t('student.githubUsername')} <span className="text-red-500">*</span>
             </label>
             <input
               id="github-username"
@@ -268,8 +270,7 @@ export default function GitHubProfileForm() {
               className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Your GitHub username (e.g., octocat). This is used to fetch your
-              repositories and activity.
+              {t('student.githubUsernameDesc')}
             </p>
           </div>
 
@@ -279,7 +280,7 @@ export default function GitHubProfileForm() {
               htmlFor="github-email"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              GitHub Email <span className="text-red-500">*</span>
+              {t('student.githubEmail')} <span className="text-red-500">*</span>
             </label>
             <input
               id="github-email"
@@ -291,18 +292,17 @@ export default function GitHubProfileForm() {
               className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              The email associated with your GitHub account.
+              {t('student.githubEmailDesc')}
             </p>
           </div>
 
           {/* Message */}
           {message && (
             <div
-              className={`p-4 rounded-lg ${
-                message.type === 'success'
-                  ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
-                  : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
-              }`}
+              className={`p-4 rounded-lg ${message.type === 'success'
+                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
+                : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+                }`}
             >
               <p className="text-sm font-medium">{message.text}</p>
             </div>
@@ -316,10 +316,10 @@ export default function GitHubProfileForm() {
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors"
             >
               {saving
-                ? 'Saving...'
+                ? t('student.saving')
                 : fetchingProfile
-                ? 'Loading Profile...'
-                : 'Save Profile'}
+                  ? t('student.loadingProfile')
+                  : t('student.saveProfile')}
             </button>
           </div>
         </form>

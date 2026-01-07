@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ContributionDay {
   date: string;
@@ -43,6 +44,7 @@ interface ErrorState {
 }
 
 export default function GitHubActivityGraph() {
+  const { t } = useLanguage();
   const [data, setData] = useState<ActivityData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorState | null>(null);
@@ -67,7 +69,7 @@ export default function GitHubActivityGraph() {
     } catch (err: any) {
       const errorData = err.response?.data;
       setError({
-        message: errorData?.error || 'Failed to fetch activity data',
+        message: errorData?.error || t('student.failedToFetchActivity'),
         type: errorData?.errorType || 'GENERAL',
         resetAt: errorData?.resetAt,
       });
@@ -99,7 +101,7 @@ export default function GitHubActivityGraph() {
         <div className="bg-slate-900/40 rounded-lg p-6 border border-slate-800/50 animate-pulse">
           <div className="h-6 bg-slate-800 rounded w-1/3 mb-5"></div>
           <div className="h-48 bg-slate-800 rounded mb-4"></div>
-          <div className="h-12 bg-slate-800 rounded"></div>
+          <p className="text-gray-600 dark:text-gray-400 text-center">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -114,7 +116,7 @@ export default function GitHubActivityGraph() {
             <span className="text-xl text-yellow-500">⚠️</span>
             <div className="flex-1">
               <h3 className="text-base font-semibold text-slate-100 mb-1.5">
-                GitHub API Rate Limit Exceeded
+                {t('student.githubRateLimitTitle')}
               </h3>
               <p className="text-sm text-slate-400 mb-3">
                 {error.message}
@@ -124,38 +126,39 @@ export default function GitHubActivityGraph() {
 
           <div className="bg-slate-900/40 border border-slate-800/50 rounded-lg p-4 mb-4">
             <h4 className="text-sm font-medium text-slate-200 mb-3">
-              How to Fix This:
+              {t('student.githubRateLimitFixHeader')}
             </h4>
             <ol className="text-sm text-slate-400 space-y-2 list-decimal list-inside">
               <li>
-                Go to{' '}
+                {t('student.githubRateLimitStep1Prefix')}
                 <a
                   href="https://github.com/settings/tokens"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-green-400 hover:text-green-300 underline"
                 >
-                  GitHub Settings → Developer settings → Personal access tokens
+                  {t('student.githubRateLimitStep1Link')}
                 </a>
+                {t('student.githubRateLimitStep1Suffix')}
               </li>
-              <li>Click "Generate new token" (classic)</li>
+              <li>{t('student.githubRateLimitStep2')}</li>
               <li>
-                Give it a name like "Signal Works LMS" and select these scopes:
+                {t('student.githubRateLimitStep3')}
                 <ul className="ml-6 mt-1 space-y-1 list-disc">
-                  <li><code className="text-xs bg-slate-800 px-1.5 py-0.5 rounded">public_repo</code> - Read public repositories</li>
-                  <li><code className="text-xs bg-slate-800 px-1.5 py-0.5 rounded">read:user</code> - Read user profile</li>
+                  <li><code className="text-xs bg-slate-800 px-1.5 py-0.5 rounded">public_repo</code> - {t('student.githubRateLimitScopeRepos')}</li>
+                  <li><code className="text-xs bg-slate-800 px-1.5 py-0.5 rounded">read:user</code> - {t('student.githubRateLimitScopeUser')}</li>
                 </ul>
               </li>
-              <li>Generate the token and copy it</li>
-              <li>Go to the <strong className="text-slate-300">Webhook</strong> tab on this page</li>
-              <li>Scroll to the "GitHub Personal Access Token" section</li>
-              <li>Paste your token and click "Save Personal Access Token"</li>
+              <li>{t('student.githubRateLimitStep4')}</li>
+              <li>{t('student.githubRateLimitStep5')}</li>
+              <li>{t('student.githubRateLimitStep6')}</li>
+              <li>{t('student.githubRateLimitStep7')}</li>
             </ol>
           </div>
 
           <div className="bg-blue-500/5 border border-blue-500/20 rounded p-3 mb-4">
             <p className="text-xs text-slate-300">
-              <strong>ℹ️ Why?</strong> Without a token, GitHub limits you to 60 requests/hour. With a token, you get 5,000 requests/hour.
+              {t('student.githubRateLimitWhy')}
             </p>
           </div>
 
@@ -163,7 +166,7 @@ export default function GitHubActivityGraph() {
             onClick={fetchActivity}
             className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white text-sm rounded-lg transition-colors"
           >
-            Retry
+            {t('student.retry')}
           </button>
         </div>
       );
@@ -175,14 +178,14 @@ export default function GitHubActivityGraph() {
         <p className="text-sm text-slate-300 mb-2">{error.message}</p>
         {error.type === 'AUTH_ERROR' && (
           <p className="text-xs text-slate-400 mb-4">
-            There may be an issue with your GitHub authentication or permissions.
+            {t('student.githubAuthErrorDesc')}
           </p>
         )}
         <button
           onClick={fetchActivity}
           className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm rounded-lg transition-colors"
         >
-          Retry
+          {t('student.retry')}
         </button>
       </div>
     );
@@ -198,18 +201,18 @@ export default function GitHubActivityGraph() {
       <div className="bg-slate-900/40 rounded-lg p-6 border border-slate-800/50">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-base font-semibold text-slate-100">
-            Contribution Activity
+            {t('student.contributionActivity')}
           </h3>
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
             className="px-3 py-1.5 text-sm border border-slate-700 rounded-lg bg-slate-800/50 text-slate-300 focus:outline-none focus:ring-2 focus:ring-green-500/50"
           >
-            <option value={7}>Last 7 days</option>
-            <option value={14}>Last 14 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={60}>Last 60 days</option>
-            <option value={90}>Last 90 days</option>
+            <option value={7}>{t('student.lastNDays', { count: 7 })}</option>
+            <option value={14}>{t('student.lastNDays', { count: 14 })}</option>
+            <option value={30}>{t('student.lastNDays', { count: 30 })}</option>
+            <option value={60}>{t('student.lastNDays', { count: 60 })}</option>
+            <option value={90}>{t('student.lastNDays', { count: 90 })}</option>
           </select>
         </div>
 
@@ -220,7 +223,7 @@ export default function GitHubActivityGraph() {
               <div
                 key={idx}
                 className={`w-3.5 h-3.5 rounded-sm ${getLevelColor(day.level)} hover:ring-2 hover:ring-green-400 cursor-pointer transition-all`}
-                title={`${day.date}: ${day.count} contributions`}
+                title={`${day.date}: ${day.count} ${t('student.contributions')}`}
               />
             ))}
           </div>
@@ -228,7 +231,7 @@ export default function GitHubActivityGraph() {
 
         {/* Legend */}
         <div className="flex items-center justify-end gap-2 mt-5 text-xs text-slate-500">
-          <span>Less</span>
+          <span>{t('student.less')}</span>
           <div className="flex gap-1">
             {[0, 1, 2, 3, 4].map((level) => (
               <div
@@ -237,7 +240,7 @@ export default function GitHubActivityGraph() {
               />
             ))}
           </div>
-          <span>More</span>
+          <span>{t('student.more')}</span>
         </div>
       </div>
 
@@ -246,22 +249,22 @@ export default function GitHubActivityGraph() {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-green-400">{data.summary.total}</span>
-            <span className="text-slate-400">Total contributions</span>
+            <span className="text-slate-400">{t('student.totalContributions')}</span>
           </div>
           <div className="text-slate-600">•</div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-green-400">{data.summary.activeDays}</span>
-            <span className="text-slate-400">Active days</span>
+            <span className="text-slate-400">{t('student.activeDays')}</span>
           </div>
           <div className="text-slate-600">•</div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-green-400">{data.summary.maxInDay}</span>
-            <span className="text-slate-400">Best day</span>
+            <span className="text-slate-400">{t('student.bestDay')}</span>
           </div>
           <div className="text-slate-600">•</div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-green-400">{data.summary.average}</span>
-            <span className="text-slate-400">Avg/day</span>
+            <span className="text-slate-400">{t('student.avgPerDay')}</span>
           </div>
         </div>
 
@@ -269,7 +272,7 @@ export default function GitHubActivityGraph() {
         {data.summary.total < 5 && data.summary.total > 0 && (
           <div className="mt-3 pt-3 border-t border-slate-800/50">
             <p className="text-xs text-slate-500">
-              First activity logged 🎉 Keep going—your streak starts here.
+              {t('student.firstActivityLogged')}
             </p>
           </div>
         )}
@@ -279,7 +282,7 @@ export default function GitHubActivityGraph() {
       {data.statistics && (
         <div className="bg-slate-900/40 rounded-lg p-5 border border-slate-800/50">
           <h3 className="text-base font-medium text-slate-200 mb-4">
-            GitHub Statistics
+            {t('student.githubStatistics')}
           </h3>
 
           {/* Stats Grid - Simple 3-column */}
@@ -289,7 +292,7 @@ export default function GitHubActivityGraph() {
                 {data.statistics.repositories}
               </div>
               <div className="text-xs text-slate-500 mt-0.5">
-                Repositories
+                {t('student.githubRepos')}
               </div>
             </div>
             <div>
@@ -298,7 +301,7 @@ export default function GitHubActivityGraph() {
                 {data.statistics.stars}
               </div>
               <div className="text-xs text-slate-500 mt-0.5">
-                Stars
+                {t('student.githubStars')}
               </div>
             </div>
             <div>
@@ -306,7 +309,7 @@ export default function GitHubActivityGraph() {
                 {data.statistics.forks}
               </div>
               <div className="text-xs text-slate-500 mt-0.5">
-                Forks
+                {t('student.githubForks')}
               </div>
             </div>
             <div>
@@ -314,7 +317,7 @@ export default function GitHubActivityGraph() {
                 {data.statistics.recentActivity}
               </div>
               <div className="text-xs text-slate-500 mt-0.5">
-                Recent Events
+                {t('student.githubRecentEvents')}
               </div>
             </div>
           </div>
@@ -323,7 +326,7 @@ export default function GitHubActivityGraph() {
           {data.statistics?.topLanguages && data.statistics.topLanguages.length > 0 && (
             <div className="pt-4 border-t border-slate-800/50">
               <h4 className="text-sm font-medium text-slate-300 mb-3">
-                Top Languages
+                {t('student.topLanguages')}
               </h4>
               <div className="space-y-2.5">
                 {data.statistics.topLanguages.map((lang) => (

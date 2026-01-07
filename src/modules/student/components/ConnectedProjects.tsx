@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import RepoActivityModal from './RepoActivityModal';
 
 interface ConnectedRepo {
@@ -22,6 +23,7 @@ interface ConnectedRepo {
 }
 
 export default function ConnectedProjects() {
+  const { t, language } = useLanguage();
   const [repos, setRepos] = useState<ConnectedRepo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export default function ConnectedProjects() {
         setRepos(response.data.repositories);
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load connected projects');
+      setError(err.response?.data?.error || t('student.failedToLoadConnectedProjects'));
     } finally {
       setLoading(false);
     }
@@ -68,7 +70,7 @@ export default function ConnectedProjects() {
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          Connected Projects
+          {t('student.connectedProjectsCount', { count: 0 })}
         </h3>
         <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
       </div>
@@ -79,15 +81,15 @@ export default function ConnectedProjects() {
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Connected Projects
+          {t('student.connectedProjectsCount', { count: 0 })}
         </h3>
         <div className="text-center py-8">
           <div className="text-5xl mb-3">📦</div>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            No connected projects yet
+            {t('student.noConnectedProjectsYet')}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-500">
-            Visit the Repositories tab to connect your GitHub projects
+            {t('student.visitReposToConnect')}
           </p>
         </div>
       </div>
@@ -98,10 +100,10 @@ export default function ConnectedProjects() {
     <>
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Connected Projects ({repos.length})
+          {t('student.connectedProjectsCount', { count: repos.length })}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Click on a project to view detailed activity and statistics
+          {t('student.clickProjectForDetails')}
         </p>
 
         <div className="space-y-3">
@@ -137,7 +139,9 @@ export default function ConnectedProjects() {
                       <span>⭐ {repo.metadata.stars}</span>
                     )}
                     <span>
-                      Connected {new Date(repo.connectedAt).toLocaleDateString()}
+                      {t('student.connectedOn', {
+                        date: new Date(repo.connectedAt).toLocaleDateString(language === 'ja' ? 'ja-JP' : 'en-US')
+                      })}
                     </span>
                   </div>
                 </div>

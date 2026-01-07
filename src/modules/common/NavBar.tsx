@@ -34,22 +34,22 @@ export default function NavBar() {
               {isHomePage && (
                 <div className="hidden md:flex space-x-6">
                   <a href="#about" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                    About
+                    {t('nav.about')}
                   </a>
                   <a href="#how-it-works" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                    How It Works
+                    {t('nav.howItWorks')}
                   </a>
                   <a href="#features" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                    Features
+                    {t('nav.features')}
                   </a>
                   <a href="#curriculum" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                    Curriculum
+                    {t('nav.curriculum')}
                   </a>
                   <a href="#testimonials" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                    Testimonials
+                    {t('nav.testimonials')}
                   </a>
                   <a href="#faq" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                    FAQ
+                    {t('nav.faq')}
                   </a>
                 </div>
               )}

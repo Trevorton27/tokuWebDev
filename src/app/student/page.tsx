@@ -58,7 +58,7 @@ export default function StudentDashboard() {
           {/* RIGHT NOW Section */}
           <section>
             <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">
-              Right Now
+              {t('student.rightNow')}
             </h2>
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Active Project */}
@@ -81,7 +81,7 @@ export default function StudentDashboard() {
           {/* THIS WEEK Section */}
           <section>
             <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">
-              This Week
+              {t('student.thisWeek')}
             </h2>
             <div className="grid lg:grid-cols-3 gap-6 items-start">
               {/* Activity Overview - Simplified */}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { MicroMcqBurstStepConfig } from '@/server/assessment/intakeConfig';
 import type { SubmitAnswerResponse } from '@/lib/intakeClient';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Props {
   config: MicroMcqBurstStepConfig;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function MicroMcqBurstStep({ config, onSubmit, previousAnswer, isSubmitting }: Props) {
+  const { t } = useLanguage();
   // Track selected option for each question
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
     if (previousAnswer?.answers) {
@@ -51,7 +53,7 @@ export default function MicroMcqBurstStep({ config, onSubmit, previousAnswer, is
         <div className="flex items-center gap-3 mb-2">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{config.title}</h2>
           <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300">
-            Quick Check
+            {t('assessment.quickCheckBadge')}
           </span>
         </div>
         <p className="text-gray-600 dark:text-gray-300">{config.description}</p>
@@ -71,7 +73,7 @@ export default function MicroMcqBurstStep({ config, onSubmit, previousAnswer, is
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-600 dark:text-gray-400">
-            {answeredCount} of {config.questions.length} answered
+            {t('assessment.questionsAnswered', { current: answeredCount, total: config.questions.length })}
           </span>
           <span className="text-sm font-medium text-gray-900 dark:text-white">
             {Math.round((answeredCount / config.questions.length) * 100)}%
@@ -90,19 +92,17 @@ export default function MicroMcqBurstStep({ config, onSubmit, previousAnswer, is
         {config.questions.map((question, index) => (
           <div
             key={question.id}
-            className={`p-5 rounded-lg border-2 transition-all ${
-              answers[question.id]
-                ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10'
-                : 'border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card'
-            }`}
+            className={`p-5 rounded-lg border-2 transition-all ${answers[question.id]
+              ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10'
+              : 'border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card'
+              }`}
           >
             {/* Question number badge */}
             <div className="flex items-start gap-4 mb-4">
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                answers[question.id]
-                  ? 'bg-green-500 dark:bg-green-600 text-white'
-                  : 'bg-gray-200 dark:bg-dark-hover text-gray-600 dark:text-gray-300'
-              }`}>
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${answers[question.id]
+                ? 'bg-green-500 dark:bg-green-600 text-white'
+                : 'bg-gray-200 dark:bg-dark-hover text-gray-600 dark:text-gray-300'
+                }`}>
                 {index + 1}
               </div>
               <div className="flex-1">
@@ -117,19 +117,17 @@ export default function MicroMcqBurstStep({ config, onSubmit, previousAnswer, is
                       key={option.id}
                       type="button"
                       onClick={() => handleOptionSelect(question.id, option.id)}
-                      className={`w-full text-left p-3 rounded-lg border-2 transition-all text-sm ${
-                        answers[question.id] === option.id
-                          ? 'border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30'
-                          : 'border-gray-200 dark:border-dark-border hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-dark-surface'
-                      }`}
+                      className={`w-full text-left p-3 rounded-lg border-2 transition-all text-sm ${answers[question.id] === option.id
+                        ? 'border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30'
+                        : 'border-gray-200 dark:border-dark-border hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-dark-surface'
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                            answers[question.id] === option.id
-                              ? 'border-purple-500 dark:border-purple-400 bg-purple-500 dark:bg-purple-500'
-                              : 'border-gray-300 dark:border-gray-600'
-                          }`}
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${answers[question.id] === option.id
+                            ? 'border-purple-500 dark:border-purple-400 bg-purple-500 dark:bg-purple-500'
+                            : 'border-gray-300 dark:border-gray-600'
+                            }`}
                         >
                           {answers[question.id] === option.id && (
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -158,11 +156,10 @@ export default function MicroMcqBurstStep({ config, onSubmit, previousAnswer, is
           type="button"
           onClick={handleSubmit}
           disabled={!allAnswered || isSubmitting}
-          className={`px-6 py-3 rounded-lg font-medium transition-all ${
-            allAnswered && !isSubmitting
-              ? 'bg-purple-600 dark:bg-purple-600 text-white hover:bg-purple-700 dark:hover:bg-purple-700'
-              : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-          }`}
+          className={`px-6 py-3 rounded-lg font-medium transition-all ${allAnswered && !isSubmitting
+            ? 'bg-purple-600 dark:bg-purple-600 text-white hover:bg-purple-700 dark:hover:bg-purple-700'
+            : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            }`}
         >
           {isSubmitting ? (
             <span className="flex items-center gap-2">
@@ -170,15 +167,16 @@ export default function MicroMcqBurstStep({ config, onSubmit, previousAnswer, is
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              Processing...
+              {t('common.loading')}
             </span>
           ) : allAnswered ? (
-            'Continue →'
+            t('assessment.continue')
           ) : (
-            `Answer all ${config.questions.length} questions`
+            t('assessment.answerAllQuestions', { total: config.questions.length })
           )}
         </button>
       </div>
     </div>
   );
 }
+

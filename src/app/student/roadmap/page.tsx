@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface RoadmapDocument {
   success: boolean;
@@ -13,6 +14,7 @@ interface RoadmapDocument {
 }
 
 export default function RoadmapPage() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [roadmap, setRoadmap] = useState<RoadmapDocument | null>(null);
@@ -34,9 +36,9 @@ export default function RoadmapPage() {
       }
     } catch (err: any) {
       if (err.response?.status === 404) {
-        setError('No roadmap assigned yet. Please contact your instructor.');
+        setError(t('student.noRoadmapAssigned'));
       } else {
-        setError('Failed to load roadmap. Please try again later.');
+        setError(t('student.failedToLoadCurriculum'));
       }
       console.error('Error fetching roadmap:', err);
     } finally {
@@ -50,7 +52,7 @@ export default function RoadmapPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading your roadmap...</p>
+          <p className="text-gray-600 dark:text-gray-300">{t('student.loadingRoadmap')}</p>
         </div>
       </div>
     );
@@ -63,7 +65,7 @@ export default function RoadmapPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 text-center border border-gray-200 dark:border-dark-border">
             <div className="text-6xl mb-4">🗺️</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Roadmap Yet</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('student.noRoadmapYet')}</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               {error}
             </p>
@@ -72,13 +74,13 @@ export default function RoadmapPage() {
                 onClick={fetchRoadmap}
                 className="px-6 py-3 bg-indigo-600 dark:bg-purple-600 text-white rounded-lg font-medium hover:bg-indigo-700 dark:hover:bg-purple-700 transition"
               >
-                Try Again
+                {t('student.retry')}
               </button>
               <Link
                 href="/student"
                 className="px-6 py-3 bg-gray-200 dark:bg-dark-surface text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-dark-hover transition"
               >
-                Back to Dashboard
+                {t('student.backToDashboard')}
               </Link>
             </div>
           </div>
@@ -96,17 +98,17 @@ export default function RoadmapPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {roadmap?.title || 'Your Learning Roadmap'}
+                {roadmap?.title || t('student.learningRoadmap')}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1">
-                Your personalized curriculum guide
+                {t('student.curriculumDesc')}
               </p>
             </div>
             <Link
               href="/student"
               className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-dark-card border border-gray-300 dark:border-dark-border rounded-md hover:bg-gray-50 dark:hover:bg-dark-hover transition"
             >
-              Back to Dashboard
+              {t('student.backToDashboard')}
             </Link>
           </div>
         </div>
@@ -127,7 +129,7 @@ export default function RoadmapPage() {
         {/* Footer Info */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            This roadmap is managed by your instructor. If you have questions, please reach out to them.
+            {t('student.roadmapManagedByInstructor')}
           </p>
         </div>
       </div>

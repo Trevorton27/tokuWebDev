@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
-import { ExternalLink, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ExternalLink, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ReviewRequest {
     id: string;
@@ -19,6 +20,7 @@ interface ReviewRequest {
 }
 
 export default function ReviewQueue() {
+    const { t } = useLanguage();
     const [requests, setRequests] = useState<ReviewRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -53,17 +55,17 @@ export default function ReviewQueue() {
             setFeedback('');
         } catch (error) {
             console.error('Failed to update status:', error);
-            alert('Failed to update status');
+            alert(t('instructor.failedToUpdateStatus'));
         }
     };
 
-    if (loading) return <div className="text-center py-4">Loading reviews...</div>;
-    if (requests.length === 0) return <div className="text-center py-4 text-gray-500">No pending reviews.</div>;
+    if (loading) return <div className="text-center py-4">{t('common.loading')}</div>;
+    if (requests.length === 0) return <div className="text-center py-4 text-gray-500">{t('instructor.noPendingReviews')}</div>;
 
     return (
         <div className="bg-white dark:bg-dark-card rounded-lg shadow overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-dark-border">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Pending Code Reviews</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('instructor.pendingCodeReviews')}</h3>
             </div>
             <div className="divide-y divide-gray-200 dark:divide-dark-border">
                 {requests.map((req) => (
@@ -75,13 +77,16 @@ export default function ReviewQueue() {
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-gray-900 dark:text-white">{req.user.name || req.user.email}</p>
-                                    <p className="text-xs text-gray-500">{formatDistanceToNow(new Date(req.createdAt))} ago</p>
+                                    <p className="text-xs text-gray-500">{formatDistanceToNow(new Date(req.createdAt))} {t('student.ago')}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${req.status === 'IN_REVIEW' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
                                     }`}>
-                                    {req.status.replace('_', ' ')}
+                                    {req.status === 'IN_REVIEW' ? t('instructor.statusInReview') :
+                                        req.status === 'PENDING' ? t('instructor.statusPending') :
+                                            req.status === 'COMPLETED' ? t('instructor.statusCompleted') :
+                                                req.status.replace('_', ' ')}
                                 </span>
                             </div>
                         </div>
@@ -109,7 +114,7 @@ export default function ReviewQueue() {
                                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 rounded border border-yellow-200"
                                     >
                                         <Clock size={12} />
-                                        Start Review
+                                        {t('instructor.startReview')}
                                     </button>
                                 )}
 
@@ -118,7 +123,7 @@ export default function ReviewQueue() {
                                         <textarea
                                             value={feedback}
                                             onChange={(e) => setFeedback(e.target.value)}
-                                            placeholder="Reason for rejection..."
+                                            placeholder={t('instructor.rejectionReason')}
                                             className="w-full text-sm p-2 border rounded mb-2"
                                             autoFocus
                                         />
@@ -127,13 +132,13 @@ export default function ReviewQueue() {
                                                 onClick={() => handleUpdateStatus(req.id, 'REJECTED', feedback)}
                                                 className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded"
                                             >
-                                                Confirm Reject
+                                                {t('instructor.confirmReject')}
                                             </button>
                                             <button
                                                 onClick={() => setRejectingId(null)}
                                                 className="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded"
                                             >
-                                                Cancel
+                                                {t('common.cancel')}
                                             </button>
                                         </div>
                                     </div>
@@ -144,14 +149,14 @@ export default function ReviewQueue() {
                                             className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded border border-green-200"
                                         >
                                             <CheckCircle size={12} />
-                                            Approve
+                                            {t('instructor.approve')}
                                         </button>
                                         <button
                                             onClick={() => setRejectingId(req.id)}
                                             className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded border border-red-200"
                                         >
                                             <XCircle size={12} />
-                                            Reject
+                                            {t('instructor.reject')}
                                         </button>
                                     </>
                                 )}

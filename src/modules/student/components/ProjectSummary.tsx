@@ -29,12 +29,12 @@ export default function ProjectSummary() {
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 border-2 border-red-100 dark:border-red-900/30">
         <div className="text-center text-red-600 dark:text-red-400">
-          <p>Failed to load current project</p>
+          <p>{t('student.failedToLoadProject')}</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-2 text-sm underline hover:no-underline"
           >
-            Retry
+            {t('student.retry')}
           </button>
         </div>
       </div>
@@ -52,10 +52,10 @@ export default function ProjectSummary() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            No Active Project
+            {t('student.noActiveProject')}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Start a new project to track your progress
+            {t('student.startNewProject')}
           </p>
           <Link
             href="/student/github"
@@ -64,7 +64,7 @@ export default function ProjectSummary() {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Configure Project
+            {t('student.configureGitHub')}
           </Link>
         </div>
       </div>
@@ -77,10 +77,10 @@ export default function ProjectSummary() {
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { bg: string; text: string; label: string }> = {
       IN_PROGRESS: { bg: 'bg-blue-100 dark:bg-blue-900/50', text: 'text-blue-700 dark:text-blue-300', label: t('student.inProgress') },
-      NOT_STARTED: { bg: 'bg-gray-100 dark:bg-gray-900/50', text: 'text-gray-700 dark:text-gray-300', label: 'Not Started' },
-      BLOCKED: { bg: 'bg-red-100 dark:bg-red-900/50', text: 'text-red-700 dark:text-red-300', label: 'Blocked' },
-      COMPLETED: { bg: 'bg-green-100 dark:bg-green-900/50', text: 'text-green-700 dark:text-green-300', label: 'Completed' },
-      ARCHIVED: { bg: 'bg-gray-100 dark:bg-gray-900/50', text: 'text-gray-700 dark:text-gray-300', label: 'Archived' },
+      NOT_STARTED: { bg: 'bg-gray-100 dark:bg-gray-900/50', text: 'text-gray-700 dark:text-gray-300', label: t('student.notStarted') },
+      BLOCKED: { bg: 'bg-red-100 dark:bg-red-900/50', text: 'text-red-700 dark:text-red-300', label: t('student.blocked') },
+      COMPLETED: { bg: 'bg-green-100 dark:bg-green-900/50', text: 'text-green-700 dark:text-green-300', label: t('student.completed') },
+      ARCHIVED: { bg: 'bg-gray-100 dark:bg-gray-900/50', text: 'text-gray-700 dark:text-gray-300', label: t('student.archived') },
     };
     return statusMap[status] || statusMap.IN_PROGRESS;
   };
@@ -127,7 +127,7 @@ export default function ProjectSummary() {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {t('student.lastCommit')}: {formatDistanceToNow(new Date(project.lastCommitDate))} ago
+              {t('student.lastCommit')}: {formatDistanceToNow(new Date(project.lastCommitDate))} {t('student.ago')}
             </div>
           )}
 
@@ -141,13 +141,13 @@ export default function ProjectSummary() {
           {/* GitHub Stats */}
           <div className="flex gap-4 text-xs text-gray-500 dark:text-gray-400">
             {project.totalCommits > 0 && (
-              <span>{project.totalCommits} commits</span>
+              <span>{project.totalCommits} {t('student.commitsCount')}</span>
             )}
             {project.openPRs > 0 && (
-              <span>{project.openPRs} open PRs</span>
+              <span>{project.openPRs} {t('student.openPRsCount')}</span>
             )}
             {project.closedPRs > 0 && (
-              <span>{project.closedPRs} merged PRs</span>
+              <span>{project.closedPRs} {t('student.mergedPRsCount')}</span>
             )}
           </div>
         </div>
@@ -203,12 +203,12 @@ export default function ProjectSummary() {
           </>
         ) : (
           <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
-            No milestones defined yet.
+            {t('student.noMilestones')}
             <Link
               href="/student/projects"
               className="text-indigo-600 dark:text-indigo-400 hover:underline ml-1"
             >
-              Add milestones
+              {t('student.addMilestones')}
             </Link>
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface GoogleCalendarStatus {
   connected: boolean;
@@ -15,6 +16,7 @@ interface GoogleCalendarSettingsProps {
 }
 
 export default function GoogleCalendarSettings({ userId }: GoogleCalendarSettingsProps) {
+  const { t } = useLanguage();
   const [status, setStatus] = useState<GoogleCalendarStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -42,10 +44,10 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
           tokenExpiry: data.tokenExpiry ? new Date(data.tokenExpiry) : undefined,
         });
       } else {
-        setError(data.error || 'Failed to load connection status');
+        setError(data.error || t('student.failedToLoadStatus'));
       }
     } catch (err) {
-      setError('Failed to load connection status');
+      setError(t('student.failedToLoadStatus'));
       console.error('Failed to load Google Calendar status:', err);
     } finally {
       setLoading(false);
@@ -58,7 +60,7 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
   };
 
   const handleDisconnect = async () => {
-    if (!confirm('Are you sure you want to disconnect Google Calendar? Your events will remain in Google Calendar but will no longer sync automatically.')) {
+    if (!confirm(t('student.disconnectConfirm'))) {
       return;
     }
 
@@ -75,10 +77,10 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
         setStatus({ connected: false });
         setSyncResult(null);
       } else {
-        setError(data.error || 'Failed to disconnect');
+        setError(data.error || t('student.failedToDisconnect'));
       }
     } catch (err) {
-      setError('Failed to disconnect Google Calendar');
+      setError(t('student.failedToDisconnect'));
       console.error('Failed to disconnect:', err);
     } finally {
       setDisconnecting(false);
@@ -102,10 +104,10 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
         // Reload status to update lastSync timestamp
         await loadStatus();
       } else {
-        setError(data.error || 'Failed to sync events');
+        setError(data.error || t('student.failedToSync'));
       }
     } catch (err) {
-      setError('Failed to sync events');
+      setError(t('student.failedToSync'));
       console.error('Failed to sync events:', err);
     } finally {
       setSyncing(false);
@@ -115,15 +117,15 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Google Calendar Integration</h2>
-        <p className="text-gray-600">Loading...</p>
+        <h2 className="text-xl font-semibold mb-4">{t('student.calendarIntegration')}</h2>
+        <p className="text-gray-600">{t('common.loading')}</p>
       </div>
     );
   }
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Google Calendar Integration</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('student.calendarIntegration')}</h2>
 
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
@@ -135,7 +137,7 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <p className="text-sm font-medium text-gray-900">Connected to Google Calendar</p>
+            <p className="text-sm font-medium text-gray-900">{t('student.connectedToCalendar')}</p>
           </div>
 
           <div className="text-sm text-gray-600 space-y-2">
@@ -146,13 +148,13 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
             )}
             {status.lastSync && (
               <p>
-                <span className="font-medium">Last sync:</span>{' '}
+                <span className="font-medium">{t('student.lastSync')}:</span>{' '}
                 {format(status.lastSync, 'PPp')}
               </p>
             )}
             {status.tokenExpiry && (
               <p>
-                <span className="font-medium">Token expires:</span>{' '}
+                <span className="font-medium">{t('student.tokenExpires')}:</span>{' '}
                 {format(status.tokenExpiry, 'PPp')}
               </p>
             )}
@@ -160,13 +162,13 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
 
           {syncResult && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-              <p className="text-sm font-medium text-blue-900 mb-2">Sync Complete</p>
+              <p className="text-sm font-medium text-blue-900 mb-2">{t('student.syncComplete')}</p>
               <div className="text-sm text-blue-800 space-y-1">
-                <p>Total events: {syncResult.total}</p>
-                <p>Created: {syncResult.created}</p>
-                <p>Updated: {syncResult.updated}</p>
+                <p>{t('student.totalEvents')}: {syncResult.total}</p>
+                <p>{t('student.created')}: {syncResult.created}</p>
+                <p>{t('student.updated')}: {syncResult.updated}</p>
                 {syncResult.failed > 0 && (
-                  <p className="text-red-600">Failed: {syncResult.failed}</p>
+                  <p className="text-red-600">{t('student.failed')}: {syncResult.failed}</p>
                 )}
               </div>
             </div>
@@ -178,21 +180,20 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
               disabled={syncing}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {syncing ? 'Syncing...' : 'Sync Now'}
+              {syncing ? t('student.syncing') : t('student.syncNow')}
             </button>
             <button
               onClick={handleDisconnect}
               disabled={disconnecting}
               className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {disconnecting ? 'Disconnecting...' : 'Disconnect'}
+              {disconnecting ? t('student.disconnecting') : t('student.disconnect')}
             </button>
           </div>
 
           <div className="mt-4 p-4 bg-gray-50 rounded-md">
             <p className="text-sm text-gray-700">
-              Events will automatically sync to your Google Calendar when created or updated.
-              You can also use the &quot;Sync Now&quot; button to manually sync all visible events.
+              {t('student.calendarSyncNotice')}
             </p>
           </div>
         </div>
@@ -200,27 +201,27 @@ export default function GoogleCalendarSettings({ userId }: GoogleCalendarSetting
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-            <p className="text-sm font-medium text-gray-900">Not connected</p>
+            <p className="text-sm font-medium text-gray-900">{t('student.notConnected')}</p>
           </div>
 
           <p className="text-sm text-gray-600">
-            Connect your Google Calendar to automatically sync events and receive notifications.
+            {t('student.connectCalendarIntro')}
           </p>
 
           <button
             onClick={handleConnect}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            Connect Google Calendar
+            {t('instructor.connectGoogleCalendar')}
           </button>
 
           <div className="mt-4 p-4 bg-gray-50 rounded-md">
-            <p className="text-sm text-gray-700 mb-2 font-medium">What happens when you connect:</p>
+            <p className="text-sm text-gray-700 mb-2 font-medium">{t('student.connectBenefitsHeader')}</p>
             <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
-              <li>Events will sync to your primary Google Calendar</li>
-              <li>You&apos;ll receive notifications from Google Calendar</li>
-              <li>Events update automatically when changed</li>
-              <li>Only events you can see in the LMS will sync</li>
+              <li>{t('student.benefit1')}</li>
+              <li>{t('student.benefit2')}</li>
+              <li>{t('student.benefit3')}</li>
+              <li>{t('student.benefit4')}</li>
             </ul>
           </div>
         </div>

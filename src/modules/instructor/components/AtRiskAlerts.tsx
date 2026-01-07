@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { formatRelativeTime } from '@/lib/activityUtils';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface StudentActivity {
   id: string;
@@ -14,6 +15,7 @@ interface StudentActivity {
 }
 
 export default function AtRiskAlerts() {
+  const { t } = useLanguage();
   const [atRiskStudents, setAtRiskStudents] = useState<StudentActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export default function AtRiskAlerts() {
       }
     } catch (err) {
       console.error('Failed to fetch at-risk students:', err);
-      setError('Failed to load at-risk students');
+      setError(t('student.failedToLoadActivity'));
     } finally {
       setLoading(false);
     }
@@ -59,7 +61,7 @@ export default function AtRiskAlerts() {
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          At-Risk Students
+          {t('instructor.atRiskTitle')}
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400">{error}</p>
       </div>
@@ -71,16 +73,16 @@ export default function AtRiskAlerts() {
       <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            At-Risk Students
+            {t('instructor.atRiskTitle')}
           </h2>
           <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold">
-            All students engaged! 🎉
+            {t('instructor.allStudentsEngaged')}
           </span>
         </div>
         <div className="text-center py-8">
           <div className="text-4xl mb-3">✅</div>
           <p className="text-gray-600 dark:text-gray-400">
-            No students currently at risk. Great work!
+            {t('instructor.noStudentsAtRisk')}
           </p>
         </div>
       </div>
@@ -91,10 +93,10 @@ export default function AtRiskAlerts() {
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          At-Risk Students
+          {t('instructor.atRiskTitle')}
         </h2>
         <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full text-xs font-semibold">
-          {atRiskStudents.length} students need attention
+          {t('instructor.studentsNeedAttention', { count: atRiskStudents.length })}
         </span>
       </div>
 
@@ -118,7 +120,7 @@ export default function AtRiskAlerts() {
                   {student.engagementScore}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Engagement
+                  {t('instructor.engagement')}
                 </div>
               </div>
             </div>
@@ -126,20 +128,20 @@ export default function AtRiskAlerts() {
             <div className="flex items-center justify-between mt-3">
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  ⚠️ Last active:{' '}
+                  ⚠️ {t('instructor.lastActive')}:{' '}
                   {student.lastActiveAt
                     ? formatRelativeTime(student.lastActiveAt)
-                    : 'Never'}
+                    : t('instructor.never')}
                 </span>
               </div>
               <button
                 className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md transition-colors"
                 onClick={() => {
                   // TODO: Implement send reminder functionality
-                  alert(`Reminder sent to ${student.name}`);
+                  alert(t('instructor.reminderSent', { name: student.name }));
                 }}
               >
-                Send Reminder
+                {t('instructor.sendReminder')}
               </button>
             </div>
           </div>
@@ -148,7 +150,7 @@ export default function AtRiskAlerts() {
 
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-dark-border">
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Students are marked as &quot;at-risk&quot; if they haven&apos;t logged in for 7+ days
+          {t('instructor.atRiskSubtitle')}
         </p>
       </div>
     </div>

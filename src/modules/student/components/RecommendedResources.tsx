@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface Resource {
   name: string;
@@ -16,11 +17,12 @@ interface Resource {
 }
 
 export default function RecommendedResources() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'reading' | 'practice'>('reading');
 
-  const readingResources: Array<{ category: string; icon: string; resources: Resource[] }> = [
+  const readingResources: Array<{ categoryKey: string; icon: string; resources: Resource[] }> = [
     {
-      category: 'Web & JavaScript Fundamentals',
+      categoryKey: 'student.resourceCategoryWeb',
       icon: '🌐',
       resources: [
         {
@@ -37,7 +39,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'React & Component Thinking',
+      categoryKey: 'student.resourceCategoryReact',
       icon: '⚛️',
       resources: [
         {
@@ -48,7 +50,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'TypeScript (Thinking with Types)',
+      categoryKey: 'student.resourceCategoryTS',
       icon: '🔷',
       resources: [
         {
@@ -69,7 +71,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'Next.js & Full-Stack Architecture',
+      categoryKey: 'student.resourceCategoryNextjs',
       icon: '▲',
       resources: [
         {
@@ -80,7 +82,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'UI, UX, and Design Thinking',
+      categoryKey: 'student.resourceCategoryUI',
       icon: '🎨',
       resources: [
         {
@@ -97,9 +99,9 @@ export default function RecommendedResources() {
     },
   ];
 
-  const practiceResources: Array<{ category: string; icon: string; resources: Resource[] }> = [
+  const practiceResources: Array<{ categoryKey: string; icon: string; resources: Resource[] }> = [
     {
-      category: 'Interactive Learning & Guided Practice',
+      categoryKey: 'student.resourceCategoryInteractive',
       icon: '📖',
       resources: [
         {
@@ -115,7 +117,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'Project-Based Learning',
+      categoryKey: 'student.resourceCategoryProject',
       icon: '🚀',
       resources: [
         {
@@ -131,7 +133,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'TypeScript & React Experimentation',
+      categoryKey: 'student.resourceCategoryExperiment',
       icon: '🧪',
       resources: [
         {
@@ -152,7 +154,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'Git & GitHub (Professional Workflow)',
+      categoryKey: 'student.resourceCategoryGit',
       icon: '📂',
       resources: [
         {
@@ -168,7 +170,7 @@ export default function RecommendedResources() {
       ],
     },
     {
-      category: 'Optional Challenge Platforms',
+      categoryKey: 'student.resourceCategoryChallenge',
       icon: '⚡',
       resources: [
         {
@@ -202,7 +204,7 @@ export default function RecommendedResources() {
         <div className="flex items-center gap-2">
           <span className="text-xl">📚</span>
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Recommended Resources
+            {t('student.resources')}
           </h2>
         </div>
       </div>
@@ -211,23 +213,21 @@ export default function RecommendedResources() {
       <div className="flex gap-2 mb-5 border-b border-gray-200 dark:border-dark-border">
         <button
           onClick={() => setActiveTab('reading')}
-          className={`px-3 py-2 font-medium text-sm transition-all border-b-2 ${
-            activeTab === 'reading'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
+          className={`px-3 py-2 font-medium text-sm transition-all border-b-2 ${activeTab === 'reading'
+            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
         >
-          📖 Reading
+          📖 {t('student.reading')}
         </button>
         <button
           onClick={() => setActiveTab('practice')}
-          className={`px-3 py-2 font-medium text-sm transition-all border-b-2 ${
-            activeTab === 'practice'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
+          className={`px-3 py-2 font-medium text-sm transition-all border-b-2 ${activeTab === 'practice'
+            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
         >
-          💻 Practice
+          💻 {t('student.practice')}
         </button>
       </div>
 
@@ -237,7 +237,7 @@ export default function RecommendedResources() {
           <>
             <div className="bg-blue-50/50 dark:bg-blue-900/10 rounded-lg p-3 mb-4">
               <p className="text-xs text-blue-900 dark:text-blue-100">
-                <strong>💡</strong> Reference-quality resources. Revisit repeatedly rather than trying to "finish" them.
+                {t('student.readingTip')}
               </p>
             </div>
 
@@ -245,7 +245,7 @@ export default function RecommendedResources() {
               <div key={idx} className="space-y-2.5">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <span className="text-base">{section.icon}</span>
-                  {section.category}
+                  {t(section.categoryKey)}
                 </h3>
 
                 {section.resources.map((resource, ridx) => (
@@ -297,7 +297,7 @@ export default function RecommendedResources() {
           <>
             <div className="bg-green-50/50 dark:bg-green-900/10 rounded-lg p-3 mb-4">
               <p className="text-xs text-green-900 dark:text-green-100">
-                <strong>🎯</strong> For doing, experimenting, and building real things.
+                {t('student.practiceTip')}
               </p>
             </div>
 
@@ -305,7 +305,7 @@ export default function RecommendedResources() {
               <div key={idx} className="space-y-2.5">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <span className="text-base">{section.icon}</span>
-                  {section.category}
+                  {t(section.categoryKey)}
                 </h3>
 
                 {section.resources.map((resource, ridx) => (
