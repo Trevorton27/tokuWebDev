@@ -6,6 +6,23 @@ import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useSessionTracking } from '@/hooks/useSessionTracking';
 import ReviewQueue from '@/components/reviews/ReviewQueue';
+import {
+  Users,
+  BookOpen,
+  GraduationCap,
+  BarChart3,
+  UserPlus,
+  ShieldCheck,
+  Settings,
+  LayoutDashboard,
+  Calendar,
+  Layers,
+  PieChart,
+  ClipboardList,
+  CheckCircle2,
+  TrendingUp,
+  ArrowRight
+} from 'lucide-react';
 
 interface DashboardStats {
 
@@ -136,28 +153,34 @@ export default function AdminDashboard() {
     }
   };
 
-  const StatCard = ({ title, value, subtitle, icon, color }: any) => (
-    <div className={`bg-white dark:bg-dark-card rounded-lg shadow-md p-6 border-l-4 ${color}`}>
+  const StatCard = ({ title, value, subtitle, icon: Icon, color }: any) => (
+    <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100 dark:border-dark-border relative overflow-hidden group">
+      <div className={`absolute top-0 left-0 w-1 h-full ${color}`} />
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{value}</p>
-          {subtitle && <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">{subtitle}</p>}
+        <div className="relative z-10">
+          <p className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider">{title}</p>
+          <p className="text-3xl font-extrabold text-gray-900 dark:text-white mt-1">{value}</p>
+          {subtitle && <p className="text-gray-500 dark:text-gray-400 text-xs mt-1 font-medium">{subtitle}</p>}
         </div>
-        <div className="text-4xl">{icon}</div>
+        <div className={`p-3 rounded-xl bg-gray-50 dark:bg-dark-surface text-gray-400 group-hover:scale-110 transition-transform`}>
+          <Icon size={24} />
+        </div>
       </div>
     </div>
   );
 
-  const ManagementCard = ({ title, description, href, icon, color }: any) => (
+  const ManagementCard = ({ title, description, href, icon: Icon, color }: any) => (
     <Link href={href}>
-      <div className={`bg-white dark:bg-dark-card rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-t-4 ${color}`}>
-        <div className="flex items-start space-x-4">
-          <div className="text-3xl">{icon}</div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-            <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">{description}</p>
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-6 hover:shadow-lg transition-all cursor-pointer border border-gray-100 dark:border-dark-border group h-full flex flex-col justify-between">
+        <div>
+          <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center text-white bg-gradient-to-br ${color} shadow-sm group-hover:scale-110 transition-transform`}>
+            <Icon size={24} />
           </div>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{title}</h3>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 leading-relaxed">{description}</p>
+        </div>
+        <div className="mt-4 flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+          Manage <ArrowRight size={14} className="ml-1" />
         </div>
       </div>
     </Link>
@@ -206,29 +229,29 @@ export default function AdminDashboard() {
                   title="Total Users"
                   value={stats?.users.total || 0}
                   subtitle={`${stats?.users.students || 0} students, ${stats?.users.instructors || 0} instructors`}
-                  icon="👥"
-                  color="border-blue-500 dark:border-blue-400"
+                  icon={Users}
+                  color="bg-blue-500"
                 />
                 <StatCard
                   title="Total Courses"
                   value={stats?.courses.total || 0}
                   subtitle={`${stats?.courses.published || 0} published, ${stats?.courses.draft || 0} draft`}
-                  icon="📚"
-                  color="border-green-500 dark:border-green-400"
+                  icon={BookOpen}
+                  color="bg-emerald-500"
                 />
                 <StatCard
                   title="Active Enrollments"
                   value={stats?.engagement.activeEnrollments || 0}
                   subtitle={`${stats?.engagement.completedCourses || 0} completed`}
-                  icon="🎓"
-                  color="border-purple-500 dark:border-purple-400"
+                  icon={GraduationCap}
+                  color="bg-indigo-500"
                 />
                 <StatCard
                   title="Avg Progress"
                   value={`${stats?.engagement.avgProgress || 0}%`}
                   subtitle={`${stats?.engagement.totalAttempts || 0} total attempts`}
-                  icon="📊"
-                  color="border-orange-500 dark:border-orange-400"
+                  icon={TrendingUp}
+                  color="bg-orange-500"
                 />
               </div>
             </div>
@@ -247,86 +270,82 @@ export default function AdminDashboard() {
                   title="Student Management"
                   description="View, create, edit, and manage student accounts and their progress"
                   href="/admin/students"
-                  icon="👨‍🎓"
-                  color="border-blue-500 dark:border-blue-400"
+                  icon={Users}
+                  color="from-blue-500 to-blue-600"
                 />
                 <ManagementCard
                   title="Instructor Management"
                   description="Manage instructor accounts and their course assignments"
                   href="/admin/instructors"
-                  icon="👨‍🏫"
-                  color="border-indigo-500 dark:border-indigo-400"
+                  icon={ShieldCheck}
+                  color="from-indigo-500 to-indigo-600"
                 />
                 <ManagementCard
                   title="Course Management"
                   description="Manage all courses, publish/unpublish, and view enrollment stats"
                   href="/admin/courses"
-                  icon="📚"
-                  color="border-green-500 dark:border-green-400"
+                  icon={BookOpen}
+                  color="from-emerald-500 to-emerald-600"
                 />
                 <ManagementCard
                   title="Lesson Management"
                   description="Create, edit, and organize lessons across all courses"
                   href="/admin/lessons"
-                  icon="📝"
-                  color="border-yellow-500 dark:border-yellow-400"
+                  icon={ClipboardList}
+                  color="from-amber-500 to-amber-600"
                 />
                 <ManagementCard
-                  title="Student Engagement"
+                  title="Engagement Analytics"
                   description="Track student progress, completion rates, and assessment performance"
-                  href="/admin/engagement"
-                  icon="📊"
-                  color="border-purple-500 dark:border-purple-400"
-                />
-                <ManagementCard
-                  title="Student Roadmaps"
-                  description="Create and manage personalized learning paths for students"
-                  href="/admin/roadmaps"
-                  icon="🗺️"
-                  color="border-pink-500 dark:border-pink-400"
+                  href="/admin/analytics"
+                  icon={PieChart}
+                  color="from-purple-500 to-purple-600"
                 />
                 <ManagementCard
                   title="Calendar Events"
                   description="View and manage event list with Google Calendar sync"
                   href="/admin/calendar"
-                  icon="📅"
-                  color="border-teal-500 dark:border-teal-400"
+                  icon={Calendar}
+                  color="from-teal-500 to-teal-600"
                 />
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-8 bg-white dark:bg-dark-card rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-              <div className="flex flex-wrap gap-3">
+            <div className="mt-12 bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-dark-border p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600">
+                  <UserPlus size={20} />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Quick Actions</h2>
+              </div>
+              <div className="flex flex-wrap gap-4">
                 <Link
                   href="/admin/students?action=create"
-                  className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors"
+                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
                 >
-                  + Add Student
+                  <Users size={18} />
+                  Add Student
                 </Link>
                 <Link
                   href="/admin/instructors?action=create"
-                  className="px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors"
+                  className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
                 >
-                  + Add Instructor
+                  <UserPlus size={18} />
+                  Add Instructor
                 </Link>
                 <Link
                   href="/admin/courses?action=create"
-                  className="px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors"
+                  className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
                 >
-                  + Create Course
-                </Link>
-                <Link
-                  href="/admin/roadmaps?action=create"
-                  className="px-4 py-2 bg-pink-600 dark:bg-pink-700 text-white rounded-md hover:bg-pink-700 dark:hover:bg-pink-800 transition-colors"
-                >
-                  + Create Roadmap
+                  <BookOpen size={18} />
+                  Create Course
                 </Link>
                 <Link
                   href="/admin/calendar"
-                  className="px-4 py-2 bg-teal-600 dark:bg-teal-700 text-white rounded-md hover:bg-teal-700 dark:hover:bg-teal-800 transition-colors"
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-dark-card text-gray-700 dark:text-gray-200 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-dark-hover transform hover:-translate-y-0.5 transition-all border border-gray-200 dark:border-dark-border"
                 >
+                  <Calendar size={18} />
                   Manage Calendar
                 </Link>
               </div>

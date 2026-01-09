@@ -13,7 +13,6 @@ import QuickNav from '@/modules/student/components/QuickNav';
 import OnboardingCheck from '@/modules/student/components/OnboardingCheck';
 import ActivityOverview from '@/modules/student/components/ActivityOverview';
 import GitHubActivity from '@/modules/student/components/GitHubActivity';
-import RequestReviewModal from '@/components/reviews/RequestReviewModal';
 import StudentReviewStatus from '@/components/reviews/StudentReviewStatus';
 
 export default function StudentDashboard() {
@@ -45,9 +44,6 @@ export default function StudentDashboard() {
                 <p className="text-gray-600 dark:text-gray-300 mt-1">
                   {t('student.subtitle')}
                 </p>
-              </div>
-              <div className="flex-shrink-0">
-                <RequestReviewModal />
               </div>
             </div>
           </div>

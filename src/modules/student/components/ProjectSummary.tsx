@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import useSWR from 'swr';
 import { formatDistanceToNow } from 'date-fns';
+import RequestReviewModal from '@/components/reviews/RequestReviewModal';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -57,15 +58,18 @@ export default function ProjectSummary() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
             {t('student.startNewProject')}
           </p>
-          <Link
-            href="/student/github"
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            {t('student.configureGitHub')}
-          </Link>
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/student/github"
+              className="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {t('student.configureGitHub')}
+            </Link>
+            <RequestReviewModal label={t('student.requestCodeReview')} />
+          </div>
         </div>
       </div>
     );
@@ -91,9 +95,15 @@ export default function ProjectSummary() {
     <div className="h-full bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border hover:border-blue-200 dark:hover:border-blue-800/40 transition-colors">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('student.currentProject')}</h2>
-        <span className={`${statusBadge.bg} ${statusBadge.text} text-xs font-semibold px-3 py-1.5 rounded-full`}>
-          {statusBadge.label}
-        </span>
+        <div className="flex items-center gap-3">
+          <RequestReviewModal
+            label={t('student.requestCodeReview')}
+            defaultRepo={project.repoUrl}
+          />
+          <span className={`${statusBadge.bg} ${statusBadge.text} text-xs font-semibold px-3 py-1.5 rounded-full`}>
+            {statusBadge.label}
+          </span>
+        </div>
       </div>
 
       {/* Project Info */}

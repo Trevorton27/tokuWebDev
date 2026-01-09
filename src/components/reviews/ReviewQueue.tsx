@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
-import { ExternalLink, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { ExternalLink, CheckCircle, Clock, XCircle, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ReviewRequest {
@@ -59,8 +59,28 @@ export default function ReviewQueue() {
         }
     };
 
-    if (loading) return <div className="text-center py-4">{t('common.loading')}</div>;
-    if (requests.length === 0) return <div className="text-center py-4 text-gray-500">{t('instructor.noPendingReviews')}</div>;
+    if (loading) {
+        return (
+            <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-dark-border p-12 text-center">
+                <div className="animate-spin inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mb-4"></div>
+                <p className="text-gray-500 dark:text-gray-400 font-medium">{t('common.loading')}</p>
+            </div>
+        );
+    }
+
+    if (requests.length === 0) {
+        return (
+            <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-dark-border p-12 text-center group">
+                <div className="w-16 h-16 bg-gray-50 dark:bg-dark-surface rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <CheckCircle2 className="text-gray-300 dark:text-gray-600" size={32} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">All Caught Up!</h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-xs mx-auto text-sm leading-relaxed">
+                    {t('instructor.noPendingReviews')}
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white dark:bg-dark-card rounded-lg shadow overflow-hidden">
