@@ -14,6 +14,7 @@ export const translations = {
     'nav.curriculum': 'Curriculum',
     'nav.testimonials': 'Testimonials',
     'nav.faq': 'FAQ',
+    'nav.messages': 'Messages',
 
     // Common
     'common.welcome': 'Welcome back',
@@ -26,6 +27,24 @@ export const translations = {
     'common.edit': 'Edit',
     'common.create': 'Create',
     'common.refresh': 'Refresh',
+
+    // Messaging
+    'messaging.messages': 'Messages',
+    'messaging.newMessage': 'New Message',
+    'messaging.searchConversations': 'Search conversations...',
+    'messaging.searchContacts': 'Search contacts...',
+    'messaging.noConversations': 'No conversations yet',
+    'messaging.startConversation': 'Start a conversation',
+    'messaging.selectConversation': 'Select a conversation to start messaging',
+    'messaging.noMessagesYet': 'No messages yet. Say hello!',
+    'messaging.typeMessage': 'Type a message...',
+    'messaging.send': 'Send',
+    'messaging.enterToSend': 'Press Enter to send, Shift+Enter for new line',
+    'messaging.loadEarlier': 'Load earlier messages',
+    'messaging.noContacts': 'No contacts available',
+    'messaging.admins': 'Admins',
+    'messaging.instructors': 'Instructors',
+    'messaging.students': 'Students',
 
     // Home Page
     'home.heroTitle': 'Welcome to TokuWebDev',
@@ -365,6 +384,8 @@ export const translations = {
     'student.viewSkillProfile': 'View your visual skill profile',
     'student.takeAssessment': 'Take Assessment',
     'student.assessSkills': 'Assess your current skills',
+    'student.messages': 'Messages',
+    'student.viewMessages': 'View your conversations',
     'student.githubSettings': 'GitHub Settings',
     'student.manageGitHub': 'Manage your GitHub connection',
 
@@ -846,6 +867,7 @@ export const translations = {
     'nav.curriculum': 'カリキュラム',
     'nav.testimonials': '学生の声',
     'nav.faq': 'よくあるよくある質問',
+    'nav.messages': 'メッセージ',
 
     // Common
     'common.welcome': 'おかえりなさい',
@@ -858,6 +880,24 @@ export const translations = {
     'common.edit': '編集',
     'common.create': '作成',
     'common.refresh': '更新',
+
+    // Messaging
+    'messaging.messages': 'メッセージ',
+    'messaging.newMessage': '新しいメッセージ',
+    'messaging.searchConversations': '会話を検索...',
+    'messaging.searchContacts': '連絡先を検索...',
+    'messaging.noConversations': 'まだ会話はありません',
+    'messaging.startConversation': '会話を始める',
+    'messaging.selectConversation': '会話を選択してメッセージを開始',
+    'messaging.noMessagesYet': 'まだメッセージはありません',
+    'messaging.typeMessage': 'メッセージを入力...',
+    'messaging.send': '送信',
+    'messaging.enterToSend': 'Enterで送信、Shift+Enterで改行',
+    'messaging.loadEarlier': '以前のメッセージを読み込む',
+    'messaging.noContacts': '連絡先がありません',
+    'messaging.admins': '管理者',
+    'messaging.instructors': '講師',
+    'messaging.students': '受講生',
 
     // Home Page
     'home.heroTitle': 'TokuWebDevへようこそ',
@@ -1197,6 +1237,8 @@ export const translations = {
     'student.viewSkillProfile': '視覚的なスキルプロファイルを表示',
     'student.takeAssessment': 'アセスメントを受ける',
     'student.assessSkills': '現在のスキルを評価する',
+    'student.messages': 'メッセージ',
+    'student.viewMessages': '会話を表示する',
     'student.githubSettings': 'GitHub設定',
     'student.manageGitHub': 'GitHub接続を管理する',
 

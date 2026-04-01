@@ -1,64 +1,77 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+
+interface NotificationItem {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  link: string;
+  read: boolean;
+  createdAt: string;
+}
+
+function getNotificationIcon(type: string) {
+  switch (type) {
+    case 'new_message': return '💬';
+    case 'feedback': return '📝';
+    case 'announcement': return '📢';
+    default: return '🔔';
+  }
+}
+
+function formatTime(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffHours < 1) return 'Just now';
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return 'Yesterday';
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
 
 export default function Notifications() {
   const { t } = useLanguage();
-  // TODO: Wire to internal messaging system
-  // TODO: Query: SELECT * FROM notifications WHERE student_id = ? AND read = false ORDER BY created_at DESC LIMIT 5
-  // TODO: Add unread badge based on notifications table
-  // TODO: Clicking opens message thread or notification detail page
-  // TODO: Add mark as read functionality
-  // TODO: Real-time updates via WebSocket or polling
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Placeholder data
-  const notifications = [
-    {
-      id: 1,
-      type: 'feedback',
-      title: t('student.notificationFeedbackTitle'),
-      message: t('student.notificationFeedbackMessage'),
-      time: t('student.hoursAgo', { count: 2 }),
-      read: false,
-      link: '/projects/proj-001/feedback',
-      icon: '📝',
-      color: 'blue',
-    },
-    {
-      id: 2,
-      type: 'reply',
-      title: t('student.notificationReplyTitle'),
-      message: t('student.notificationReplyMessage'),
-      time: t('student.hoursAgo', { count: 5 }),
-      read: false,
-      link: '/messages/thread-123',
-      icon: '💬',
-      color: 'green',
-    },
-    {
-      id: 3,
-      type: 'announcement',
-      title: t('student.notificationModuleTitle'),
-      message: t('student.notificationModuleMessage'),
-      time: t('student.dayAgo', { count: 1 }),
-      read: true,
-      link: '/announcements/123',
-      icon: '📢',
-      color: 'purple',
-    },
-    {
-      id: 4,
-      type: 'system',
-      title: t('student.notificationStreakTitle'),
-      message: t('student.notificationStreakMessage'),
-      time: t('student.dayAgo', { count: 1 }),
-      read: true,
-      link: '/achievements',
-      icon: '🎉',
-      color: 'yellow',
-    },
-  ];
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await axios.get('/api/messages/notifications');
+      if (res.data.success) {
+        setNotifications(res.data.data.notifications);
+        setUnreadCount(res.data.data.unreadCount);
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  const handleMarkAllRead = async () => {
+    try {
+      await axios.patch('/api/messages/notifications', {});
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch {
+      // Silently fail
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-6 border border-gray-100 dark:border-dark-border">
@@ -72,16 +85,20 @@ export default function Notifications() {
           )}
         </div>
         <Link
-          href="/notifications"
+          href="/student/messages"
           className="text-sm text-indigo-600 dark:text-purple-400 hover:text-indigo-700 dark:hover:text-purple-300 font-medium"
         >
           {t('student.viewAll')}
         </Link>
       </div>
 
-      {notifications.length > 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+        </div>
+      ) : notifications.length > 0 ? (
         <div className="space-y-2">
-          {notifications.map((notification) => (
+          {notifications.slice(0, 5).map((notification) => (
             <Link
               key={notification.id}
               href={notification.link}
@@ -91,7 +108,7 @@ export default function Notifications() {
                 }`}
             >
               <div className="flex items-start space-x-3">
-                <span className="text-xl">{notification.icon}</span>
+                <span className="text-xl">{getNotificationIcon(notification.type)}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-1">
                     <h3 className={`text-sm font-semibold ${notification.read ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-white'
@@ -106,7 +123,7 @@ export default function Notifications() {
                     {notification.message}
                   </p>
                   <span className="text-xs text-gray-400 dark:text-gray-500">
-                    {notification.time}
+                    {formatTime(notification.createdAt)}
                   </span>
                 </div>
               </div>
@@ -125,7 +142,10 @@ export default function Notifications() {
       {/* Mark all as read button */}
       {unreadCount > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-dark-border">
-          <button className="w-full text-sm text-indigo-600 dark:text-purple-400 hover:text-indigo-700 dark:hover:text-purple-300 font-medium text-center">
+          <button
+            onClick={handleMarkAllRead}
+            className="w-full text-sm text-indigo-600 dark:text-purple-400 hover:text-indigo-700 dark:hover:text-purple-300 font-medium text-center"
+          >
             {t('student.markAllRead')}
           </button>
         </div>

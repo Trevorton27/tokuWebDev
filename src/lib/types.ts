@@ -240,5 +240,58 @@ export interface KnowledgeSearchFilters {
   minScore?: number;
 }
 
+// ============================================
+// MESSAGING TYPES
+// ============================================
+
+export interface ConversationUser {
+  id: string;
+  name: string | null;
+  email: string;
+  role: string;
+  avatarUrl: string | null;
+}
+
+export interface ConversationPreview {
+  id: string;
+  otherUser: ConversationUser;
+  lastMessage: {
+    id: string;
+    content: string;
+    senderId: string;
+    createdAt: string;
+    readAt: string | null;
+  } | null;
+  unreadCount: number;
+  lastMessageAt: string | null;
+  createdAt: string;
+}
+
+export interface MessageItem {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  readAt: string | null;
+  attachmentUrl: string | null;
+  attachmentName: string | null;
+  attachmentType: string | null;
+  createdAt: string;
+  updatedAt: string;
+  sender: ConversationUser;
+}
+
+export interface NotificationItem {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  link: string;
+  read: boolean;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
 // Re-export Prisma enums for convenience
 export { Difficulty, Language, DocumentType, MasteryEventType, Role };

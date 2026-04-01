@@ -21,8 +21,10 @@ import {
   ClipboardList,
   CheckCircle2,
   TrendingUp,
-  ArrowRight
+  ArrowRight,
+  MessageSquare
 } from 'lucide-react';
+import { ConversationPreview } from '@/modules/messaging/hooks/useConversations';
 
 interface DashboardStats {
 
@@ -51,6 +53,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [recentMessages, setRecentMessages] = useState<ConversationPreview[]>([]);
 
   // Track user session activity
   useSessionTracking();
@@ -120,6 +123,17 @@ export default function AdminDashboard() {
       // Fetch engagement
       const engagementRes = await fetch('/api/admin/engagement');
       const engagementData = await engagementRes.json();
+
+      // Fetch recent messages
+      try {
+        const messagesRes = await fetch('/api/messages/conversations');
+        const messagesData = await messagesRes.json();
+        if (messagesData.success) {
+          setRecentMessages(messagesData.data.slice(0, 5));
+        }
+      } catch (e) {
+        // Messages preview is non-critical
+      }
 
       if (usersData.success && coursesData.success && engagementData.success) {
         const users = usersData.data.users;
@@ -261,6 +275,61 @@ export default function AdminDashboard() {
               <ReviewQueue />
             </div>
 
+            {/* Recent Messages Preview */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Messages</h2>
+                <Link
+                  href="/admin/messages"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
+                >
+                  View All <ArrowRight size={16} />
+                </Link>
+              </div>
+              <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden">
+                {recentMessages.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                    <MessageSquare size={32} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No messages yet</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 dark:divide-dark-border">
+                    {recentMessages.map((convo) => (
+                      <Link
+                        key={convo.id}
+                        href={`/admin/messages?conversation=${convo.id}`}
+                        className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                          {convo.otherUser.name?.charAt(0)?.toUpperCase() || '?'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                              {convo.otherUser.name || convo.otherUser.email}
+                            </p>
+                            {convo.lastMessage && (
+                              <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2">
+                                {new Date(convo.lastMessage.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                            {convo.lastMessage?.content || 'No messages yet'}
+                          </p>
+                        </div>
+                        {convo.unreadCount > 0 && (
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">
+                            {convo.unreadCount > 9 ? '9+' : convo.unreadCount}
+                          </span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Management Sections */}
             <div>
 
@@ -300,6 +369,13 @@ export default function AdminDashboard() {
                   href="/admin/analytics"
                   icon={PieChart}
                   color="from-purple-500 to-purple-600"
+                />
+                <ManagementCard
+                  title="Messages"
+                  description="Send and receive messages with students and instructors"
+                  href="/admin/messages"
+                  icon={MessageSquare}
+                  color="from-pink-500 to-pink-600"
                 />
                 <ManagementCard
                   title="Calendar Events"
