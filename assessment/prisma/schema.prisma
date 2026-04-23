@@ -1,0 +1,692 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  clerkId            String?              @unique
+  email              String               @unique
+  name               String?
+  password           String?
+  role               Role                 @default(STUDENT)
+  avatarUrl          String?
+  adminNotes         String?
+  githubUsername            String?
+  githubEmail               String?
+  githubRepoUrl             String?
+  githubWebhookToken        String?
+  githubPersonalAccessToken String?
+  googleAccessToken          String?             // Encrypted Google OAuth access token
+  googleRefreshToken         String?             // Encrypted Google OAuth refresh token
+  googleTokenExpiry          DateTime?           // When the access token expires
+  googleCalendarSyncEnabled  Boolean             @default(false)
+  googleCalendarId           String?             // Google Calendar ID (usually "primary")
+  googleCalendarLastSync     DateTime?           // Last successful sync timestamp
+  roadmapDocumentId         String?              // Google Docs document ID for student's personalized roadmap
+  interests                 String[]             @default([]) // Student's interests/tags for project recommendations
+  shortTermGoal             String?              // Student's short-term learning goal
+  mediumTermGoal            String?              // Student's medium-term learning goal
+  longTermGoal              String?              // Student's long-term learning goal
+  lastActiveAt              DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  attempts           Attempt[]
+  coursesCreated     Course[]             @relation("InstructorCourses")
+  enrollments        Enrollment[]
+  masteryEvents      MasteryEvent[]
+  roadmapItems       StudentRoadmap[]     @relation("UserRoadmaps")
+  assessmentSessions AssessmentSession[]
+  skillMasteries     UserSkillMastery[]   @relation("UserSkillMasteries")
+  loginSessions      LoginSession[]       @relation("UserLoginSessions")
+  githubEvents       GitHubEvent[]        @relation("UserGitHubEvents")
+  activityMetrics    ActivityMetric[]     @relation("UserActivityMetrics")
+  connectedRepos     ConnectedRepository[] @relation("UserConnectedRepos")
+  createdEvents      CalendarEvent[]      @relation("CreatedEvents")
+  studentProjects    StudentProject[]     @relation("UserProjects")
+  googleCalendarEvents UserGoogleCalendarEvent[] @relation("UserGoogleCalendarEvents")
+  reviewRequests      CodeReviewRequest[]      @relation("UserReviewRequests")
+  assignedReviews     CodeReviewRequest[]      @relation("UserReviewAssignments")
+  conversationsAsA    Conversation[]           @relation("ConversationsAsA")
+  conversationsAsB    Conversation[]           @relation("ConversationsAsB")
+  sentMessages        Message[]                @relation("SentMessages")
+  notifications       Notification[]           @relation("UserNotifications")
+
+  @@index([email])
+  @@index([clerkId])
+}
+
+model Course {
+  id           String       @id @default(cuid())
+  title        String
+  description  String
+  thumbnailUrl String?
+  instructorId String
+  published    Boolean      @default(false)
+  maxStudents  Int?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  instructor   User         @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
+  enrollments  Enrollment[]
+  lessons      Lesson[]
+  calendarEvents CalendarEvent[] @relation("CourseEvents")
+
+  @@index([instructorId])
+  @@index([published])
+}
+
+model Lesson {
+  id        String     @id @default(cuid())
+  courseId  String
+  title     String
+  content   String
+  order     Int
+  videoUrl  String?
+  duration  Int?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  documents Document[] @relation("LessonDocuments")
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, order])
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  userId      String
+  courseId    String
+  status      EnrollmentStatus @default(ACTIVE)
+  enrolledAt  DateTime         @default(now())
+  completedAt DateTime?
+  progress    Int              @default(0)
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+}
+
+model Challenge {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  description String
+  difficulty  Difficulty
+  language    Language
+  starterCode String
+  solution    String
+  tags        String[]
+  hints       String[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  attempts    Attempt[]
+  testCases   TestCase[]
+
+  @@index([difficulty])
+  @@index([language])
+}
+
+model TestCase {
+  id             String    @id @default(cuid())
+  challengeId    String
+  input          String
+  expectedOutput String
+  isHidden       Boolean   @default(false)
+  weight         Int       @default(1)
+  createdAt      DateTime  @default(now())
+  challenge      Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([challengeId])
+}
+
+model Attempt {
+  id          String    @id @default(cuid())
+  userId      String
+  challengeId String
+  code        String
+  passed      Boolean
+  score       Int       @default(0)
+  timeSpent   Int
+  hintsUsed   Int       @default(0)
+  attemptedAt DateTime  @default(now())
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([challengeId])
+  @@index([attemptedAt])
+}
+
+model MasteryEvent {
+  id        String           @id @default(cuid())
+  userId    String
+  skillTag  String
+  event     MasteryEventType
+  metadata  Json?
+  timestamp DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, skillTag])
+  @@index([timestamp])
+}
+
+model Document {
+  id        String          @id @default(cuid())
+  title     String
+  content   String
+  type      DocumentType
+  sourceUrl String?
+  metadata  Json?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  lessonId  String?
+  lesson    Lesson?         @relation("LessonDocuments", fields: [lessonId], references: [id], onDelete: Cascade)
+  chunks    DocumentChunk[]
+
+  @@index([type])
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  content    String
+  chunkIndex Int
+  embedding  Float[]
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+}
+
+model StudentRoadmap {
+  id             String          @id @default(cuid())
+  userId         String
+  title          String
+  description    String?
+  itemType       RoadmapItemType
+  status         RoadmapStatus   @default(NOT_STARTED)
+  phase          Int             @default(1)
+  order          Int
+  difficulty     Int?
+  estimatedHours Int?
+  skillKeys      String[]
+  targetDate     DateTime?
+  completedAt    DateTime?
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  user           User            @relation("UserRoadmaps", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([userId, order])
+}
+
+model AssessmentSession {
+  id          String               @id @default(cuid())
+  userId      String
+  sessionType String
+  status      String
+  currentStep String?
+  startedAt   DateTime             @default(now())
+  completedAt DateTime?
+  metadata    Json?
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses   AssessmentResponse[]
+
+  @@index([userId, sessionType])
+  @@index([status])
+}
+
+model AssessmentResponse {
+  id           String            @id @default(cuid())
+  sessionId    String
+  stepId       String
+  stepKind     String
+  rawAnswer    Json
+  gradeResult  Json?
+  skillUpdates Json?
+  submittedAt  DateTime          @default(now())
+  session      AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, stepId])
+  @@index([sessionId])
+}
+
+model UserSkillMastery {
+  id         String   @id @default(cuid())
+  userId     String
+  skillKey   String
+  mastery    Float    @default(0)
+  confidence Float    @default(0)
+  attempts   Int      @default(0)
+  lastUpdate DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  source     String?
+  user       User     @relation("UserSkillMasteries", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillKey])
+  @@index([userId])
+  @@index([skillKey])
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum Language {
+  JAVASCRIPT
+  PYTHON
+  JAVA
+  CPP
+  TYPESCRIPT
+  GO
+  RUST
+}
+
+enum MasteryEventType {
+  ATTEMPT
+  SUCCESS
+  FAILURE
+  HINT
+}
+
+enum DocumentType {
+  LESSON
+  DOCUMENTATION
+  SOLUTION
+  ARTICLE
+  DISCUSSION
+}
+
+enum RoadmapItemType {
+  COURSE
+  SKILL
+  PROJECT
+  MILESTONE
+  EXERCISE
+  DESIGN
+}
+
+enum RoadmapStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+model LoginSession {
+  id           String    @id @default(cuid())
+  userId       String
+  loginAt      DateTime  @default(now())
+  logoutAt     DateTime?
+  lastActivity DateTime  @default(now())
+  ipAddress    String?
+  userAgent    String?
+  deviceType   String?
+  browser      String?
+  isActive     Boolean   @default(true)
+  sessionToken String?   @unique
+  metadata     Json?
+  user         User      @relation("UserLoginSessions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([loginAt])
+  @@index([isActive])
+  @@index([userId, loginAt])
+}
+
+model GitHubEvent {
+  id           String   @id @default(cuid())
+  userId       String
+  eventType    String
+  action       String?
+  repository   String
+  repoUrl      String?
+  payload      Json
+  commitCount  Int?
+  additions    Int?
+  deletions    Int?
+  branch       String?
+  timestamp    DateTime @default(now())
+  user         User     @relation("UserGitHubEvents", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([timestamp])
+  @@index([userId, timestamp])
+}
+
+model ActivityMetric {
+  id         String   @id @default(cuid())
+  userId     String
+  metricType String
+  value      Float
+  date       DateTime @default(now())
+  period     String
+  metadata   Json?
+  user       User     @relation("UserActivityMetrics", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, metricType, date, period])
+  @@index([userId])
+  @@index([metricType])
+  @@index([date])
+}
+
+model ConnectedRepository {
+  id          String   @id @default(cuid())
+  userId      String
+  repoName    String
+  repoUrl     String
+  isActive    Boolean  @default(true)
+  connectedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  metadata    Json?
+  user        User     @relation("UserConnectedRepos", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, repoName])
+  @@index([userId])
+  @@index([isActive])
+}
+
+model CalendarEvent {
+  id                String        @id @default(cuid())
+  title             String
+  description       String?
+  startTime         DateTime
+  endTime           DateTime
+  location          String?
+  meetingUrl        String?
+  eventType         EventType
+  createdBy         String        // User ID of creator
+  createdByRole     Role          // Role of creator (ADMIN, INSTRUCTOR, STUDENT)
+  isAllDay          Boolean       @default(false)
+  recurrence        String?       // RRULE string for recurring events
+  googleEventId     String?       @unique // Google Calendar event ID for sync (deprecated - use userGoogleEvents)
+  googleCalendarId  String?       // Google Calendar ID where event is stored (deprecated)
+  courseId          String?       // Optional: link to specific course
+  attendees         String[]      @default([]) // Array of user IDs who should see this event
+  visibility        EventVisibility @default(PUBLIC)
+  reminderMinutes   Int?          // Minutes before event to send reminder
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  creator           User          @relation("CreatedEvents", fields: [createdBy], references: [id], onDelete: Cascade)
+  course            Course?       @relation("CourseEvents", fields: [courseId], references: [id], onDelete: SetNull)
+  userGoogleEvents  UserGoogleCalendarEvent[] @relation("CalendarEventGoogleEvents")
+
+  @@index([createdBy])
+  @@index([courseId])
+  @@index([startTime])
+  @@index([eventType])
+  @@index([visibility])
+}
+
+// Tracks per-user Google Calendar event IDs
+// Since one LMS event can be synced to multiple users' calendars,
+// each with their own unique Google Calendar event ID
+model UserGoogleCalendarEvent {
+  id               String        @id @default(cuid())
+  userId           String
+  calendarEventId  String
+  googleEventId    String        // The Google Calendar event ID for this specific user
+  googleCalendarId String        @default("primary") // Which Google Calendar it's in
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  user             User          @relation("UserGoogleCalendarEvents", fields: [userId], references: [id], onDelete: Cascade)
+  calendarEvent    CalendarEvent @relation("CalendarEventGoogleEvents", fields: [calendarEventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, calendarEventId])
+  @@index([userId])
+  @@index([calendarEventId])
+  @@index([googleEventId])
+}
+
+enum EventType {
+  MEETING           // Scheduled meeting/office hours
+  DEADLINE          // Assignment/project deadline
+  LIVE_CODING       // Live coding session
+  QA_SESSION        // Q&A session
+  WORKSHOP          // Workshop or special session
+  STUDY_TIME        // Personal study time (student-created)
+  EXAM              // Exam or assessment
+  HOLIDAY           // Holiday/break
+  OTHER             // Other event types
+}
+
+enum EventVisibility {
+  PUBLIC            // Visible to all students
+  COURSE            // Visible to students in specific course
+  PRIVATE           // Visible only to creator
+  CUSTOM            // Visible to custom list of attendees
+}
+
+model StudentProject {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("UserProjects", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Repository info
+  repoUrl         String
+  repoFullName    String   // "username/repo"
+  repoOwner       String   // GitHub username
+  repoName        String   // Repository name
+  defaultBranch   String   @default("main")
+
+  // Project metadata
+  title           String
+  description     String?
+  status          ProjectStatus @default(IN_PROGRESS)
+  isCurrent       Boolean  @default(false) // Is this the student's current active project?
+
+  // GitHub data (cached from API)
+  lastCommitSha   String?
+  lastCommitMsg   String?
+  lastCommitDate  DateTime?
+  totalCommits    Int      @default(0)
+  openPRs         Int      @default(0)
+  closedPRs       Int      @default(0)
+
+  // Deployment tracking
+  lastDeployment  DateTime?
+  deploymentUrl   String?
+  deploymentStatus DeploymentStatus?
+
+  // Milestones
+  milestones      ProjectMilestone[]
+
+  // Activity timeline
+  activities      ProjectActivity[] @relation("ProjectActivities")
+  reviews         CodeReviewRequest[] @relation("ProjectReviews")
+
+  // Sync metadata
+  lastSyncedAt    DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([isCurrent])
+  @@index([userId, isCurrent])
+}
+
+model ProjectMilestone {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     StudentProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  order       Int      // Display order
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+
+  // Auto-completion criteria (optional)
+  linkedToBranch  String?  // Complete when branch merged to main
+  linkedToFile    String?  // Complete when file exists in repo
+  linkedToCommitMsg String? // Complete when commit message contains this pattern (regex)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([projectId, order])
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+  ARCHIVED
+}
+
+enum DeploymentStatus {
+  SUCCESS
+  FAILED
+  IN_PROGRESS
+  PENDING
+}
+
+model ProjectActivity {
+  id           String       @id @default(cuid())
+  projectId    String
+  project      StudentProject @relation("ProjectActivities", fields: [projectId], references: [id], onDelete: Cascade)
+
+  activityType ActivityType
+  title        String       // Brief description (e.g., "Pushed 3 commits")
+  description  String?      // Longer description (e.g., commit message)
+  metadata     Json?        // Extra data (commit SHA, PR number, branch name, etc.)
+  url          String?      // Link to GitHub (commit, PR, etc.)
+
+  timestamp    DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+
+  @@index([projectId])
+  @@index([projectId, timestamp])
+  @@index([activityType])
+}
+
+enum ActivityType {
+  COMMIT
+  PULL_REQUEST_OPENED
+  PULL_REQUEST_MERGED
+  PULL_REQUEST_CLOSED
+  DEPLOYMENT_SUCCESS
+  DEPLOYMENT_FAILED
+  MILESTONE_COMPLETED
+}
+
+model CodeReviewRequest {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation("UserReviewRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  projectId   String?
+  project     StudentProject? @relation("ProjectReviews", fields: [projectId], references: [id])
+
+  repoUrl     String        // URL to repo or PR
+  notes       String?       // Student notes
+
+  status      ReviewStatus  @default(PENDING)
+
+  reviewerId  String?
+  reviewer    User?         @relation("UserReviewAssignments", fields: [reviewerId], references: [id])
+
+  feedback    String?       // Instructor feedback
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([reviewerId])
+}
+
+enum ReviewStatus {
+  PENDING
+  IN_REVIEW
+  COMPLETED
+  CLOSED
+  REJECTED
+}
+
+// ============================================
+// MESSAGING MODELS
+// ============================================
+
+model Conversation {
+  id            String    @id @default(cuid())
+  participantA  String
+  participantB  String
+  lastMessageAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  userA         User      @relation("ConversationsAsA", fields: [participantA], references: [id], onDelete: Cascade)
+  userB         User      @relation("ConversationsAsB", fields: [participantB], references: [id], onDelete: Cascade)
+  messages      Message[]
+
+  @@unique([participantA, participantB])
+  @@index([participantA])
+  @@index([participantB])
+  @@index([lastMessageAt])
+}
+
+model Message {
+  id              String        @id @default(cuid())
+  conversationId  String
+  senderId        String
+  content         String
+  readAt          DateTime?
+  attachmentUrl   String?
+  attachmentName  String?
+  attachmentType  String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  conversation    Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([conversationId, readAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  link      String
+  read      Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}

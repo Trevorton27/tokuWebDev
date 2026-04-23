@@ -5,8 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import ThemeToggle from './ThemeToggle';
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || '/sign-in';
-
 export default function NavBar() {
   const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname();
@@ -66,13 +64,6 @@ export default function NavBar() {
               </svg>
               <span className="font-medium">{language === 'en' ? 'EN' : '日本語'}</span>
             </button>
-
-            <a
-              href={APP_URL}
-              className="px-4 py-2 bg-white dark:bg-dark-card text-indigo-600 dark:text-white rounded-md hover:bg-indigo-50 dark:hover:bg-dark-hover transition font-medium"
-            >
-              {t('nav.signIn')}
-            </a>
 
             <ThemeToggle />
           </div>
