@@ -1,14 +1,27 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import ThemeToggle from './ThemeToggle';
 
+const NAV_LINKS = [
+  { href: '#how-it-works', key: 'nav.howItWorks' },
+  { href: '#features', key: 'nav.features' },
+  { href: '#curriculum', key: 'nav.curriculum' },
+  { href: '#outcomes', key: 'nav.outcomes' },
+  { href: '#about', key: 'nav.instructor' },
+  { href: '#testimonials', key: 'nav.testimonials' },
+  { href: '#pricing', key: 'nav.pricing' },
+  { href: '#contact', key: 'nav.contact' },
+] as const;
+
 export default function NavBar() {
   const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'ja' : 'en');
@@ -25,30 +38,11 @@ export default function NavBar() {
 
             {isHomePage && (
               <div className="hidden md:flex space-x-6">
-                <a href="#how-it-works" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.howItWorks')}
-                </a>
-                <a href="#features" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.features')}
-                </a>
-                <a href="#curriculum" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.curriculum')}
-                </a>
-                <a href="#outcomes" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.outcomes')}
-                </a>
-                <a href="#about" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.instructor')}
-                </a>
-                <a href="#testimonials" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.testimonials')}
-                </a>
-                <a href="#pricing" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.pricing')}
-                </a>
-                <a href="#contact" className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
-                  {t('nav.contact')}
-                </a>
+                {NAV_LINKS.map(({ href, key }) => (
+                  <a key={href} href={href} className="hover:text-indigo-200 dark:hover:text-purple-300 transition">
+                    {t(key)}
+                  </a>
+                ))}
               </div>
             )}
           </div>
@@ -66,9 +60,45 @@ export default function NavBar() {
             </button>
 
             <ThemeToggle />
+
+            {isHomePage && (
+              <button
+                onClick={() => setMenuOpen((o) => !o)}
+                className="md:hidden p-2 rounded-md hover:bg-indigo-700 transition"
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={menuOpen}
+              >
+                {menuOpen ? (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {isHomePage && menuOpen && (
+        <div className="md:hidden bg-indigo-700 dark:bg-dark-card border-t border-indigo-500 dark:border-dark-border">
+          <div className="container mx-auto px-4 py-3 flex flex-col space-y-1">
+            {NAV_LINKS.map(({ href, key }) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setMenuOpen(false)}
+                className="block px-3 py-2.5 rounded-md hover:bg-indigo-600 dark:hover:bg-dark-hover transition text-sm font-medium"
+              >
+                {t(key)}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
