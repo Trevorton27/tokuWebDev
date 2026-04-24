@@ -811,8 +811,13 @@ export default function Home() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm space-y-3">
             <p>{t('home.footerCopyright')}</p>
+            <p className="text-gray-500 text-xs max-w-2xl mx-auto leading-relaxed">
+              All student reviews and testimonials displayed on this site are shared with the explicit permission of the individuals involved.
+              Interactions with our AI-powered tools — including assessments, tutoring sessions, and feedback — may be used to improve and train our AI systems.
+              By using this platform you acknowledge and consent to this use.
+            </p>
           </div>
         </div>
       </footer>
