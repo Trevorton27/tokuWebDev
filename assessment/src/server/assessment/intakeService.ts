@@ -25,6 +25,7 @@ import {
   type MasteryUpdate,
 } from './skillProfileService';
 import { extractAndSaveStudentProfile } from './profileExtraction';
+import { sendAssessmentResultsEmail } from './emailService';
 
 // ============================================
 // TYPES
@@ -419,6 +420,28 @@ export async function submitStepAnswer(
           sessionId,
         });
       });
+
+      // Email assessment results to instructor (non-blocking)
+      (async () => {
+        try {
+          const [dbUser, summary] = await Promise.all([
+            prisma.user.findUnique({ where: { id: session.userId }, select: { name: true, email: true } }),
+            getSessionSummary(sessionId),
+          ]);
+          if (dbUser && summary) {
+            await sendAssessmentResultsEmail(
+              dbUser.name || 'Unknown Student',
+              dbUser.email,
+              summary
+            );
+          }
+        } catch (err) {
+          logger.error('Failed to send assessment results email (non-blocking)', err, {
+            userId: session.userId,
+            sessionId,
+          });
+        }
+      })();
     } else if (nextStep) {
       await prisma.assessmentSession.update({
         where: { id: sessionId },
