@@ -25,7 +25,7 @@ import {
   type MasteryUpdate,
 } from './skillProfileService';
 import { extractAndSaveStudentProfile } from './profileExtraction';
-import { sendAssessmentResultsEmail } from './emailService';
+import { sendAssessmentResultsEmail, sendStudentAssessmentEmail } from './emailService';
 
 // ============================================
 // TYPES
@@ -421,22 +421,63 @@ export async function submitStepAnswer(
         });
       });
 
-      // Email assessment results to instructor (non-blocking)
+      // Email assessment results to instructor + student (non-blocking)
       (async () => {
         try {
           const [dbUser, summary] = await Promise.all([
             prisma.user.findUnique({ where: { id: session.userId }, select: { name: true, email: true } }),
             getSessionSummary(sessionId),
           ]);
+
           if (dbUser && summary) {
-            await sendAssessmentResultsEmail(
-              dbUser.name || 'Unknown Student',
-              dbUser.email,
-              summary
-            );
+            const studentName = dbUser.name || 'Unknown Student';
+
+            // Instructor summary email
+            await sendAssessmentResultsEmail(studentName, dbUser.email, summary);
+
+            // Derive structured fields for student-facing email
+            const { profileSummary } = summary;
+            const overallPct = Math.round(profileSummary.overallScore * 100);
+            const level =
+              profileSummary.overallScore >= 0.8 ? 'Advanced'
+              : profileSummary.overallScore >= 0.6 ? 'Proficient'
+              : profileSummary.overallScore >= 0.4 ? 'Developing'
+              : 'Beginner';
+
+            const assessed = profileSummary.dimensions.filter((d) => d.assessedRatio > 0);
+            const strengths = assessed
+              .filter((d) => d.score >= 0.7)
+              .map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
+            const weaknesses = assessed
+              .filter((d) => d.score < 0.4)
+              .map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
+
+            // Generate simple recommendations from dimension data
+            const recommendations: string[] = [];
+            const weakAreas = assessed.filter((d) => d.score < 0.4).sort((a, b) => a.score - b.score);
+            if (weakAreas.length > 0) {
+              recommendations.push(`Focus on strengthening your ${weakAreas[0].label} skills first`);
+            }
+            if (profileSummary.overallScore >= 0.6) {
+              recommendations.push('You have a solid foundation — consider tackling a capstone project');
+            } else {
+              recommendations.push('Start with the fundamentals and build up your skills progressively');
+            }
+            recommendations.push('Check your personalized roadmap in your dashboard for your next steps');
+
+            await sendStudentAssessmentEmail({
+              name: studentName,
+              email: dbUser.email,
+              score: overallPct,
+              level,
+              summary: `You completed ${profileSummary.totalSkillsAssessed} of ${profileSummary.totalSkills} skill areas. Your overall score is ${overallPct}% at the ${level} level.`,
+              strengths: strengths.length > 0 ? strengths : undefined,
+              weaknesses: weaknesses.length > 0 ? weaknesses : undefined,
+              recommendations,
+            });
           }
         } catch (err) {
-          logger.error('Failed to send assessment results email (non-blocking)', err, {
+          logger.error('Failed to send assessment emails (non-blocking)', err, {
             userId: session.userId,
             sessionId,
           });

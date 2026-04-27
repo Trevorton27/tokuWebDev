@@ -4,8 +4,27 @@ import type { SessionSummary } from './intakeService';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const RECIPIENT = 'support@signalworksdesign.com';
-const FROM = 'Signal Works <contact@email.signalworksdesign.com>';
+const SUPPORT_EMAIL = 'support@signalworksdesign.com';
+const RECIPIENT = SUPPORT_EMAIL;
+const FROM =
+  process.env.NODE_ENV === 'development'
+    ? 'Signal Works <onboarding@resend.dev>'
+    : 'Signal Works <contact@email.signalworksdesign.com>';
+
+// ============================================
+// STUDENT EMAIL TYPES
+// ============================================
+
+export interface StudentEmailPayload {
+  name: string;
+  email: string;
+  score?: number;       // 0–100
+  level?: string;       // e.g. "Beginner", "Developing", "Proficient", "Advanced"
+  summary?: string;
+  strengths?: string[];
+  weaknesses?: string[];
+  recommendations?: string[];
+}
 
 function getSkillLabel(mastery: number): string {
   if (mastery >= 0.7) return 'Strong';
@@ -174,5 +193,126 @@ export async function sendAssessmentResultsEmail(
     }
   } catch (err) {
     logger.error('sendAssessmentResultsEmail threw unexpectedly', err, { studentEmail });
+  }
+}
+
+// ============================================
+// STUDENT-FACING EMAIL
+// ============================================
+
+function buildStudentEmailHtml(p: StudentEmailPayload): string {
+  const bulletList = (items: string[] | undefined, fallback: string) =>
+    items && items.length > 0
+      ? items.map((i) => `<li style="margin-bottom:6px">${i}</li>`).join('')
+      : `<li style="color:#6b7280">${fallback}</li>`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827;max-width:640px;margin:0 auto;padding:24px">
+  <div style="background:#111827;border-radius:8px 8px 0 0;padding:24px 28px">
+    <h1 style="margin:0;color:#fff;font-size:20px">Your Assessment Results</h1>
+    <p style="margin:4px 0 0;color:#9ca3af;font-size:13px">Signal Works Design</p>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:28px">
+
+    <p style="margin:0 0 20px;font-size:16px">Hello <strong>${p.name}</strong>,</p>
+    <p style="margin:0 0 24px;color:#4b5563">
+      Thank you for completing your assessment. Here's a summary of your results.
+    </p>
+
+    ${p.score !== undefined || p.level ? `
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:flex;gap:24px">
+      ${p.score !== undefined ? `<div><p style="margin:0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Overall Score</p><p style="margin:4px 0 0;font-size:28px;font-weight:700;color:#4f46e5">${p.score}%</p></div>` : ''}
+      ${p.level ? `<div><p style="margin:0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Level</p><p style="margin:4px 0 0;font-size:22px;font-weight:700;color:#111827">${p.level}</p></div>` : ''}
+    </div>` : ''}
+
+    ${p.summary ? `
+    <h2 style="font-size:15px;margin:0 0 8px;color:#374151">Summary</h2>
+    <p style="margin:0 0 24px;color:#4b5563;line-height:1.6">${p.summary}</p>` : ''}
+
+    <h2 style="font-size:15px;margin:0 0 10px;color:#374151">💪 Strengths</h2>
+    <ul style="margin:0 0 24px;padding-left:20px;color:#4b5563;line-height:1.6">
+      ${bulletList(p.strengths, 'Continue building on your current skills')}
+    </ul>
+
+    <h2 style="font-size:15px;margin:0 0 10px;color:#374151">📈 Areas to Improve</h2>
+    <ul style="margin:0 0 24px;padding-left:20px;color:#4b5563;line-height:1.6">
+      ${bulletList(p.weaknesses, 'Keep practicing — improvement takes consistent effort')}
+    </ul>
+
+    <h2 style="font-size:15px;margin:0 0 10px;color:#374151">🗺️ Recommended Next Steps</h2>
+    <ul style="margin:0 0 28px;padding-left:20px;color:#4b5563;line-height:1.6">
+      ${bulletList(p.recommendations, 'Your personalized roadmap will be available in your dashboard')}
+    </ul>
+
+    <div style="background:#4f46e5;border-radius:8px;padding:20px 24px;text-align:center">
+      <p style="margin:0 0 12px;color:#e0e7ff;font-size:14px">Ready to start your learning journey?</p>
+      <a href="https://signalworksdesign.com" style="display:inline-block;background:#fff;color:#4f46e5;font-weight:700;padding:10px 24px;border-radius:6px;text-decoration:none;font-size:14px">
+        Go to Dashboard
+      </a>
+    </div>
+
+    <p style="margin:24px 0 0;font-size:12px;color:#9ca3af;text-align:center">
+      Signal Works Design · <a href="mailto:support@signalworksdesign.com" style="color:#9ca3af">support@signalworksdesign.com</a>
+    </p>
+  </div>
+</body>
+</html>`;
+}
+
+function buildStudentEmailText(p: StudentEmailPayload): string {
+  const list = (items: string[] | undefined) =>
+    items && items.length > 0 ? items.map((i) => `  - ${i}`).join('\n') : '  - N/A';
+
+  return [
+    `Hello ${p.name},`,
+    '',
+    'Thank you for completing your assessment. Here are your results.',
+    '',
+    p.score !== undefined ? `Overall Score: ${p.score}%` : '',
+    p.level ? `Level: ${p.level}` : '',
+    '',
+    p.summary ? `Summary:\n${p.summary}\n` : '',
+    'Strengths:',
+    list(p.strengths),
+    '',
+    'Areas to Improve:',
+    list(p.weaknesses),
+    '',
+    'Recommended Next Steps:',
+    list(p.recommendations),
+    '',
+    '—',
+    'Signal Works Design',
+    'support@signalworksdesign.com',
+  ]
+    .filter((l) => l !== undefined)
+    .join('\n');
+}
+
+export async function sendStudentAssessmentEmail(payload: StudentEmailPayload): Promise<void> {
+  try {
+    const subject = 'Your Assessment Results – Signal Works';
+
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: payload.email,
+      cc: SUPPORT_EMAIL,
+      subject,
+      text: buildStudentEmailText(payload),
+      html: buildStudentEmailHtml(payload),
+    });
+
+    if (error) {
+      logger.error('Resend failed to send student assessment email', error, {
+        studentEmail: payload.email,
+      });
+    } else {
+      logger.info('Student assessment email sent', { name: payload.name, email: payload.email });
+    }
+  } catch (err) {
+    logger.error('sendStudentAssessmentEmail threw unexpectedly', err, { email: payload.email });
   }
 }
