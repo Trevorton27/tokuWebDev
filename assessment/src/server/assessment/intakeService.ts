@@ -25,7 +25,7 @@ import {
   type MasteryUpdate,
 } from './skillProfileService';
 import { extractAndSaveStudentProfile } from './profileExtraction';
-import { sendAssessmentResultsEmail, sendStudentAssessmentEmail } from './emailService';
+import { sendAssessmentEmails } from './emailService';
 
 // ============================================
 // TYPES
@@ -421,21 +421,20 @@ export async function submitStepAnswer(
         });
       });
 
-      // Email assessment results to instructor + student (non-blocking)
+      // Send assessment emails (non-blocking)
       (async () => {
         try {
-          const [dbUser, summary] = await Promise.all([
+          const [dbUser, summary, sessionWithResponses] = await Promise.all([
             prisma.user.findUnique({ where: { id: session.userId }, select: { name: true, email: true } }),
             getSessionSummary(sessionId),
+            prisma.assessmentSession.findUnique({
+              where: { id: sessionId },
+              include: { responses: { orderBy: { submittedAt: 'asc' } } },
+            }),
           ]);
 
           if (dbUser && summary) {
             const studentName = dbUser.name || 'Unknown Student';
-
-            // Instructor summary email
-            await sendAssessmentResultsEmail(studentName, dbUser.email, summary);
-
-            // Derive structured fields for student-facing email
             const { profileSummary } = summary;
             const overallPct = Math.round(profileSummary.overallScore * 100);
             const level =
@@ -445,35 +444,49 @@ export async function submitStepAnswer(
               : 'Beginner';
 
             const assessed = profileSummary.dimensions.filter((d) => d.assessedRatio > 0);
-            const strengths = assessed
-              .filter((d) => d.score >= 0.7)
-              .map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
-            const weaknesses = assessed
-              .filter((d) => d.score < 0.4)
-              .map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
+            const strengths = assessed.filter((d) => d.score >= 0.7).map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
+            const weaknesses = assessed.filter((d) => d.score < 0.4).map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
 
-            // Generate simple recommendations from dimension data
-            const recommendations: string[] = [];
             const weakAreas = assessed.filter((d) => d.score < 0.4).sort((a, b) => a.score - b.score);
-            if (weakAreas.length > 0) {
-              recommendations.push(`Focus on strengthening your ${weakAreas[0].label} skills first`);
-            }
-            if (profileSummary.overallScore >= 0.6) {
-              recommendations.push('You have a solid foundation — consider tackling a capstone project');
-            } else {
-              recommendations.push('Start with the fundamentals and build up your skills progressively');
-            }
-            recommendations.push('Check your personalized roadmap in your dashboard for your next steps');
+            const recommendations: string[] = [];
+            if (weakAreas.length > 0) recommendations.push(`Focus on strengthening your ${weakAreas[0].label} skills first`);
+            recommendations.push(profileSummary.overallScore >= 0.6
+              ? 'You have a solid foundation — consider tackling a capstone project'
+              : 'Start with the fundamentals and build up your skills progressively');
+            recommendations.push('Review your personalized roadmap in the dashboard for next steps');
 
-            await sendStudentAssessmentEmail({
+            // Map session responses to submitted answers
+            const answers = (sessionWithResponses?.responses ?? [])
+              .filter((r) => {
+                const raw = r.rawAnswer as any;
+                return !raw?._skipped && !raw?._noIdea;
+              })
+              .map((r) => {
+                const stepConfig = getStepById(r.stepId);
+                const raw = r.rawAnswer as any;
+                const answerText = typeof raw === 'string'
+                  ? raw
+                  : typeof raw?.answer === 'string'
+                    ? raw.answer
+                    : JSON.stringify(raw);
+                return {
+                  questionId: r.stepId,
+                  question: stepConfig?.title ?? r.stepId,
+                  answer: answerText,
+                  category: stepConfig?.kind,
+                };
+              });
+
+            await sendAssessmentEmails({
               name: studentName,
               email: dbUser.email,
               score: overallPct,
               level,
-              summary: `You completed ${profileSummary.totalSkillsAssessed} of ${profileSummary.totalSkills} skill areas. Your overall score is ${overallPct}% at the ${level} level.`,
+              summary: `Completed ${profileSummary.totalSkillsAssessed} of ${profileSummary.totalSkills} skill areas. Overall score: ${overallPct}% (${level}).`,
               strengths: strengths.length > 0 ? strengths : undefined,
               weaknesses: weaknesses.length > 0 ? weaknesses : undefined,
               recommendations,
+              answers,
             });
           }
         } catch (err) {

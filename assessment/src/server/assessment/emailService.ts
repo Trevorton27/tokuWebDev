@@ -1,318 +1,363 @@
 import { Resend } from 'resend';
 import { logger } from '@/lib/logger';
-import type { SessionSummary } from './intakeService';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const FROM = 'Signal Works <contact@email.signalworksdesign.com>';
 const SUPPORT_EMAIL = 'support@signalworksdesign.com';
-const RECIPIENT = SUPPORT_EMAIL;
-const FROM =
-  process.env.NODE_ENV === 'development'
-    ? 'Signal Works <onboarding@resend.dev>'
-    : 'Signal Works <contact@email.signalworksdesign.com>';
+const BOOKING_URL = 'https://signalworks.com/book';
 
 // ============================================
-// STUDENT EMAIL TYPES
+// TYPES
 // ============================================
 
-export interface StudentEmailPayload {
+export interface RoadmapPhase {
+  phase: string;
+  focus: string;
+  goals: string[];
+  suggestedResources?: string[];
+}
+
+export interface AppToBuild {
+  title: string;
+  description: string;
+  skillsPracticed: string[];
+  difficulty?: string;
+}
+
+export interface SubmittedAnswer {
+  questionId?: string;
+  question: string;
+  answer: string;
+  category?: string;
+}
+
+export interface AssessmentEmailPayload {
   name: string;
   email: string;
-  score?: number;       // 0–100
-  level?: string;       // e.g. "Beginner", "Developing", "Proficient", "Advanced"
+  score?: number;
+  level?: string;
   summary?: string;
   strengths?: string[];
   weaknesses?: string[];
   recommendations?: string[];
+  proposedRoadmap?: RoadmapPhase[];
+  appsToBuild?: AppToBuild[];
+  answers?: SubmittedAnswer[];
 }
 
-function getSkillLabel(mastery: number): string {
-  if (mastery >= 0.7) return 'Strong';
-  if (mastery >= 0.4) return 'Developing';
-  return 'Beginner';
+// ============================================
+// HELPERS
+// ============================================
+
+function esc(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-function formatPercent(value: number): string {
-  return `${Math.round(value * 100)}%`;
+function bulletListHtml(items: string[] | undefined, fallback?: string): string {
+  if (!items || items.length === 0) {
+    return fallback ? `<li style="color:#6b7280">${fallback}</li>` : '';
+  }
+  return items.map((i) => `<li style="margin-bottom:5px">${esc(i)}</li>`).join('');
 }
 
-function buildEmailText(
-  studentName: string,
-  studentEmail: string,
-  summary: SessionSummary
-): string {
-  const { profileSummary, stepResults, completedAt } = summary;
+function bulletListText(items: string[] | undefined, fallback?: string): string {
+  if (!items || items.length === 0) return fallback ? `  - ${fallback}` : '';
+  return items.map((i) => `  - ${i}`).join('\n');
+}
 
+function section(title: string, content: string): string {
+  return `
+  <h2 style="font-size:15px;font-weight:700;color:#111827;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid #e5e7eb">${title}</h2>
+  ${content}`;
+}
+
+// ============================================
+// INTERNAL EMAIL (full report → support)
+// ============================================
+
+function buildInternalHtml(p: AssessmentEmailPayload, timestamp: string): string {
+  const tdLabel = 'color:#6b7280;font-size:13px;padding:3px 12px 3px 0;white-space:nowrap;vertical-align:top';
+  const tdVal = 'color:#111827;font-size:13px;padding:3px 0;font-weight:500';
+
+  const scoreRow = p.score !== undefined
+    ? `<tr><td style="${tdLabel}">Score</td><td style="${tdVal}">${p.score}%</td></tr>` : '';
+  const levelRow = p.level
+    ? `<tr><td style="${tdLabel}">Level</td><td style="${tdVal}">${esc(p.level)}</td></tr>` : '';
+
+  const roadmapHtml = !p.proposedRoadmap?.length ? '<p style="color:#6b7280">Not provided.</p>' :
+    p.proposedRoadmap.map((phase, i) => `
+      <div style="margin-bottom:20px;padding:14px 16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px">
+        <p style="margin:0 0 4px;font-weight:700;color:#111827">Phase ${i + 1}: ${esc(phase.phase)}</p>
+        <p style="margin:0 0 8px;color:#4b5563;font-size:13px"><strong>Focus:</strong> ${esc(phase.focus)}</p>
+        <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#374151">Goals:</p>
+        <ul style="margin:0 0 8px;padding-left:18px;color:#4b5563;font-size:13px">
+          ${bulletListHtml(phase.goals)}
+        </ul>
+        ${phase.suggestedResources?.length ? `
+        <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#374151">Resources:</p>
+        <ul style="margin:0;padding-left:18px;color:#4b5563;font-size:13px">
+          ${bulletListHtml(phase.suggestedResources)}
+        </ul>` : ''}
+      </div>`).join('');
+
+  const appsHtml = !p.appsToBuild?.length ? '<p style="color:#6b7280">Not provided.</p>' :
+    p.appsToBuild.map((app) => `
+      <div style="margin-bottom:16px;padding:14px 16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px">
+        <p style="margin:0 0 4px;font-weight:700;color:#111827">${esc(app.title)}${app.difficulty ? ` <span style="font-size:12px;font-weight:400;color:#6b7280">(${esc(app.difficulty)})</span>` : ''}</p>
+        <p style="margin:0 0 8px;color:#4b5563;font-size:13px">${esc(app.description)}</p>
+        <p style="margin:0 0 4px;font-size:12px;color:#6b7280"><strong>Skills:</strong> ${app.skillsPracticed.map(esc).join(', ')}</p>
+      </div>`).join('');
+
+  const answersHtml = !p.answers?.length ? '<p style="color:#6b7280">No answers submitted.</p>' :
+    p.answers.map((a, i) => `
+      <div style="margin-bottom:18px;border-left:3px solid #4f46e5;padding-left:14px">
+        <p style="margin:0 0 2px;font-size:12px;color:#6b7280">
+          ${a.category ? `[${esc(a.category)}] ` : ''}${a.questionId ? `ID: ${esc(a.questionId)} · ` : ''}Question ${i + 1}
+        </p>
+        <p style="margin:0 0 6px;font-weight:600;color:#111827;font-size:14px">${esc(a.question)}</p>
+        <p style="margin:0;color:#374151;font-size:13px;white-space:pre-wrap;background:#f9fafb;padding:10px 12px;border-radius:4px">${esc(a.answer)}</p>
+      </div>`).join('');
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827;max-width:720px;margin:0 auto;padding:24px">
+
+  <div style="background:#111827;border-radius:8px 8px 0 0;padding:20px 28px">
+    <h1 style="margin:0;color:#fff;font-size:18px">New Assessment Completed</h1>
+    <p style="margin:4px 0 0;color:#9ca3af;font-size:13px">Signal Works Design — Internal Report</p>
+  </div>
+
+  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:24px 28px">
+
+    ${section('Student Information', `
+      <table style="border-collapse:collapse">
+        <tr><td style="${tdLabel}">Name</td><td style="${tdVal}">${esc(p.name)}</td></tr>
+        <tr><td style="${tdLabel}">Email</td><td style="${tdVal}"><a href="mailto:${esc(p.email)}" style="color:#4f46e5">${esc(p.email)}</a></td></tr>
+        <tr><td style="${tdLabel}">Completed</td><td style="${tdVal}">${timestamp}</td></tr>
+      </table>`)}
+
+    ${section('Assessment Summary', `
+      <table style="border-collapse:collapse;margin-bottom:14px">
+        ${scoreRow}${levelRow}
+      </table>
+      ${p.summary ? `<p style="color:#4b5563;margin:0 0 14px;line-height:1.6">${esc(p.summary)}</p>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#16a34a">Strengths</p>
+          <ul style="margin:0;padding-left:18px;color:#4b5563;font-size:13px">${bulletListHtml(p.strengths, 'None identified')}</ul>
+        </div>
+        <div>
+          <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#dc2626">Areas to Improve</p>
+          <ul style="margin:0;padding-left:18px;color:#4b5563;font-size:13px">${bulletListHtml(p.weaknesses, 'None identified')}</ul>
+        </div>
+      </div>
+      ${p.recommendations?.length ? `
+      <p style="margin:14px 0 6px;font-size:13px;font-weight:600;color:#374151">Recommendations</p>
+      <ul style="margin:0;padding-left:18px;color:#4b5563;font-size:13px">${bulletListHtml(p.recommendations)}</ul>` : ''}`)}
+
+    ${section('Proposed Study Roadmap', roadmapHtml)}
+
+    ${section('Recommended Apps / Projects to Build', appsHtml)}
+
+    ${section('Full Submitted Answers', answersHtml)}
+
+  </div>
+</body></html>`;
+}
+
+function buildInternalText(p: AssessmentEmailPayload, timestamp: string): string {
   const lines: string[] = [
-    `Assessment Results — ${studentName}`,
-    `Email: ${studentEmail}`,
-    `Completed: ${completedAt.toUTCString()}`,
+    `SIGNAL WORKS DESIGN — INTERNAL ASSESSMENT REPORT`,
+    `${'='.repeat(50)}`,
     '',
-    '=== SKILL PROFILE ===',
-    `Overall Score: ${formatPercent(profileSummary.overallScore)}`,
-    `Skills Assessed: ${profileSummary.totalSkillsAssessed} / ${profileSummary.totalSkills}`,
+    `STUDENT INFORMATION`,
+    `-`.repeat(30),
+    `Name:      ${p.name}`,
+    `Email:     ${p.email}`,
+    `Completed: ${timestamp}`,
     '',
+    `ASSESSMENT SUMMARY`,
+    `-`.repeat(30),
+    ...(p.score !== undefined ? [`Score: ${p.score}%`] : []),
+    ...(p.level ? [`Level: ${p.level}`] : []),
+    ...(p.summary ? ['', p.summary] : []),
+    '',
+    `Strengths:`,
+    bulletListText(p.strengths, 'None identified'),
+    '',
+    `Areas to Improve:`,
+    bulletListText(p.weaknesses, 'None identified'),
+    '',
+    `Recommendations:`,
+    bulletListText(p.recommendations),
   ];
 
-  for (const dim of profileSummary.dimensions) {
-    if (dim.assessedRatio > 0) {
-      lines.push(
-        `${dim.label}: ${formatPercent(dim.score)} (${getSkillLabel(dim.score)}) — confidence ${formatPercent(dim.confidence)}`
-      );
-    }
+  if (p.proposedRoadmap?.length) {
+    lines.push('', `PROPOSED STUDY ROADMAP`, `-`.repeat(30));
+    p.proposedRoadmap.forEach((phase, i) => {
+      lines.push(``, `Phase ${i + 1}: ${phase.phase}`, `Focus: ${phase.focus}`);
+      lines.push(`Goals:`);
+      phase.goals.forEach((g) => lines.push(`  - ${g}`));
+      if (phase.suggestedResources?.length) {
+        lines.push(`Resources:`);
+        phase.suggestedResources.forEach((r) => lines.push(`  - ${r}`));
+      }
+    });
   }
 
-  lines.push('', '=== STEP RESULTS ===');
-  for (const step of stepResults) {
-    const grade = step.gradeResult;
-    if (!grade) {
-      lines.push(`• ${step.stepTitle}: Not graded`);
-    } else {
-      const status = grade.passed ? 'PASS' : 'FAIL';
-      lines.push(`• ${step.stepTitle}: ${status} (score: ${formatPercent(grade.score)})`);
-      if (grade.feedback) {
-        lines.push(`  Feedback: ${grade.feedback}`);
-      }
-    }
+  if (p.appsToBuild?.length) {
+    lines.push('', `RECOMMENDED APPS / PROJECTS`, `-`.repeat(30));
+    p.appsToBuild.forEach((app) => {
+      lines.push(``, `${app.title}${app.difficulty ? ` (${app.difficulty})` : ''}`);
+      lines.push(app.description);
+      lines.push(`Skills: ${app.skillsPracticed.join(', ')}`);
+    });
+  }
+
+  if (p.answers?.length) {
+    lines.push('', `FULL SUBMITTED ANSWERS`, `-`.repeat(30));
+    p.answers.forEach((a, i) => {
+      lines.push(
+        ``,
+        `Q${i + 1}${a.category ? ` [${a.category}]` : ''}${a.questionId ? ` (ID: ${a.questionId})` : ''}`,
+        `Question: ${a.question}`,
+        `Answer:`,
+        a.answer,
+      );
+    });
   }
 
   return lines.join('\n');
 }
 
-function buildEmailHtml(
-  studentName: string,
-  studentEmail: string,
-  summary: SessionSummary
-): string {
-  const { profileSummary, stepResults, completedAt } = summary;
-
-  const dimensionRows = profileSummary.dimensions
-    .filter((d) => d.assessedRatio > 0)
-    .map((dim) => {
-      const label = getSkillLabel(dim.score);
-      const color = dim.score >= 0.7 ? '#16a34a' : dim.score >= 0.4 ? '#ca8a04' : '#dc2626';
-      return `
-        <tr>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb">${dim.label}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:center">
-            <span style="color:${color};font-weight:600">${label}</span>
-          </td>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:center">${formatPercent(dim.score)}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:center">${formatPercent(dim.confidence)}</td>
-        </tr>`;
-    })
-    .join('');
-
-  const stepRows = stepResults
-    .map((step) => {
-      const grade = step.gradeResult;
-      if (!grade) return `<tr><td style="padding:6px 12px;border-bottom:1px solid #e5e7eb">${step.stepTitle}</td><td colspan="2" style="padding:6px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280">Not graded</td></tr>`;
-      const statusColor = grade.passed ? '#16a34a' : '#dc2626';
-      return `
-        <tr>
-          <td style="padding:6px 12px;border-bottom:1px solid #e5e7eb">${step.stepTitle}</td>
-          <td style="padding:6px 12px;border-bottom:1px solid #e5e7eb;text-align:center;color:${statusColor};font-weight:600">${grade.passed ? 'PASS' : 'FAIL'}</td>
-          <td style="padding:6px 12px;border-bottom:1px solid #e5e7eb;text-align:center">${formatPercent(grade.score)}</td>
-        </tr>
-        ${grade.feedback ? `<tr><td colspan="3" style="padding:4px 12px 10px;color:#6b7280;font-size:13px;border-bottom:1px solid #e5e7eb"><em>${grade.feedback}</em></td></tr>` : ''}`;
-    })
-    .join('');
-
-  return `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827;max-width:680px;margin:0 auto;padding:24px">
-  <div style="background:#4f46e5;border-radius:8px 8px 0 0;padding:24px 28px">
-    <h1 style="margin:0;color:#fff;font-size:22px">Assessment Results</h1>
-    <p style="margin:4px 0 0;color:#c7d2fe;font-size:14px">Signal Works Design</p>
-  </div>
-  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:24px 28px">
-
-    <table style="width:100%;margin-bottom:24px">
-      <tr><td style="color:#6b7280;font-size:13px;padding:2px 0">Student</td><td style="font-weight:600">${studentName}</td></tr>
-      <tr><td style="color:#6b7280;font-size:13px;padding:2px 0">Email</td><td><a href="mailto:${studentEmail}" style="color:#4f46e5">${studentEmail}</a></td></tr>
-      <tr><td style="color:#6b7280;font-size:13px;padding:2px 0">Completed</td><td>${completedAt.toUTCString()}</td></tr>
-      <tr><td style="color:#6b7280;font-size:13px;padding:2px 0">Overall Score</td><td style="font-weight:600">${formatPercent(profileSummary.overallScore)}</td></tr>
-      <tr><td style="color:#6b7280;font-size:13px;padding:2px 0">Skills Assessed</td><td>${profileSummary.totalSkillsAssessed} / ${profileSummary.totalSkills}</td></tr>
-    </table>
-
-    <h2 style="font-size:16px;margin:0 0 12px;color:#374151">Skill Profile</h2>
-    <table style="width:100%;border-collapse:collapse;margin-bottom:28px">
-      <thead>
-        <tr style="background:#f9fafb">
-          <th style="text-align:left;padding:8px 12px;font-size:13px;color:#6b7280;font-weight:500">Dimension</th>
-          <th style="padding:8px 12px;font-size:13px;color:#6b7280;font-weight:500">Level</th>
-          <th style="padding:8px 12px;font-size:13px;color:#6b7280;font-weight:500">Score</th>
-          <th style="padding:8px 12px;font-size:13px;color:#6b7280;font-weight:500">Confidence</th>
-        </tr>
-      </thead>
-      <tbody>${dimensionRows}</tbody>
-    </table>
-
-    <h2 style="font-size:16px;margin:0 0 12px;color:#374151">Step Results</h2>
-    <table style="width:100%;border-collapse:collapse">
-      <thead>
-        <tr style="background:#f9fafb">
-          <th style="text-align:left;padding:8px 12px;font-size:13px;color:#6b7280;font-weight:500">Step</th>
-          <th style="padding:8px 12px;font-size:13px;color:#6b7280;font-weight:500">Result</th>
-          <th style="padding:8px 12px;font-size:13px;color:#6b7280;font-weight:500">Score</th>
-        </tr>
-      </thead>
-      <tbody>${stepRows}</tbody>
-    </table>
-  </div>
-</body>
-</html>`;
-}
-
-export async function sendAssessmentResultsEmail(
-  studentName: string,
-  studentEmail: string,
-  summary: SessionSummary
-): Promise<void> {
-  try {
-    const subject = `${studentName} — Assessment Results`;
-
-    const { error } = await resend.emails.send({
-      from: FROM,
-      to: RECIPIENT,
-      replyTo: studentEmail,
-      subject,
-      text: buildEmailText(studentName, studentEmail, summary),
-      html: buildEmailHtml(studentName, studentEmail, summary),
-    });
-
-    if (error) {
-      logger.error('Resend failed to send assessment results email', error, {
-        studentEmail,
-        subject,
-      });
-    } else {
-      logger.info('Assessment results email sent', { studentName, studentEmail });
-    }
-  } catch (err) {
-    logger.error('sendAssessmentResultsEmail threw unexpectedly', err, { studentEmail });
-  }
-}
-
 // ============================================
-// STUDENT-FACING EMAIL
+// STUDENT EMAIL (confirmation only)
 // ============================================
 
-function buildStudentEmailHtml(p: StudentEmailPayload): string {
-  const bulletList = (items: string[] | undefined, fallback: string) =>
-    items && items.length > 0
-      ? items.map((i) => `<li style="margin-bottom:6px">${i}</li>`).join('')
-      : `<li style="color:#6b7280">${fallback}</li>`;
+function buildStudentHtml(name: string): string {
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827;max-width:600px;margin:0 auto;padding:24px">
 
-  return `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827;max-width:640px;margin:0 auto;padding:24px">
-  <div style="background:#111827;border-radius:8px 8px 0 0;padding:24px 28px">
-    <h1 style="margin:0;color:#fff;font-size:20px">Your Assessment Results</h1>
+  <div style="background:#111827;border-radius:8px 8px 0 0;padding:20px 28px">
+    <h1 style="margin:0;color:#fff;font-size:18px">Assessment Complete</h1>
     <p style="margin:4px 0 0;color:#9ca3af;font-size:13px">Signal Works Design</p>
   </div>
-  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:28px">
 
-    <p style="margin:0 0 20px;font-size:16px">Hello <strong>${p.name}</strong>,</p>
-    <p style="margin:0 0 24px;color:#4b5563">
-      Thank you for completing your assessment. Here's a summary of your results.
+  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:28px">
+    <p style="margin:0 0 16px;font-size:16px">Hi <strong>${esc(name)}</strong>,</p>
+
+    <p style="margin:0 0 16px;color:#4b5563;line-height:1.7">
+      Thank you for completing your assessment with Signal Works Design. We've received all of your responses and our team will review them carefully.
     </p>
 
-    ${p.score !== undefined || p.level ? `
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:flex;gap:24px">
-      ${p.score !== undefined ? `<div><p style="margin:0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Overall Score</p><p style="margin:4px 0 0;font-size:28px;font-weight:700;color:#4f46e5">${p.score}%</p></div>` : ''}
-      ${p.level ? `<div><p style="margin:0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Level</p><p style="margin:4px 0 0;font-size:22px;font-weight:700;color:#111827">${p.level}</p></div>` : ''}
-    </div>` : ''}
-
-    ${p.summary ? `
-    <h2 style="font-size:15px;margin:0 0 8px;color:#374151">Summary</h2>
-    <p style="margin:0 0 24px;color:#4b5563;line-height:1.6">${p.summary}</p>` : ''}
-
-    <h2 style="font-size:15px;margin:0 0 10px;color:#374151">💪 Strengths</h2>
-    <ul style="margin:0 0 24px;padding-left:20px;color:#4b5563;line-height:1.6">
-      ${bulletList(p.strengths, 'Continue building on your current skills')}
+    <p style="margin:0 0 12px;color:#374151;font-weight:600">Based on your answers, we will prepare:</p>
+    <ul style="margin:0 0 20px;padding-left:20px;color:#4b5563;line-height:1.8">
+      <li>A personalized skills profile based on your current level</li>
+      <li>A proposed study roadmap tailored to your goals</li>
+      <li>A set of recommended apps and projects to build</li>
     </ul>
 
-    <h2 style="font-size:15px;margin:0 0 10px;color:#374151">📈 Areas to Improve</h2>
-    <ul style="margin:0 0 24px;padding-left:20px;color:#4b5563;line-height:1.6">
-      ${bulletList(p.weaknesses, 'Keep practicing — improvement takes consistent effort')}
-    </ul>
+    <p style="margin:0 0 20px;color:#4b5563;line-height:1.7">
+      We'll go over everything together in your follow-up meeting. If you haven't booked a session yet, you can do so using the link below.
+    </p>
 
-    <h2 style="font-size:15px;margin:0 0 10px;color:#374151">🗺️ Recommended Next Steps</h2>
-    <ul style="margin:0 0 28px;padding-left:20px;color:#4b5563;line-height:1.6">
-      ${bulletList(p.recommendations, 'Your personalized roadmap will be available in your dashboard')}
-    </ul>
-
-    <div style="background:#4f46e5;border-radius:8px;padding:20px 24px;text-align:center">
-      <p style="margin:0 0 12px;color:#e0e7ff;font-size:14px">Ready to start your learning journey?</p>
-      <a href="https://signalworksdesign.com" style="display:inline-block;background:#fff;color:#4f46e5;font-weight:700;padding:10px 24px;border-radius:6px;text-decoration:none;font-size:14px">
-        Go to Dashboard
+    <div style="text-align:center;margin-bottom:28px">
+      <a href="${BOOKING_URL}"
+         style="display:inline-block;background:#4f46e5;color:#fff;font-weight:700;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:15px">
+        Book Your Follow-Up Meeting
       </a>
     </div>
 
-    <p style="margin:24px 0 0;font-size:12px;color:#9ca3af;text-align:center">
-      Signal Works Design · <a href="mailto:support@signalworksdesign.com" style="color:#9ca3af">support@signalworksdesign.com</a>
+    <p style="margin:0 0 4px;color:#4b5563;line-height:1.7">
+      We're looking forward to working with you.
+    </p>
+    <p style="margin:0;color:#4b5563">— The Signal Works Design Team</p>
+
+    <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb">
+    <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center">
+      Signal Works Design ·
+      <a href="mailto:${SUPPORT_EMAIL}" style="color:#9ca3af">${SUPPORT_EMAIL}</a>
     </p>
   </div>
-</body>
-</html>`;
+</body></html>`;
 }
 
-function buildStudentEmailText(p: StudentEmailPayload): string {
-  const list = (items: string[] | undefined) =>
-    items && items.length > 0 ? items.map((i) => `  - ${i}`).join('\n') : '  - N/A';
-
+function buildStudentText(name: string): string {
   return [
-    `Hello ${p.name},`,
+    `Hi ${name},`,
     '',
-    'Thank you for completing your assessment. Here are your results.',
+    `Thank you for completing your assessment with Signal Works Design. We've received all of your responses and our team will review them carefully.`,
     '',
-    p.score !== undefined ? `Overall Score: ${p.score}%` : '',
-    p.level ? `Level: ${p.level}` : '',
+    `Based on your answers, we will prepare:`,
+    `  - A personalized skills profile based on your current level`,
+    `  - A proposed study roadmap tailored to your goals`,
+    `  - A set of recommended apps and projects to build`,
     '',
-    p.summary ? `Summary:\n${p.summary}\n` : '',
-    'Strengths:',
-    list(p.strengths),
+    `We'll go over everything together in your follow-up meeting.`,
+    `Book your session here: ${BOOKING_URL}`,
     '',
-    'Areas to Improve:',
-    list(p.weaknesses),
+    `We're looking forward to working with you.`,
+    `— The Signal Works Design Team`,
     '',
-    'Recommended Next Steps:',
-    list(p.recommendations),
-    '',
-    '—',
-    'Signal Works Design',
-    'support@signalworksdesign.com',
-  ]
-    .filter((l) => l !== undefined)
-    .join('\n');
+    `Signal Works Design · ${SUPPORT_EMAIL}`,
+  ].join('\n');
 }
 
-export async function sendStudentAssessmentEmail(payload: StudentEmailPayload): Promise<void> {
-  try {
-    const subject = 'Your Assessment Results – Signal Works';
+// ============================================
+// PUBLIC API
+// ============================================
 
-    const { error } = await resend.emails.send({
+export async function sendAssessmentEmails(payload: AssessmentEmailPayload): Promise<string | null> {
+  const timestamp = new Date().toUTCString();
+
+  const [internalResult, studentResult] = await Promise.allSettled([
+    resend.emails.send({
+      from: FROM,
+      to: SUPPORT_EMAIL,
+      subject: `New Assessment Completed – ${payload.name}`,
+      html: buildInternalHtml(payload, timestamp),
+      text: buildInternalText(payload, timestamp),
+    }),
+    resend.emails.send({
       from: FROM,
       to: payload.email,
-      cc: SUPPORT_EMAIL,
-      subject,
-      text: buildStudentEmailText(payload),
-      html: buildStudentEmailHtml(payload),
-    });
+      subject: 'Your Assessment Is Complete – Signal Works Design',
+      html: buildStudentHtml(payload.name),
+      text: buildStudentText(payload.name),
+    }),
+  ]);
 
-    if (error) {
-      logger.error('Resend failed to send student assessment email', error, {
-        studentEmail: payload.email,
-      });
-    } else {
-      logger.info('Student assessment email sent', { name: payload.name, email: payload.email });
-    }
-  } catch (err) {
-    logger.error('sendStudentAssessmentEmail threw unexpectedly', err, { email: payload.email });
+  const errors: string[] = [];
+
+  if (internalResult.status === 'rejected') {
+    const msg = `Internal email failed: ${internalResult.reason}`;
+    logger.error(msg, { name: payload.name });
+    errors.push(msg);
+  } else if (internalResult.value.error) {
+    const msg = `Internal email error: ${JSON.stringify(internalResult.value.error)}`;
+    logger.error(msg, { name: payload.name });
+    errors.push(msg);
+  } else {
+    logger.info('Internal assessment email sent', { id: internalResult.value.data?.id, name: payload.name });
   }
+
+  if (studentResult.status === 'rejected') {
+    const msg = `Student email failed: ${studentResult.reason}`;
+    logger.error(msg, { email: payload.email });
+    errors.push(msg);
+  } else if (studentResult.value.error) {
+    const msg = `Student email error: ${JSON.stringify(studentResult.value.error)}`;
+    logger.error(msg, { email: payload.email });
+    errors.push(msg);
+  } else {
+    logger.info('Student confirmation email sent', { id: studentResult.value.data?.id, email: payload.email });
+  }
+
+  return errors.length > 0 ? errors.join(' | ') : null;
 }
