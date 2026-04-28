@@ -51,27 +51,35 @@ export async function generateRoadmapPdf(
     doc.moveDown(1);
 
     // ── First Step ───────────────────────────────────────────
-    doc.rect(50, doc.y, PAGE_WIDTH, 36).fill(PURPLE);
-    const firstStepY = doc.y + 10;
+    doc.font('Helvetica').fontSize(10);
+    const firstStepTextH = doc.heightOfString(roadmap.firstStep, { width: PAGE_WIDTH - 24 });
+    const firstStepBoxH = 14 + firstStepTextH + 20;
+    const firstStepTop = doc.y;
+    doc.rect(50, firstStepTop, PAGE_WIDTH, firstStepBoxH).fill(PURPLE);
     doc.fillColor('#ffffff').fontSize(10).font('Helvetica-Bold')
-      .text('YOUR FIRST STEP', 62, firstStepY);
+      .text('YOUR FIRST STEP', 62, firstStepTop + 10);
     doc.fillColor('#e0e7ff').fontSize(10).font('Helvetica')
-      .text(roadmap.firstStep, 62, firstStepY + 14, { width: PAGE_WIDTH - 24 });
-    doc.moveDown(2.5);
+      .text(roadmap.firstStep, 62, firstStepTop + 24, { width: PAGE_WIDTH - 24 });
+    doc.text('', 50, firstStepTop + firstStepBoxH);
+    doc.moveDown(1);
 
     // ── Phases ───────────────────────────────────────────────
     doc.fillColor(BLACK).fontSize(14).font('Helvetica-Bold').text('Learning Phases');
     doc.moveDown(0.5);
 
     roadmap.phases.forEach((phase, i) => {
-      // Phase header bar
+      // Phase header bar — dynamic height to avoid text overflow
+      const phaseLabel = `Phase ${i + 1}: ${phase.phase}`;
+      doc.font('Helvetica-Bold').fontSize(11);
+      const phaseTitleH = doc.heightOfString(phaseLabel, { width: PAGE_WIDTH - 80 });
+      const phaseBarH = Math.max(28, phaseTitleH + 16);
       const barY = doc.y;
-      doc.rect(50, barY, PAGE_WIDTH, 28).fill(LIGHT_GRAY);
+      doc.rect(50, barY, PAGE_WIDTH, phaseBarH).fill(LIGHT_GRAY);
       doc.fillColor(PURPLE).fontSize(11).font('Helvetica-Bold')
-        .text(`Phase ${i + 1}: ${phase.phase}`, 62, barY + 8, { continued: true });
+        .text(phaseLabel, 62, barY + 8, { width: PAGE_WIDTH - 80 });
       doc.fillColor(GRAY).fontSize(9).font('Helvetica')
-        .text(`  ${phase.duration}`, { align: 'left' });
-
+        .text(phase.duration, 62 + PAGE_WIDTH - 80, barY + 8 + (phaseTitleH - 11) / 2, { width: 70, align: 'right' });
+      doc.text('', 50, barY + phaseBarH);
       doc.moveDown(0.8);
       doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold')
         .text('FOCUS', { continued: true });
@@ -129,14 +137,18 @@ export async function generateRoadmapPdf(
         const isCapstone = project.isCapstone;
         const barColor = isCapstone ? PURPLE : LIGHT_GRAY;
         const labelColor = isCapstone ? '#ffffff' : PURPLE;
+        const projectLabel = `Project ${i + 1}: ${project.title}`;
+        doc.font('Helvetica-Bold').fontSize(11);
+        const projectTitleH = doc.heightOfString(projectLabel, { width: PAGE_WIDTH - 80 });
+        const projectBarH = Math.max(28, projectTitleH + 16);
         const barY = doc.y;
 
-        doc.rect(50, barY, PAGE_WIDTH, 28).fill(barColor);
+        doc.rect(50, barY, PAGE_WIDTH, projectBarH).fill(barColor);
         doc.fillColor(labelColor).fontSize(11).font('Helvetica-Bold')
-          .text(`Project ${i + 1}: ${project.title}`, 62, barY + 8, { continued: true });
+          .text(projectLabel, 62, barY + 8, { width: PAGE_WIDTH - 80 });
         doc.fillColor(isCapstone ? '#e0e7ff' : GRAY).fontSize(9).font('Helvetica')
-          .text(`  ${project.difficulty}${isCapstone ? ' · Capstone' : ''}`, { align: 'left' });
-
+          .text(`${project.difficulty}${isCapstone ? ' · Capstone' : ''}`, 62 + PAGE_WIDTH - 80, barY + 8, { width: 70, align: 'right' });
+        doc.text('', 50, barY + projectBarH);
         doc.moveDown(0.8);
         doc.fillColor(BLACK).fontSize(10).font('Helvetica')
           .text(project.description, { width: PAGE_WIDTH, lineGap: 3 });
