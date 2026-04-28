@@ -58,11 +58,14 @@ export default async function AdminStudentsPage() {
                   <td className="px-5 py-4 font-semibold text-gray-800">{r.score}%</td>
                   <td className="px-5 py-4 text-gray-600">{r.totalDuration}</td>
                   <td className="px-5 py-4 text-gray-400">
-                    {r.generatedAt.toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
+                    <div>{r.generatedAt.toLocaleDateString('en-US', {
+                      month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+                    })}</div>
+                    <div className="text-xs">
+                      {r.generatedAt.toLocaleTimeString('en-US', {
+                        hour: '2-digit', minute: '2-digit', timeZone: 'UTC', timeZoneName: 'short',
+                      })}
+                    </div>
                   </td>
                   <td className="px-5 py-4 text-right">
                     <Link

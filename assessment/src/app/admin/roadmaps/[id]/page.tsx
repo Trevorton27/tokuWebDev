@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { RoadmapPhase, RoadmapProject } from '@/server/assessment/roadmapService';
+import DeleteRoadmapButton from './DeleteRoadmapButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,10 +32,13 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
 
   return (
     <div className="max-w-4xl">
-      {/* Back */}
-      <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 transition mb-6 inline-block">
-        ← All students
-      </Link>
+      {/* Back + actions */}
+      <div className="flex items-center justify-between mb-6">
+        <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 transition">
+          ← All students
+        </Link>
+        <DeleteRoadmapButton roadmapId={roadmap.id} studentName={roadmap.user.name ?? 'Student'} />
+      </div>
 
       {/* Header */}
       <div className="bg-gray-900 rounded-xl p-6 text-white mb-8">
@@ -59,7 +63,11 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
           <div>
             <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Generated</div>
             <div className="text-gray-100">
-              {roadmap.generatedAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              {roadmap.generatedAt.toLocaleString('en-US', {
+                month: 'long', day: 'numeric', year: 'numeric',
+                hour: '2-digit', minute: '2-digit',
+                timeZone: 'UTC', timeZoneName: 'short',
+              })}
             </div>
           </div>
         </div>
