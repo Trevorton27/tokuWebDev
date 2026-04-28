@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-const isProtectedRoute = createRouteMatcher(['/assessment(.*)']);
+const isProtectedRoute = createRouteMatcher(['/', '/assessment(.*)']);
 const isAdminRoute = createRouteMatcher(['/admin(.*)', '/api/admin(.*)']);
 const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',

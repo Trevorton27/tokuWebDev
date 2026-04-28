@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
+    serverComponentsExternalPackages: ['pdfkit'],
     serverActions: {
       bodySizeLimit: '2mb',
     },
