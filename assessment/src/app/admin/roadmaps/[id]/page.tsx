@@ -26,8 +26,8 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
 
   if (!roadmap) notFound();
 
-  const phases = roadmap.phases as RoadmapPhase[];
-  const projects = roadmap.projects as RoadmapProject[];
+  const phases = roadmap.phases as unknown as RoadmapPhase[];
+  const projects = roadmap.projects as unknown as RoadmapProject[];
 
   return (
     <div className="max-w-4xl">
