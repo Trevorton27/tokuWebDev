@@ -44,6 +44,7 @@ export interface AssessmentEmailPayload {
   proposedRoadmap?: RoadmapPhase[];
   appsToBuild?: AppToBuild[];
   answers?: SubmittedAnswer[];
+  roadmapId?: string;
 }
 
 // ============================================
@@ -83,6 +84,9 @@ function section(title: string, content: string): string {
 function buildInternalHtml(p: AssessmentEmailPayload, timestamp: string): string {
   const tdLabel = 'color:#6b7280;font-size:13px;padding:3px 12px 3px 0;white-space:nowrap;vertical-align:top';
   const tdVal = 'color:#111827;font-size:13px;padding:3px 0;font-weight:500';
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3003';
+  const roadmapUrl = p.roadmapId ? `${appUrl}/admin/roadmaps/${p.roadmapId}` : null;
 
   const scoreRow = p.score !== undefined
     ? `<tr><td style="${tdLabel}">Score</td><td style="${tdVal}">${p.score}%</td></tr>` : '';
@@ -139,7 +143,14 @@ function buildInternalHtml(p: AssessmentEmailPayload, timestamp: string): string
         <tr><td style="${tdLabel}">Name</td><td style="${tdVal}">${esc(p.name)}</td></tr>
         <tr><td style="${tdLabel}">Email</td><td style="${tdVal}"><a href="mailto:${esc(p.email)}" style="color:#4f46e5">${esc(p.email)}</a></td></tr>
         <tr><td style="${tdLabel}">Completed</td><td style="${tdVal}">${timestamp}</td></tr>
-      </table>`)}
+      </table>
+      ${roadmapUrl ? `
+      <div style="margin-top:16px">
+        <a href="${roadmapUrl}"
+           style="display:inline-block;background:#4f46e5;color:#fff;font-weight:700;padding:10px 22px;border-radius:6px;text-decoration:none;font-size:14px">
+          View Full Roadmap in Dashboard →
+        </a>
+      </div>` : ''}`)}
 
     ${section('Assessment Summary', `
       <table style="border-collapse:collapse;margin-bottom:14px">
@@ -171,6 +182,9 @@ function buildInternalHtml(p: AssessmentEmailPayload, timestamp: string): string
 }
 
 function buildInternalText(p: AssessmentEmailPayload, timestamp: string): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3003';
+  const roadmapUrl = p.roadmapId ? `${appUrl}/admin/roadmaps/${p.roadmapId}` : null;
+
   const lines: string[] = [
     `SIGNAL WORKS DESIGN — INTERNAL ASSESSMENT REPORT`,
     `${'='.repeat(50)}`,
@@ -180,6 +194,7 @@ function buildInternalText(p: AssessmentEmailPayload, timestamp: string): string
     `Name:      ${p.name}`,
     `Email:     ${p.email}`,
     `Completed: ${timestamp}`,
+    ...(roadmapUrl ? [`Dashboard:  ${roadmapUrl}`] : []),
     '',
     `ASSESSMENT SUMMARY`,
     `-`.repeat(30),
@@ -313,17 +328,31 @@ function buildStudentText(name: string): string {
 // PUBLIC API
 // ============================================
 
-export async function sendAssessmentEmails(payload: AssessmentEmailPayload): Promise<string | null> {
+export async function sendAssessmentEmails(
+  payload: AssessmentEmailPayload,
+  roadmapPdf?: Buffer
+): Promise<string | null> {
   const timestamp = new Date().toUTCString();
 
+  const internalEmail: Parameters<typeof resend.emails.send>[0] = {
+    from: FROM,
+    to: SUPPORT_EMAIL,
+    subject: `New Assessment Completed – ${payload.name}`,
+    html: buildInternalHtml(payload, timestamp),
+    text: buildInternalText(payload, timestamp),
+  };
+
+  if (roadmapPdf) {
+    internalEmail.attachments = [
+      {
+        filename: `roadmap-${payload.name.toLowerCase().replace(/\s+/g, '-')}.pdf`,
+        content: roadmapPdf,
+      },
+    ];
+  }
+
   const [internalResult, studentResult] = await Promise.allSettled([
-    resend.emails.send({
-      from: FROM,
-      to: SUPPORT_EMAIL,
-      subject: `New Assessment Completed – ${payload.name}`,
-      html: buildInternalHtml(payload, timestamp),
-      text: buildInternalText(payload, timestamp),
-    }),
+    resend.emails.send(internalEmail),
     resend.emails.send({
       from: FROM,
       to: payload.email,

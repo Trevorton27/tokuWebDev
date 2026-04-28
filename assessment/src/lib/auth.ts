@@ -203,6 +203,26 @@ export async function requireRole(allowedRoles: CurrentUser['role'][]): Promise<
 }
 
 /**
+ * Require Admin Role
+ *
+ * Convenience wrapper that restricts access to ADMIN users only.
+ * Use this in any admin API route or server component.
+ *
+ * @async
+ * @throws {Error} 'Unauthorized' if not logged in, 'Forbidden: Insufficient permissions' if not admin
+ * @returns {Promise<CurrentUser>} The authenticated admin user
+ *
+ * @example
+ * ```typescript
+ * const user = await requireAdmin();
+ * // Only ADMIN users reach this line
+ * ```
+ */
+export async function requireAdmin(): Promise<CurrentUser> {
+  return requireRole(['ADMIN']);
+}
+
+/**
  * Get User From Request
  *
  * Convenience wrapper around getCurrentUser for API routes.

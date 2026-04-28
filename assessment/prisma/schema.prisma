@@ -40,6 +40,7 @@ model User {
   enrollments        Enrollment[]
   masteryEvents      MasteryEvent[]
   roadmapItems       StudentRoadmap[]     @relation("UserRoadmaps")
+  assessmentRoadmaps AssessmentRoadmap[]  @relation("UserAssessmentRoadmaps")
   assessmentSessions AssessmentSession[]
   skillMasteries     UserSkillMastery[]   @relation("UserSkillMasteries")
   loginSessions      LoginSession[]       @relation("UserLoginSessions")
@@ -240,6 +241,7 @@ model AssessmentSession {
   metadata    Json?
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   responses   AssessmentResponse[]
+  roadmap     AssessmentRoadmap?
 
   @@index([userId, sessionType])
   @@index([status])
@@ -689,4 +691,23 @@ model Notification {
 
   @@index([userId, read])
   @@index([userId, createdAt])
+}
+
+model AssessmentRoadmap {
+  id            String            @id @default(cuid())
+  userId        String
+  sessionId     String            @unique
+  generatedAt   DateTime          @default(now())
+  level         String
+  score         Int
+  summary       String
+  totalDuration String
+  firstStep     String
+  phases        Json
+  projects      Json
+  user          User              @relation("UserAssessmentRoadmaps", fields: [userId], references: [id], onDelete: Cascade)
+  session       AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([generatedAt])
 }

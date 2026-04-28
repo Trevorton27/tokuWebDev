@@ -94,12 +94,12 @@ export async function startAssessmentSession(
   sessionType: string = 'INTAKE'
 ): Promise<StartSessionResult> {
   try {
-    // Check for existing in-progress session
+    // Check for existing in-progress or completed session
     const existingSession = await prisma.assessmentSession.findFirst({
       where: {
         userId,
         sessionType,
-        status: 'IN_PROGRESS',
+        status: { in: ['IN_PROGRESS', 'COMPLETED'] },
       },
       orderBy: { startedAt: 'desc' },
     });
@@ -109,10 +109,40 @@ export async function startAssessmentSession(
     const estimatedMinutes = orderedSteps.reduce((sum, s) => sum + s.estimatedMinutes, 0);
 
     if (existingSession) {
-      // Resume existing session
-      const currentStep = existingSession.currentStep
-        ? getStepById(existingSession.currentStep)
-        : getFirstStep();
+      // If completed, always return the summary step
+      if (existingSession.status === 'COMPLETED') {
+        const summaryStep = getStepById('summary') || getFirstStep();
+        logger.info('Returning to completed session summary', {
+          sessionId: existingSession.id,
+          userId,
+        });
+        return {
+          sessionId: existingSession.id,
+          firstStep: summaryStep,
+          totalSteps,
+          estimatedMinutes,
+          isResuming: true,
+        };
+      }
+
+      // Resume in-progress session
+      const savedStepId = existingSession.currentStep;
+      let currentStep = savedStepId ? getStepById(savedStepId) : null;
+
+      // If the saved step ID no longer exists (e.g. after config rewrite), reset to first step
+      if (savedStepId && !currentStep) {
+        const firstStep = getFirstStep();
+        await prisma.assessmentSession.update({
+          where: { id: existingSession.id },
+          data: { currentStep: firstStep.id },
+        });
+        currentStep = firstStep;
+        logger.warn('Stale currentStep reset to first step', {
+          sessionId: existingSession.id,
+          staleSteId: savedStepId,
+          resetTo: firstStep.id,
+        });
+      }
 
       logger.info('Resuming assessment session', {
         sessionId: existingSession.id,
@@ -421,81 +451,8 @@ export async function submitStepAnswer(
         });
       });
 
-      // Send assessment emails (non-blocking)
-      (async () => {
-        try {
-          const [dbUser, summary, sessionWithResponses] = await Promise.all([
-            prisma.user.findUnique({ where: { id: session.userId }, select: { name: true, email: true } }),
-            getSessionSummary(sessionId),
-            prisma.assessmentSession.findUnique({
-              where: { id: sessionId },
-              include: { responses: { orderBy: { submittedAt: 'asc' } } },
-            }),
-          ]);
-
-          if (dbUser && summary) {
-            const studentName = dbUser.name || 'Unknown Student';
-            const { profileSummary } = summary;
-            const overallPct = Math.round(profileSummary.overallScore * 100);
-            const level =
-              profileSummary.overallScore >= 0.8 ? 'Advanced'
-              : profileSummary.overallScore >= 0.6 ? 'Proficient'
-              : profileSummary.overallScore >= 0.4 ? 'Developing'
-              : 'Beginner';
-
-            const assessed = profileSummary.dimensions.filter((d) => d.assessedRatio > 0);
-            const strengths = assessed.filter((d) => d.score >= 0.7).map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
-            const weaknesses = assessed.filter((d) => d.score < 0.4).map((d) => `${d.label} (${Math.round(d.score * 100)}%)`);
-
-            const weakAreas = assessed.filter((d) => d.score < 0.4).sort((a, b) => a.score - b.score);
-            const recommendations: string[] = [];
-            if (weakAreas.length > 0) recommendations.push(`Focus on strengthening your ${weakAreas[0].label} skills first`);
-            recommendations.push(profileSummary.overallScore >= 0.6
-              ? 'You have a solid foundation — consider tackling a capstone project'
-              : 'Start with the fundamentals and build up your skills progressively');
-            recommendations.push('Review your personalized roadmap in the dashboard for next steps');
-
-            // Map session responses to submitted answers
-            const answers = (sessionWithResponses?.responses ?? [])
-              .filter((r) => {
-                const raw = r.rawAnswer as any;
-                return !raw?._skipped && !raw?._noIdea;
-              })
-              .map((r) => {
-                const stepConfig = getStepById(r.stepId);
-                const raw = r.rawAnswer as any;
-                const answerText = typeof raw === 'string'
-                  ? raw
-                  : typeof raw?.answer === 'string'
-                    ? raw.answer
-                    : JSON.stringify(raw);
-                return {
-                  questionId: r.stepId,
-                  question: stepConfig?.title ?? r.stepId,
-                  answer: answerText,
-                  category: stepConfig?.kind,
-                };
-              });
-
-            await sendAssessmentEmails({
-              name: studentName,
-              email: dbUser.email,
-              score: overallPct,
-              level,
-              summary: `Completed ${profileSummary.totalSkillsAssessed} of ${profileSummary.totalSkills} skill areas. Overall score: ${overallPct}% (${level}).`,
-              strengths: strengths.length > 0 ? strengths : undefined,
-              weaknesses: weaknesses.length > 0 ? weaknesses : undefined,
-              recommendations,
-              answers,
-            });
-          }
-        } catch (err) {
-          logger.error('Failed to send assessment emails (non-blocking)', err, {
-            userId: session.userId,
-            sessionId,
-          });
-        }
-      })();
+      // NOTE: Emails are sent explicitly via POST /api/assessment/intake/finalize
+      // when the student clicks "Submit answers" on the summary page.
     } else if (nextStep) {
       await prisma.assessmentSession.update({
         where: { id: sessionId },

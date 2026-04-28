@@ -20,10 +20,19 @@ export interface RoadmapPhase {
   capstoneProject?: string;
 }
 
+export interface RoadmapProject {
+  title: string;
+  description: string;
+  skills: string[];
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  isCapstone: boolean;
+}
+
 export interface GeneratedRoadmap {
   summary: string;
   totalDuration: string;
   phases: RoadmapPhase[];
+  projects: RoadmapProject[];
   firstStep: string;
 }
 
@@ -64,7 +73,11 @@ ${hobbiesLine}
 ${motivationLine}
 ${weeklyLine}
 
-Generate a roadmap with 3-4 phases. Each phase should build on the previous. Tailor project suggestions to their hobbies and interests if provided. Emphasize AI-powered development tools and techniques throughout.
+Generate a roadmap with 3-4 phases. Each phase should build on the previous. Tailor everything to their hobbies, interests, personality, and level. Emphasize AI-powered development tools and techniques throughout.
+
+Also generate exactly 5 projects the student should build during the course:
+- Projects 1-4: progressively more complex, each building on the previous, aligned to the student's interests and the phase curriculum
+- Project 5: a comprehensive AI-powered capstone that integrates everything learned, is the most ambitious of the 5, and is directly tied to their interests/goals
 
 Respond with ONLY valid JSON in this exact shape:
 {
@@ -80,28 +93,48 @@ Respond with ONLY valid JSON in this exact shape:
       "capstoneProject": "Optional project idea tied to their interests"
     }
   ],
+  "projects": [
+    {
+      "title": "Project title",
+      "description": "2-3 sentence description of what they will build and why it matters",
+      "skills": ["Skill 1", "Skill 2", "Skill 3"],
+      "difficulty": "Beginner",
+      "isCapstone": false
+    }
+  ],
   "firstStep": "Concrete first action they should take today"
 }`;
 
   try {
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 1500,
+      max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }],
     });
 
     const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    console.log('[roadmapService] stop_reason:', message.stop_reason, '| response length:', text.length);
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
+      console.error('[roadmapService] No JSON found in response. Raw text:', text.substring(0, 500));
       logger.error('roadmapService: no JSON found in Claude response');
       return null;
     }
 
-    const roadmap = JSON.parse(jsonMatch[0]) as GeneratedRoadmap;
+    let roadmap: GeneratedRoadmap;
+    try {
+      roadmap = JSON.parse(jsonMatch[0]) as GeneratedRoadmap;
+    } catch (parseErr) {
+      console.error('[roadmapService] JSON parse failed:', parseErr);
+      console.error('[roadmapService] Matched JSON (first 500 chars):', jsonMatch[0].substring(0, 500));
+      return null;
+    }
     logger.info('roadmapService: roadmap generated', { name: input.name, phases: roadmap.phases.length });
     return roadmap;
   } catch (err) {
-    logger.error('roadmapService: failed to generate roadmap', err);
+    console.error('[roadmapService] Claude API error:', err);
+    logger.error('roadmapService: failed to generate roadmap', err instanceof Error ? err : new Error(String(err)), { model: MODEL });
     return null;
   }
 }

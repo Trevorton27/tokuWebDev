@@ -20,8 +20,13 @@ export async function DELETE() {
 
   const sessionIds = sessions.map((s) => s.id);
 
+  // Delete in dependency order
+  await prisma.assessmentRoadmap.deleteMany({ where: { sessionId: { in: sessionIds } } });
   await prisma.assessmentResponse.deleteMany({ where: { sessionId: { in: sessionIds } } });
   await prisma.assessmentSession.deleteMany({ where: { id: { in: sessionIds } } });
+
+  // Clear accumulated skill masteries so the next run starts from a clean slate
+  await prisma.userSkillMastery.deleteMany({ where: { userId: user.id } });
 
   return NextResponse.json({ success: true, deleted: sessionIds.length });
 }

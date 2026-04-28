@@ -6,6 +6,7 @@ import { getSessionSummary } from '@/server/assessment/intakeService';
 import { getStepById } from '@/server/assessment/intakeConfig';
 import { sendAssessmentEmails } from '@/server/assessment/emailService';
 import { generateRoadmap } from '@/server/assessment/roadmapService';
+import { generateRoadmapPdf } from '@/server/assessment/roadmapPdf';
 
 /**
  * POST /api/assessment/intake/finalize
@@ -88,19 +89,28 @@ export async function POST() {
         };
       });
 
-    // Extract hobbies, AI motivation, learning style from questionnaire responses
-    const backgroundResponse = session.responses.find((r) => r.stepId === 'questionnaire_background');
-    const backgroundRaw = backgroundResponse?.rawAnswer as any;
-    const hobbiesInterests: string[] = backgroundRaw?.hobbies_interests ?? [];
-    const aiMotivation: string | undefined = backgroundRaw?.ai_motivation;
+    // Extract personalisation fields from questionnaire responses
+    const backgroundRaw = (session.responses.find((r) => r.stepId === 'background_experience')?.rawAnswer as any) ?? {};
     const learningGoal: string | undefined = backgroundRaw?.learning_goal;
 
-    const styleResponse = session.responses.find((r) => r.stepId === 'questionnaire_learning_style');
-    const styleRaw = styleResponse?.rawAnswer as any;
-    const weeklyHours: string | undefined = styleRaw?.weekly_hours;
-    const learningStyle: string | undefined = styleRaw?.learning_style;
+    const interestsRaw = (session.responses.find((r) => r.stepId === 'interests_preferences')?.rawAnswer as any) ?? {};
+    const primaryInterests: string[] = Array.isArray(interestsRaw?.primary_interest) ? interestsRaw.primary_interest : [];
+    const appExcitement: string | undefined = interestsRaw?.app_excitement;
+    const industryInterests: string | undefined = interestsRaw?.industry_interests;
+    const hobbiesInterests: string[] = [
+      ...primaryInterests,
+      ...(appExcitement ? [appExcitement] : []),
+      ...(industryInterests ? [industryInterests] : []),
+    ];
 
-    // Generate AI roadmap (non-blocking if it fails)
+    const styleRaw = (session.responses.find((r) => r.stepId === 'learning_style_preferences')?.rawAnswer as any) ?? {};
+    const learningStyle: string | undefined = styleRaw?.learning_method;
+    const aiMotivation: string | undefined = styleRaw?.motivation_source;
+
+    const commitmentRaw = (session.responses.find((r) => r.stepId === 'commitment_goals')?.rawAnswer as any) ?? {};
+    const weeklyHours: string | undefined = commitmentRaw?.weekly_hours;
+
+    // Generate AI roadmap
     const roadmap = await generateRoadmap({
       name: dbUser.name || 'Student',
       level,
@@ -114,6 +124,12 @@ export async function POST() {
       learningStyle,
     });
 
+    if (!roadmap) {
+      logger.error('finalize: generateRoadmap returned null — roadmap will be omitted from email', {
+        userId: user.id,
+      });
+    }
+
     const proposedRoadmap = roadmap?.phases.map((p) => ({
       phase: p.phase,
       focus: `${p.focus} (${p.duration})`,
@@ -123,6 +139,52 @@ export async function POST() {
 
     if (roadmap) {
       recommendations.unshift(`First step: ${roadmap.firstStep}`);
+    }
+
+    // Persist roadmap to DB
+    let roadmapId: string | undefined;
+    if (roadmap) {
+      try {
+        const saved = await prisma.assessmentRoadmap.upsert({
+          where: { sessionId: session.id },
+          create: {
+            userId: user.id,
+            sessionId: session.id,
+            level,
+            score: overallPct,
+            summary: roadmap.summary,
+            totalDuration: roadmap.totalDuration,
+            firstStep: roadmap.firstStep,
+            phases: roadmap.phases as any,
+            projects: roadmap.projects as any,
+          },
+          update: {
+            level,
+            score: overallPct,
+            summary: roadmap.summary,
+            totalDuration: roadmap.totalDuration,
+            firstStep: roadmap.firstStep,
+            phases: roadmap.phases as any,
+            projects: roadmap.projects as any,
+            generatedAt: new Date(),
+          },
+        });
+        roadmapId = saved.id;
+        logger.info('finalize: roadmap persisted to DB', { userId: user.id, roadmapId });
+      } catch (dbErr) {
+        logger.error('finalize: failed to persist roadmap to DB', dbErr instanceof Error ? dbErr : new Error(String(dbErr)), { userId: user.id });
+      }
+    }
+
+    // Generate PDF attachment
+    let roadmapPdf: Buffer | undefined;
+    if (roadmap) {
+      try {
+        roadmapPdf = await generateRoadmapPdf(dbUser.name || 'Student', roadmap);
+        logger.info('finalize: roadmap PDF generated', { userId: user.id, bytes: roadmapPdf.length });
+      } catch (pdfErr) {
+        logger.error('finalize: failed to generate roadmap PDF', pdfErr, { userId: user.id });
+      }
     }
 
     const error = await sendAssessmentEmails({
@@ -136,7 +198,8 @@ export async function POST() {
       recommendations,
       proposedRoadmap,
       answers,
-    });
+      roadmapId,
+    }, roadmapPdf);
 
     if (error) {
       logger.error('finalize: sendAssessmentEmails failed', { error, userId: user.id });
@@ -144,7 +207,7 @@ export async function POST() {
     }
 
     logger.info('finalize: emails sent successfully', { userId: user.id, sessionId: session.id });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, roadmapId });
   } catch (err) {
     if (err instanceof Error && err.message === 'Unauthorized') {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
