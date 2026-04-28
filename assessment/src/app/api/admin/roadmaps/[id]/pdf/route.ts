@@ -29,7 +29,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
   const filename = `roadmap-${(roadmap.user.name ?? 'student').toLowerCase().replace(/\s+/g, '-')}.pdf`;
 
-  return new NextResponse(pdf, {
+  return new NextResponse(new Uint8Array(pdf), {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="${filename}"`,
