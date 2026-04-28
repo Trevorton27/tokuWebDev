@@ -1,5 +1,8 @@
 import { Resend } from 'resend';
 import { logger } from '@/lib/logger';
+import type { RoadmapPhase, RoadmapResource } from './roadmapService';
+
+export type { RoadmapPhase };
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -10,13 +13,6 @@ const BOOKING_URL = 'https://signalworks.com/book';
 // ============================================
 // TYPES
 // ============================================
-
-export interface RoadmapPhase {
-  phase: string;
-  focus: string;
-  goals: string[];
-  suggestedResources?: string[];
-}
 
 export interface AppToBuild {
   title: string;
@@ -71,6 +67,23 @@ function bulletListText(items: string[] | undefined, fallback?: string): string 
   return items.map((i) => `  - ${i}`).join('\n');
 }
 
+function resourcesHtml(resources: (RoadmapResource | string)[]): string {
+  return resources.map((r) => {
+    if (typeof r === 'string') return `<li style="margin-bottom:5px">${esc(r)}</li>`;
+    const label = esc(r.title);
+    return r.url
+      ? `<li style="margin-bottom:5px"><a href="${esc(r.url)}" style="color:#4f46e5">${label}</a></li>`
+      : `<li style="margin-bottom:5px">${label}</li>`;
+  }).join('');
+}
+
+function resourcesText(resources: (RoadmapResource | string)[]): string {
+  return resources.map((r) => {
+    if (typeof r === 'string') return `  - ${r}`;
+    return r.url ? `  - ${r.title} — ${r.url}` : `  - ${r.title}`;
+  }).join('\n');
+}
+
 function section(title: string, content: string): string {
   return `
   <h2 style="font-size:15px;font-weight:700;color:#111827;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid #e5e7eb">${title}</h2>
@@ -105,7 +118,7 @@ function buildInternalHtml(p: AssessmentEmailPayload, timestamp: string): string
         ${phase.suggestedResources?.length ? `
         <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#374151">Resources:</p>
         <ul style="margin:0;padding-left:18px;color:#4b5563;font-size:13px">
-          ${bulletListHtml(phase.suggestedResources)}
+          ${resourcesHtml(phase.suggestedResources)}
         </ul>` : ''}
       </div>`).join('');
 
@@ -220,7 +233,7 @@ function buildInternalText(p: AssessmentEmailPayload, timestamp: string): string
       phase.goals.forEach((g) => lines.push(`  - ${g}`));
       if (phase.suggestedResources?.length) {
         lines.push(`Resources:`);
-        phase.suggestedResources.forEach((r) => lines.push(`  - ${r}`));
+        lines.push(resourcesText(phase.suggestedResources));
       }
     });
   }

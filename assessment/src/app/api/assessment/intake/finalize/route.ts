@@ -130,13 +130,7 @@ export async function POST() {
       });
     }
 
-    const proposedRoadmap = roadmap?.phases.map((p) => ({
-      phase: p.phase,
-      focus: `${p.focus} (${p.duration})`,
-      goals: p.goals,
-      suggestedResources: p.suggestedResources,
-    }));
-
+    const proposedRoadmap = roadmap?.phases;
     if (roadmap) {
       recommendations.unshift(`First step: ${roadmap.firstStep}`);
     }
