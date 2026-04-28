@@ -37,7 +37,16 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
         <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 transition">
           ← All students
         </Link>
-        <DeleteRoadmapButton roadmapId={roadmap.id} studentName={roadmap.user.name ?? 'Student'} />
+        <div className="flex items-center gap-3">
+          <a
+            href={`/api/admin/roadmaps/${roadmap.id}/txt`}
+            download
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-300 px-3 py-1.5 rounded-lg transition"
+          >
+            Download .txt
+          </a>
+          <DeleteRoadmapButton roadmapId={roadmap.id} studentName={roadmap.user.name ?? 'Student'} />
+        </div>
       </div>
 
       {/* Header */}
