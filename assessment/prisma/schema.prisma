@@ -707,7 +707,25 @@ model AssessmentRoadmap {
   projects      Json
   user          User              @relation("UserAssessmentRoadmaps", fields: [userId], references: [id], onDelete: Cascade)
   session       AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  versions      AssessmentRoadmapVersion[]
 
   @@index([userId])
   @@index([generatedAt])
+}
+
+model AssessmentRoadmapVersion {
+  id            String            @id @default(cuid())
+  roadmapId     String
+  version       Int
+  editedAt      DateTime          @default(now())
+  editedBy      String
+  editNote      String?
+  summary       String
+  totalDuration String
+  firstStep     String
+  phases        Json
+  projects      Json
+  roadmap       AssessmentRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  @@index([roadmapId, version])
 }

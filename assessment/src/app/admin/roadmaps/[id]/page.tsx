@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { RoadmapPhase, RoadmapProject, RoadmapResource } from '@/server/assessment/roadmapService';
 import DeleteRoadmapButton from './DeleteRoadmapButton';
+import EditRoadmapPanel from './EditRoadmapPanel';
+import VersionHistory from './VersionHistory';
 
 function normalizeResource(r: RoadmapResource | string): { title: string; url: string | null } {
   if (typeof r === 'string') return { title: r, url: null };
@@ -38,7 +40,7 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
   return (
     <div className="max-w-4xl">
       {/* Back + actions */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 transition">
           ← All students
         </Link>
@@ -52,6 +54,11 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
           </a>
           <DeleteRoadmapButton roadmapId={roadmap.id} studentName={roadmap.user.name ?? 'Student'} />
         </div>
+      </div>
+
+      {/* AI Edit Panel */}
+      <div className="mb-6">
+        <EditRoadmapPanel roadmapId={roadmap.id} />
       </div>
 
       {/* Header */}
@@ -201,6 +208,9 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
           </div>
         </>
       )}
+
+      {/* Version History */}
+      <VersionHistory roadmapId={roadmap.id} />
     </div>
   );
 }

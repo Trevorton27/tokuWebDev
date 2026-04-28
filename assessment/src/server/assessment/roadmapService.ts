@@ -54,6 +54,72 @@ export interface RoadmapInput {
   learningStyle?: string;
 }
 
+export async function editRoadmapWithAI(
+  current: GeneratedRoadmap,
+  instruction: string
+): Promise<GeneratedRoadmap | null> {
+  const prompt = `You are a senior software engineering educator. An admin wants to edit a student's personalized learning roadmap.
+
+CURRENT ROADMAP (JSON):
+${JSON.stringify(current, null, 2)}
+
+ADMIN INSTRUCTION:
+${instruction}
+
+Apply the admin's instruction to produce an updated roadmap. Keep all fields that were not mentioned unchanged. Preserve the same JSON structure exactly.
+
+Respond with ONLY valid JSON in this exact shape:
+{
+  "summary": "...",
+  "totalDuration": "...",
+  "phases": [
+    {
+      "phase": "...",
+      "duration": "...",
+      "focus": "...",
+      "goals": ["..."],
+      "suggestedResources": [{ "title": "...", "url": "..." }],
+      "capstoneProject": "..."
+    }
+  ],
+  "projects": [
+    {
+      "title": "...",
+      "description": "...",
+      "skills": ["..."],
+      "difficulty": "Beginner",
+      "isCapstone": false
+    }
+  ],
+  "firstStep": "..."
+}`;
+
+  try {
+    const message = await client.messages.create({
+      model: MODEL,
+      max_tokens: 5000,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      logger.error('editRoadmapWithAI: no JSON found in Claude response');
+      return null;
+    }
+
+    try {
+      return JSON.parse(jsonMatch[0]) as GeneratedRoadmap;
+    } catch {
+      logger.error('editRoadmapWithAI: JSON parse failed');
+      return null;
+    }
+  } catch (err) {
+    logger.error('editRoadmapWithAI: Claude API error', err instanceof Error ? err : new Error(String(err)));
+    return null;
+  }
+}
+
 export async function generateRoadmap(input: RoadmapInput): Promise<GeneratedRoadmap | null> {
   const hobbiesLine = input.hobbiesInterests?.length
     ? `Hobbies/interests: ${input.hobbiesInterests.join(', ')}`
