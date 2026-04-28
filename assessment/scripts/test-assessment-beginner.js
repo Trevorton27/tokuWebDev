@@ -19,44 +19,38 @@
       code_experience: 'No. Never written code.',
       skill_level: 'beginner',
       projects_built: 'No.',
-      computer_comfort: 'not_comfortable',
+      computer_comfort: 'not_comfortable', // valid: not_comfortable | somewhat | comfortable | very_comfortable
       learning_goal: 'career_change',
     },
     technical_understanding_concepts: {
-      // Completely wrong — no understanding of functions
-      answer: 'I have no idea. I do not know what a function is.',
+      // SHORT_TEXT — must use "text" field, not "answer"
+      text: 'I have no idea. I do not know what a function is.',
     },
     technical_frontend_backend: {
-      // Completely wrong
-      answer: 'I do not know.',
+      text: 'I do not know.',
     },
     technical_api_experience: {
-      // No knowledge
-      answer: 'No. I do not know what an API is.',
+      text: 'No. I do not know what an API is.',
     },
     technical_debugging: {
-      // No knowledge
-      answer: 'I have never debugged code. I would not know where to start.',
+      text: 'I have never debugged code. I would not know where to start.',
     },
     technical_databases_git: {
       database_familiarity: 'none',
       git_experience: 'No. Never used Git.',
     },
     problem_solving_approach: {
-      // No structured approach
-      answer: 'I would guess randomly.',
+      text: 'I would guess randomly.',
     },
     problem_solving_confusion: {
-      // Gives up immediately
-      answer: 'I give up.',
+      text: 'I give up.',
     },
     problem_solving_style: {
-      guidance_preference: 'fully_guided',
-      decomposition_comfort: 'not_comfortable',
+      guidance_preference: 'step_by_step', // valid: step_by_step | independent | mix
+      decomposition_comfort: 'not_comfortable', // valid: not_comfortable | somewhat | comfortable | very_comfortable
     },
     problem_solving_story: {
-      // No experience
-      answer: 'I cannot think of one.',
+      text: 'I cannot think of one.',
     },
     learning_style_preferences: {
       learning_method: 'watching',

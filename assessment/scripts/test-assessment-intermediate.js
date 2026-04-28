@@ -25,19 +25,19 @@
     },
     technical_understanding_concepts: {
       // Scores 2/3 — explains reusability and inputs/outputs but no deep abstraction
-      answer: 'A function is a reusable block of code that you can call whenever you need it. You can pass values into it and it can return a result. It helps avoid repeating the same code in multiple places.',
+      text: 'A function is a reusable block of code that you can call whenever you need it. You can pass values into it and it can return a result. It helps avoid repeating the same code in multiple places.',
     },
     technical_frontend_backend: {
       // Scores 2/3 — distinguishes both clearly but no specific framework examples
-      answer: 'Frontend is everything the user sees and interacts with in the browser, like buttons, forms, and layouts built with HTML, CSS, and JavaScript. Backend is the server side that handles data storage, business logic, and sending responses to the frontend. I have only worked on the frontend so far.',
+      text: 'Frontend is everything the user sees and interacts with in the browser, like buttons, forms, and layouts built with HTML, CSS, and JavaScript. Backend is the server side that handles data storage, business logic, and sending responses to the frontend. I have only worked on the frontend so far.',
     },
     technical_api_experience: {
       // Scores 2/3 — gives a real example, basic fetch usage, doesn't show deep understanding
-      answer: 'Yes, I have used the fetch function in JavaScript to call a weather API and display the temperature on a webpage. I passed in a URL and read the response as JSON. I am not sure about authentication or how headers work.',
+      text: 'Yes, I have used the fetch function in JavaScript to call a weather API and display the temperature on a webpage. I passed in a URL and read the response as JSON. I am not sure about authentication or how headers work.',
     },
     technical_debugging: {
       // Scores 2/3 — describes a real process, not fully methodical
-      answer: 'I start by reading the error in the browser console. Then I add console.log statements around the area I think is broken to see what values I am working with. If I am still stuck, I search the error message on Google or Stack Overflow.',
+      text: 'I start by reading the error in the browser console. Then I add console.log statements around the area I think is broken to see what values I am working with. If I am still stuck, I search the error message on Google or Stack Overflow.',
     },
     technical_databases_git: {
       database_familiarity: 'basic', // valid: none | basic | moderate | advanced
@@ -45,11 +45,11 @@
     },
     problem_solving_approach: {
       // Scores 2/3 — structured but not fully methodical
-      answer: 'I try to understand what the problem is asking before I start. Then I break it into smaller steps and work through each one. If I get stuck I look at similar examples online or re-read the documentation.',
+      text: 'I try to understand what the problem is asking before I start. Then I break it into smaller steps and work through each one. If I get stuck I look at similar examples online or re-read the documentation.',
     },
     problem_solving_confusion: {
       // Scores 2/3 — looks things up but relies on copying solutions
-      answer: 'I search for a different explanation, usually on YouTube or MDN. Sometimes I find a Stack Overflow answer that matches my problem and adapt it. I do not always fully understand why the solution works.',
+      text: 'I search for a different explanation, usually on YouTube or MDN. Sometimes I find a Stack Overflow answer that matches my problem and adapt it. I do not always fully understand why the solution works.',
     },
     problem_solving_style: {
       guidance_preference: 'mix', // valid: step_by_step | independent | mix
@@ -57,7 +57,7 @@
     },
     problem_solving_story: {
       // Has a real but small experience
-      answer: 'I was building a to-do app and my delete button was removing the wrong item from the list. I used console.log to print the index each time the button was clicked and realized I had an off-by-one error in my array. Fixing the index solved it.',
+      text: 'I was building a to-do app and my delete button was removing the wrong item from the list. I used console.log to print the index each time the button was clicked and realized I had an off-by-one error in my array. Fixing the index solved it.',
     },
     learning_style_preferences: {
       learning_method: 'doing', // valid: watching | reading | doing | mix
