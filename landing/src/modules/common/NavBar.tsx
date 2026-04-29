@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { href: '#about', key: 'nav.instructor' },
   { href: '#testimonials', key: 'nav.testimonials' },
   { href: '#pricing', key: 'nav.pricing' },
+  { href: '#course', key: 'nav.course' },
   { href: '#contact', key: 'nav.contact' },
 ] as const;
 

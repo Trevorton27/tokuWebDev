@@ -685,6 +685,244 @@ export default function Home() {
       </section>
 
       {/* ============================================ */}
+      {/* 10.5. COURSE OFFERING */}
+      {/* ============================================ */}
+      <section id="course" className="py-24 bg-gray-50 dark:bg-dark-surface">
+        <div className="container mx-auto px-4">
+
+          {/* Header */}
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-sm font-semibold mb-4">
+              {t('home.courseBadge')}
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              {t('home.courseTitle')}
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+              {t('home.courseSubtitle')}
+            </p>
+          </div>
+
+          {/* Overview Card */}
+          <div className="max-w-5xl mx-auto mb-16 bg-gray-900 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl">
+            <div className="grid md:grid-cols-5">
+              {/* Description */}
+              <div className="md:col-span-3 p-8 md:p-10">
+                <p className="text-gray-300 leading-relaxed text-base mb-8">
+                  {t('home.courseDesc')}
+                </p>
+                <a
+                  href="#contact"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold transition"
+                >
+                  {t('home.courseCta')}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+              </div>
+              {/* Stats */}
+              <div className="md:col-span-2 bg-indigo-600 p-8 md:p-10 grid grid-cols-2 gap-6 content-center">
+                {[
+                  { value: t('home.courseDuration'), label: t('home.courseDurationLabel') },
+                  { value: t('home.coursePrice'), label: t('home.coursePriceLabel') },
+                  { value: t('home.courseLevel'), label: t('home.courseLevelLabel') },
+                  { value: t('home.courseProjects'), label: t('home.courseProjectsLabel') },
+                ].map(({ value, label }) => (
+                  <div key={label} className="text-center">
+                    <div className="text-xl md:text-2xl font-bold text-white leading-tight mb-1">{value}</div>
+                    <div className="text-xs text-indigo-200 font-medium uppercase tracking-wide">{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* What You'll Learn */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+              {t('home.courseLearnTitle')}
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  num: '01',
+                  title: t('home.courseModule1Title'),
+                  items: [
+                    t('home.courseModule1Item1'),
+                    t('home.courseModule1Item2'),
+                    t('home.courseModule1Item3'),
+                    t('home.courseModule1Item4'),
+                  ],
+                  color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+                },
+                {
+                  num: '02',
+                  title: t('home.courseModule2Title'),
+                  items: [
+                    t('home.courseModule2Item1'),
+                    t('home.courseModule2Item2'),
+                    t('home.courseModule2Item3'),
+                    t('home.courseModule2Item4'),
+                  ],
+                  color: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300',
+                },
+                {
+                  num: '03',
+                  title: t('home.courseModule3Title'),
+                  items: [
+                    t('home.courseModule3Item1'),
+                    t('home.courseModule3Item2'),
+                    t('home.courseModule3Item3'),
+                    t('home.courseModule3Item4'),
+                  ],
+                  color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+                },
+              ].map(({ num, title, items, color }) => (
+                <div key={num} className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-6">
+                  <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-4 ${color}`}>
+                    Module {num}
+                  </span>
+                  <h4 className="text-base font-bold text-gray-900 dark:text-white mb-4">{title}</h4>
+                  <ul className="space-y-2">
+                    {items.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <svg className="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 5 Projects */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+              {t('home.courseProjectsTitle')}
+            </h3>
+            <div className="space-y-4">
+              {[
+                { n: 1, title: t('home.courseProject1Title'), desc: t('home.courseProject1Desc'), tags: ['HTML', 'CSS', 'JavaScript'], capstone: false },
+                { n: 2, title: t('home.courseProject2Title'), desc: t('home.courseProject2Desc'), tags: ['React', 'Hooks', 'State Management'], capstone: false },
+                { n: 3, title: t('home.courseProject3Title'), desc: t('home.courseProject3Desc'), tags: ['Next.js', 'Database', 'Auth'], capstone: false },
+                { n: 4, title: t('home.courseProject4Title'), desc: t('home.courseProject4Desc'), tags: ['APIs', 'Backend', 'Data Viz'], capstone: false },
+                { n: 5, title: t('home.courseProject5Title'), desc: t('home.courseProject5Desc'), tags: ['Full-Stack', 'AI Integration', 'Deployment'], capstone: true },
+              ].map(({ n, title, desc, tags, capstone }) => (
+                <div
+                  key={n}
+                  className={`rounded-xl border overflow-hidden ${capstone ? 'border-indigo-400 dark:border-indigo-500' : 'border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card'}`}
+                >
+                  <div className={`px-6 py-4 flex items-center gap-4 ${capstone ? 'bg-indigo-600' : 'bg-gray-50 dark:bg-dark-surface border-b border-gray-100 dark:border-dark-border'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${capstone ? 'bg-white text-indigo-600' : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'}`}>
+                      {n}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <span className={`font-semibold text-sm ${capstone ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                        {title}
+                      </span>
+                    </div>
+                    {capstone && (
+                      <span className="flex-shrink-0 text-xs font-semibold bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                        Capstone
+                      </span>
+                    )}
+                  </div>
+                  <div className={`px-6 py-4 ${capstone ? 'bg-indigo-50 dark:bg-indigo-900/10' : ''}`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{desc}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {tags.map((tag) => (
+                        <span key={tag} className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${capstone ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'bg-gray-100 dark:bg-dark-surface text-gray-600 dark:text-gray-400'}`}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Who This Is For */}
+          <div className="max-w-4xl mx-auto mb-14">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+              {t('home.courseForTitle')}
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">This is for you</span>
+                </div>
+                <ul className="space-y-3">
+                  {[
+                    t('home.courseFor1'),
+                    t('home.courseFor2'),
+                    t('home.courseFor3'),
+                    t('home.courseFor4'),
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">This is not for you</span>
+                </div>
+                <ul className="space-y-3">
+                  {[
+                    t('home.courseNotFor1'),
+                    t('home.courseNotFor2'),
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <svg className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Strip */}
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 md:p-10 shadow-xl">
+              <p className="text-indigo-200 text-sm font-medium mb-2">{t('home.courseCtaNote')}</p>
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-700 rounded-lg font-bold hover:bg-indigo-50 transition shadow-lg text-lg"
+              >
+                {t('home.courseCta')}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ============================================ */}
       {/* 11. FINAL CTA - Schedule a Free Consultation */}
       {/* ============================================ */}
       <section id="contact" className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-purple-900 dark:to-indigo-900 text-white">
