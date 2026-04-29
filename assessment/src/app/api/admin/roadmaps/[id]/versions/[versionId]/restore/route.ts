@@ -38,8 +38,8 @@ export async function POST(
         summary: roadmap.summary,
         totalDuration: roadmap.totalDuration,
         firstStep: roadmap.firstStep,
-        phases: roadmap.phases,
-        projects: roadmap.projects,
+        phases: roadmap.phases as any,
+        projects: roadmap.projects as any,
       },
     }),
     prisma.assessmentRoadmap.update({
@@ -48,8 +48,8 @@ export async function POST(
         summary: version.summary,
         totalDuration: version.totalDuration,
         firstStep: version.firstStep,
-        phases: version.phases,
-        projects: version.projects,
+        phases: version.phases as any,
+        projects: version.projects as any,
       },
     }),
   ]);
