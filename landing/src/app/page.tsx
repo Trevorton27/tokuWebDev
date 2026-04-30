@@ -794,64 +794,88 @@ export default function Home() {
               {t('home.pricingSubtitle')}
             </p>
           </div>
-          <div className="max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-8 md:p-10 border-2 border-indigo-200 dark:border-indigo-800/50 shadow-xl">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                {t('home.pricingPlanName')}
-              </h3>
-              <div className="flex items-baseline justify-center gap-2 mb-1">
-                <span className="text-5xl font-extrabold text-gray-900 dark:text-white">{t('home.pricingPrice' as any)}</span>
+
+          <div className="max-w-5xl mx-auto">
+            {/* Two course cards */}
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
+
+              {/* Foundations Track */}
+              <div className="flex flex-col rounded-2xl border-2 border-green-200 dark:border-green-800/60 overflow-hidden shadow-lg">
+                <div className="bg-green-600 px-6 py-5">
+                  <p className="text-xs font-semibold text-green-200 uppercase tracking-wider mb-1">{t('home.pricingFoundHighlight' as any)}</p>
+                  <h3 className="text-xl font-bold text-white">{t('home.pricingFoundLabel' as any)}</h3>
+                </div>
+                <div className="flex-1 bg-white dark:bg-dark-card p-6 flex flex-col">
+                  <div className="mb-5">
+                    <div className="flex items-baseline gap-2 mb-0.5">
+                      <span className="text-4xl font-extrabold text-gray-900 dark:text-white">¥150,000</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">3-{language === 'ja' ? 'ヶ月プログラム' : 'month program'}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2.5 py-1 rounded-full font-medium">3 {language === 'ja' ? 'ヶ月' : 'months'}</span>
+                    <span className="text-xs bg-gray-100 dark:bg-dark-surface text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full font-medium">{t('home.pricingFoundProjects' as any)}</span>
+                  </div>
+                  <a href="#foundations" className="block w-full text-center px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition text-sm mb-4">
+                    {language === 'ja' ? '詳しく見る' : 'Learn More'}
+                  </a>
+                  <a href="#contact" className="block w-full text-center px-5 py-3 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/10 rounded-lg font-semibold transition text-sm">
+                    {language === 'ja' ? '無料相談を予約する' : 'Book a Free Consultation'}
+                  </a>
+                </div>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{t('home.pricingPricePeriod' as any)}</p>
-              <div className="inline-flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 px-3 py-1.5 rounded-full">
-                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                {t('home.pricingReassurance' as any)}
+
+              {/* Full Course */}
+              <div className="flex flex-col rounded-2xl border-2 border-indigo-400 dark:border-indigo-600 overflow-hidden shadow-xl">
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5">
+                  <p className="text-xs font-semibold text-indigo-200 uppercase tracking-wider mb-1">{t('home.pricingFullHighlight' as any)}</p>
+                  <h3 className="text-xl font-bold text-white">{t('home.pricingFullLabel' as any)}</h3>
+                </div>
+                <div className="flex-1 bg-white dark:bg-dark-card p-6 flex flex-col">
+                  <div className="mb-5">
+                    <div className="flex items-baseline gap-2 mb-0.5">
+                      <span className="text-4xl font-extrabold text-gray-900 dark:text-white">¥200,000</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">5-{language === 'ja' ? 'ヶ月プログラム' : 'month program'}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    <span className="text-xs bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-full font-medium">5 {language === 'ja' ? 'ヶ月' : 'months'}</span>
+                    <span className="text-xs bg-gray-100 dark:bg-dark-surface text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full font-medium">{t('home.pricingFullProjects' as any)}</span>
+                  </div>
+                  <a href="#course" className="block w-full text-center px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold transition text-sm mb-4">
+                    {language === 'ja' ? '詳しく見る' : 'Learn More'}
+                  </a>
+                  <a href="#contact" className="block w-full text-center px-5 py-3 border border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 rounded-lg font-semibold transition text-sm">
+                    {language === 'ja' ? '無料相談を予約する' : 'Book a Free Consultation'}
+                  </a>
+                </div>
               </div>
             </div>
 
-            <div className="mb-6">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            {/* Shared features */}
+            <div className="bg-gray-50 dark:bg-dark-surface rounded-2xl border border-gray-200 dark:border-dark-border p-8">
+              <p className="text-sm font-bold text-gray-900 dark:text-white mb-5">
                 {t('home.pricingValueLabel')}
               </p>
-              <ul className="space-y-2">
-                {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-                  <li key={n} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
-                    <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                  <li key={n} className={`flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300 ${n === 3 ? 'sm:col-span-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 rounded-lg px-3 py-2.5' : ''}`}>
+                    <svg className={`w-4 h-4 mt-0.5 flex-shrink-0 ${n === 3 ? 'text-indigo-600 dark:text-indigo-400' : 'text-indigo-500 dark:text-indigo-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {t(`home.pricingFeature${n}` as any)}
+                    <span className={n === 3 ? 'font-medium' : ''}>{t(`home.pricingFeature${n}` as any)}</span>
                   </li>
                 ))}
               </ul>
+              <div className="mt-6 pt-5 border-t border-gray-200 dark:border-dark-border flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
+                  {t('home.pricingUpgrade' as any)}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('home.pricingPaymentNote' as any)}
+                </p>
+              </div>
             </div>
-
-            <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/50 rounded-lg">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                {t('home.pricingBonusLabel')}
-              </p>
-              <ul className="space-y-1">
-                <li className="flex items-start text-sm text-gray-700 dark:text-gray-300">
-                  <span className="mr-2">🎁</span>
-                  {t('home.pricingBonus1')}
-                </li>
-                <li className="flex items-start text-sm text-gray-700 dark:text-gray-300">
-                  <span className="mr-2">🎁</span>
-                  {t('home.pricingBonus2')}
-                </li>
-              </ul>
-            </div>
-            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-6">
-              {t('home.pricingPaymentNote' as any)}
-            </p>
-
-            <a
-              href="#contact"
-              className="block w-full text-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold hover:from-indigo-700 hover:to-purple-700 transition shadow-lg"
-            >
-              {t('home.pricingCta')}
-            </a>
           </div>
         </div>
       </section>
