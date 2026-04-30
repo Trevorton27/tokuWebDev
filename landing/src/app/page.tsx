@@ -52,19 +52,26 @@ export default function Home() {
           <p className="text-base md:text-lg mb-10 max-w-2xl mx-auto text-indigo-200">
             {t('home.heroSupporting')}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <a
-              href="#contact"
+              href={ASSESSMENT_URL || '#contact'}
               className="px-8 py-4 bg-white text-indigo-700 rounded-lg font-bold hover:bg-indigo-50 transition shadow-lg"
             >
               {t('home.heroCta')}
             </a>
             <a
-              href="#how-it-works"
+              href="#curriculum"
               className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-bold hover:bg-white/10 transition"
             >
               {t('home.heroCtaSecondary')}
             </a>
+          </div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm text-indigo-200">
+            <span className="font-semibold text-white">¥200,000</span>
+            <span className="text-white/40">·</span>
+            <span>4 months</span>
+            <span className="text-white/40">·</span>
+            <span>Limited seats per cohort</span>
           </div>
         </div>
       </section>
@@ -637,9 +644,19 @@ export default function Home() {
           </div>
           <div className="max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-8 md:p-10 border-2 border-indigo-200 dark:border-indigo-800/50 shadow-xl">
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                 {t('home.pricingPlanName')}
               </h3>
+              <div className="flex items-baseline justify-center gap-2 mb-1">
+                <span className="text-5xl font-extrabold text-gray-900 dark:text-white">{t('home.pricingPrice' as any)}</span>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{t('home.pricingPricePeriod' as any)}</p>
+              <div className="inline-flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 px-3 py-1.5 rounded-full">
+                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                {t('home.pricingReassurance' as any)}
+              </div>
             </div>
 
             <div className="mb-6">
@@ -658,7 +675,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="mb-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/50 rounded-lg">
+            <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/50 rounded-lg">
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 {t('home.pricingBonusLabel')}
               </p>
@@ -673,6 +690,9 @@ export default function Home() {
                 </li>
               </ul>
             </div>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-6">
+              {t('home.pricingPaymentNote' as any)}
+            </p>
 
             <a
               href="#contact"
@@ -801,9 +821,12 @@ export default function Home() {
 
           {/* 5 Projects */}
           <div className="max-w-5xl mx-auto mb-16">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-3">
               {t('home.courseProjectsTitle')}
             </h3>
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-8 italic">
+              {t('home.courseProjectsNote')}
+            </p>
             <div className="space-y-4">
               {[
                 { n: 1, title: t('home.courseProject1Title'), desc: t('home.courseProject1Desc'), tags: ['HTML', 'CSS', 'JavaScript'], capstone: false },
@@ -843,6 +866,57 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Capstone Spotlight */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <div className="bg-gray-900 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl border border-indigo-500/30">
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-5 flex items-center gap-3">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold text-white">5</span>
+                <div>
+                  <p className="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Final Project</p>
+                  <h3 className="text-lg font-bold text-white">{t('home.courseCapstoneTitle' as any)}</h3>
+                </div>
+                <span className="ml-auto text-xs font-semibold bg-white/20 text-white px-2.5 py-0.5 rounded-full">Capstone</span>
+              </div>
+              <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-white/10">
+                <div className="p-8">
+                  <p className="text-indigo-300 text-sm font-semibold uppercase tracking-wider mb-2">{t('home.courseCapstoneSubtitle' as any)}</p>
+                  <p className="text-gray-300 leading-relaxed mb-6">{t('home.courseCapstoneDesc' as any)}</p>
+                  <ul className="space-y-3">
+                    {([
+                      t('home.courseCapstoneWhy1' as any),
+                      t('home.courseCapstoneWhy2' as any),
+                      t('home.courseCapstoneWhy3' as any),
+                    ] as string[]).map((item, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
+                        <svg className="w-4 h-4 text-indigo-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="p-8">
+                  <p className="text-indigo-300 text-sm font-semibold uppercase tracking-wider mb-4">{t('home.courseCapstoneIdeasLabel' as any)}</p>
+                  <div className="space-y-3">
+                    {([
+                      t('home.courseCapstoneIdea1' as any),
+                      t('home.courseCapstoneIdea2' as any),
+                      t('home.courseCapstoneIdea3' as any),
+                      t('home.courseCapstoneIdea4' as any),
+                    ] as string[]).map((idea, i) => (
+                      <div key={i} className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3 text-sm text-gray-300">
+                        <span className="w-6 h-6 rounded-full bg-indigo-600/50 flex items-center justify-center text-xs font-bold text-indigo-300 flex-shrink-0">{i + 1}</span>
+                        {idea}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-4 italic">Your actual project will reflect your own interests and goals.</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -890,6 +964,8 @@ export default function Home() {
                   {[
                     t('home.courseNotFor1'),
                     t('home.courseNotFor2'),
+                    t('home.courseNotFor3'),
+                    t('home.courseNotFor4'),
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
                       <svg className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1005,7 +1081,10 @@ export default function Home() {
             >
               {formStatus === 'loading' ? 'Sending...' : t('home.finalCtaButton')}
             </button>
-            <p className="text-center text-indigo-200 text-sm mt-4">
+            <p className="text-center text-white/70 text-sm mt-3 font-medium">
+              {t('home.finalCtaHelper' as any)}
+            </p>
+            <p className="text-center text-indigo-200 text-sm mt-2">
               {t('home.finalCtaSecondary')}
             </p>
           </form>
