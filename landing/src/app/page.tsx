@@ -6,9 +6,161 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 const ASSESSMENT_URL = process.env.NEXT_PUBLIC_ASSESSMENT_URL || '';
 
+const FAQ_EN = [
+  {
+    q: 'Is the course taught in English or Japanese?',
+    a: 'The course is delivered primarily in English, with Japanese support available throughout. Trevor is bilingual and can explain concepts, answer questions, and provide feedback in Japanese when needed. You will not be left struggling alone with English.',
+  },
+  {
+    q: 'Do I need to be fluent in English to participate?',
+    a: 'No. Everyday conversational or reading-level English is helpful, but it is not a requirement. The tools and concepts taught in the course are universal, and you will always have Japanese-language support available from the instructor.',
+  },
+  {
+    q: 'Can I join with absolutely no programming experience?',
+    a: 'Yes. The course is specifically designed for complete beginners. You do not need to know anything about coding before you start. The assessment at the beginning helps us understand exactly where you are so we can build from there.',
+  },
+  {
+    q: 'Can I take this course while working full-time?',
+    a: 'Yes, but it requires honest commitment. The program is designed around approximately 10–20 hours per week. Students working full-time can complete it, but the timeline may need to flex. The extension option exists specifically for this reason.',
+  },
+  {
+    q: 'Do I need a Mac, or will Windows work?',
+    a: 'Either works. The tools used in this course — VS Code, Git, Node.js, and Vercel — run on both Mac and Windows. You will be guided through environment setup from the very beginning.',
+  },
+  {
+    q: 'What computer specs do I need?',
+    a: 'Any modern laptop or desktop purchased within the last 5–6 years should be sufficient. 8GB of RAM is the minimum recommended. You do not need a powerful machine to learn web development.',
+  },
+  {
+    q: 'Will I receive a certificate when I finish?',
+    a: 'Yes. A certificate of completion is issued upon finishing the program. More importantly, you will graduate with a portfolio of 5 real, deployed projects — which is far more valuable to employers than a certificate alone.',
+  },
+  {
+    q: 'What kind of jobs can I aim for after completing the course?',
+    a: 'Junior frontend or full-stack developer roles, freelance web development work, internal IT or DX roles at Japanese companies, or the ability to build your own product or tool. The course focuses on practical, deployable skills employers can verify directly from your portfolio.',
+  },
+  {
+    q: 'Is this relevant for job hunting in Japan specifically?',
+    a: 'Yes. The tech stack taught — React, Next.js, TypeScript, Vercel, databases, AI integration — is in demand at both Japanese tech companies and international companies based in Japan. The bilingual nature of the program also positions you well for roles requiring English.',
+  },
+  {
+    q: 'Can I really finish everything in 5 months?',
+    a: '5 months is the structured timeline for a committed student putting in consistent weekly effort. Some students will move faster; others may need more time. The extension option allows you to continue at a discounted rate beyond 5 months until you feel truly ready.',
+  },
+  {
+    q: 'What happens if I fall behind or miss sessions?',
+    a: 'The program is flexible by design. If life gets in the way, you can slow down and use the extension option to complete the remaining work at a discounted rate. You will never be dropped for falling behind.',
+  },
+  {
+    q: 'Is there a payment plan available?',
+    a: 'Yes. Installment payment options are available. Please contact us to discuss what works best for your situation. The goal is to make this accessible.',
+  },
+  {
+    q: 'What is the refund policy?',
+    a: 'Please contact us before enrolling to discuss the refund policy in detail. We encourage a free consultation first to make sure the course is the right fit before any financial commitment is made.',
+  },
+  {
+    q: 'Are sessions live, or do I work through pre-recorded material?',
+    a: 'The course is a hybrid of both. There are live instructor sessions combined with self-paced project work. You will have regular access to the instructor and are not simply watching videos alone.',
+  },
+  {
+    q: 'How do I ask questions when I am stuck?',
+    a: 'You will have direct access to the instructor through the course platform messaging system. Questions can be asked in English or Japanese. You are not expected to struggle silently.',
+  },
+  {
+    q: 'Do I need English to use the AI tools like GitHub Copilot and Claude?',
+    a: 'The AI tools work best with English prompts, but you will be taught how to use them effectively as part of the course. Learning to work with these tools in English is itself a valuable skill, and you will be guided through it step by step.',
+  },
+  {
+    q: 'Are the 5 projects fixed, or can I build something related to my own interests?',
+    a: 'The 5 projects listed on the site are examples only. Your actual projects will be tailored to your interests, level, and personality. If you are passionate about fitness, education, finance, or anything else — we build toward that.',
+  },
+  {
+    q: 'How much does extending the course cost, and how long can I extend?',
+    a: 'Extension pricing is offered at a meaningful discount from the standard rate and is decided on a case-by-case basis. Extensions are available for as long as you need — the goal is for you to leave feeling genuinely capable and confident, not to push you out the door on a fixed schedule.',
+  },
+];
+
+const FAQ_JA = [
+  {
+    q: 'コースは英語と日本語どちらで教えますか？',
+    a: '主に英語で進みますが、日本語サポートも常時利用可能です。トレバーはバイリンガルで、必要に応じて日本語で説明・フィードバックを提供します。英語だけで一人で悩む心配はありません。',
+  },
+  {
+    q: '英語が堪能でなくても受講できますか？',
+    a: 'はい。日常的な読み書きレベルの英語があれば十分ですが、それも必須ではありません。学ぶ技術は普遍的であり、講師からの日本語サポートは常に受けられます。',
+  },
+  {
+    q: 'プログラミング未経験でも参加できますか？',
+    a: 'はい。このコースは完全な初心者向けに設計されています。コーディングの知識はゼロで問題ありません。開始前のアセスメントで現在のレベルを把握し、そこから一緒に積み上げていきます。',
+  },
+  {
+    q: 'フルタイムで働きながら受講できますか？',
+    a: '可能ですが、誠実なコミットメントが必要です。週10〜20時間が目安です。フルタイム勤務の方でも修了できますが、スケジュールが伸びる場合があります。そのための延長オプションがあります。',
+  },
+  {
+    q: 'MacとWindowsどちらのパソコンが必要ですか？',
+    a: 'どちらでも問題ありません。VS Code・Git・Node.js・VercelはMac・Windowsどちらでも動作します。環境構築は最初からサポートします。',
+  },
+  {
+    q: 'どのくらいのスペックのパソコンが必要ですか？',
+    a: '購入から5〜6年以内の一般的なノートパソコンやデスクトップで十分です。最低8GBのRAMが推奨されます。高性能なマシンは必要ありません。',
+  },
+  {
+    q: '修了時に証明書は発行されますか？',
+    a: 'はい、修了証を発行します。それ以上に、デプロイ済みの5つのプロジェクトで構成されたポートフォリオが最大の証明となります。証明書だけよりはるかに採用担当者に響きます。',
+  },
+  {
+    q: '修了後にどんな仕事を目指せますか？',
+    a: 'ジュニアのフロントエンドまたはフルスタック開発者、フリーランスのWeb開発、日本企業のIT・DX部門、または自分のプロダクトの構築などが挙げられます。ポートフォリオから直接確認できる実践的スキルに焦点を当てています。',
+  },
+  {
+    q: '日本での就職活動に役立ちますか？',
+    a: 'はい。React・Next.js・TypeScript・Vercel・データベース・AI統合など、教えるスタックは日本のIT企業や日本拠点の外資系企業で需要があります。バイリンガルな環境も英語が必要なポジションで有利に働きます。',
+  },
+  {
+    q: '本当に5ヶ月で終わりますか？',
+    a: '5ヶ月は、一定の週次学習量をこなす意欲的な受講生のための目安です。早く終わる方もいれば、もう少し時間が必要な方もいます。延長オプションにより、割引価格で5ヶ月以降も継続できます。',
+  },
+  {
+    q: '遅れたり休んだりしたらどうなりますか？',
+    a: 'プログラムは柔軟に設計されています。生活上の都合があっても、ペースを落として割引価格の延長オプションで残りを完了できます。遅れたからといって退出させられることはありません。',
+  },
+  {
+    q: '分割払いは可能ですか？',
+    a: 'はい、分割払いオプションがあります。状況に合った方法についてはお気軽にご相談ください。できる限り参加しやすい形を一緒に考えます。',
+  },
+  {
+    q: '返金ポリシーはどうなっていますか？',
+    a: '詳細はご入学前にお問い合わせください。財務的なコミットメントの前に、無料相談でコースが適切かどうかを確認することを強くお勧めしています。',
+  },
+  {
+    q: '授業はライブですか、録画済みですか？',
+    a: '両方を組み合わせたハイブリッド形式です。ライブの講師セッションと自分のペースで進めるプロジェクト作業があります。動画を一人で見るだけのコースではありません。',
+  },
+  {
+    q: '詰まったときはどうやって質問できますか？',
+    a: 'コースプラットフォームのメッセージ機能を通じて講師に直接連絡できます。英語・日本語どちらでも構いません。一人で悩み続ける必要はありません。',
+  },
+  {
+    q: 'AIツールを使うのに英語力は必要ですか？',
+    a: 'AIツールは英語のプロンプトで最もよく機能しますが、その使い方はコースの中でしっかり教えます。英語でAIツールを扱う方法を学ぶこと自体が価値あるスキルであり、ステップごとにサポートします。',
+  },
+  {
+    q: '5つのプロジェクトは固定ですか、自分の興味に合わせられますか？',
+    a: 'サイトに掲載されている5つのプロジェクトはあくまで例です。実際のプロジェクトはあなたの興味・レベル・個性に合わせてカスタマイズされます。フィットネス・教育・金融など、好きな分野に向けて構築できます。',
+  },
+  {
+    q: '延長する場合の料金と期間はどのくらいですか？',
+    a: '延長料金は通常料金から大幅に割引されており、個別に相談の上決定します。期間の上限はありません。固定スケジュールで追い出すことではなく、自信を持って自立できる状態で卒業することが目標です。',
+  },
+];
+
 export default function Home() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const faqItems = language === 'ja' ? FAQ_JA : FAQ_EN;
 
   async function handleContactSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -69,7 +221,7 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm text-indigo-200">
             <span className="font-semibold text-white">¥200,000</span>
             <span className="text-white/40">·</span>
-            <span>4 months</span>
+            <span>5 months</span>
             <span className="text-white/40">·</span>
             <span>Limited seats per cohort</span>
           </div>
@@ -705,6 +857,260 @@ export default function Home() {
       </section>
 
       {/* ============================================ */}
+      {/* 10.3. FOUNDATIONS TRACK */}
+      {/* ============================================ */}
+      <section id="foundations" className="py-24 bg-white dark:bg-black">
+        <div className="container mx-auto px-4">
+
+          {/* Header */}
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-sm font-semibold mb-4">
+              {t('home.foundBadge' as any)}
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              {t('home.foundTitle' as any)}
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+              {t('home.foundSubtitle' as any)}
+            </p>
+          </div>
+
+          {/* Overview Card */}
+          <div className="max-w-5xl mx-auto mb-16 bg-gray-900 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl">
+            <div className="grid md:grid-cols-5">
+              <div className="md:col-span-3 p-8 md:p-10">
+                <p className="text-gray-300 leading-relaxed text-base mb-6">
+                  {t('home.foundDesc' as any)}
+                </p>
+                <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-green-300 font-medium mb-8">
+                  {t('home.foundUpgradeNote' as any)}
+                </div>
+                <a
+                  href="#contact"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-semibold transition"
+                >
+                  {t('home.foundCta' as any)}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+              </div>
+              <div className="md:col-span-2 bg-green-700 p-8 md:p-10 grid grid-cols-2 gap-6 content-center">
+                {[
+                  { value: t('home.foundDuration' as any), label: t('home.foundDurationLabel' as any) },
+                  { value: t('home.foundPrice' as any), label: t('home.foundPriceLabel' as any) },
+                  { value: t('home.foundLevel' as any), label: t('home.foundLevelLabel' as any) },
+                  { value: t('home.foundProjects' as any), label: t('home.foundProjectsLabel' as any) },
+                ].map(({ value, label }) => (
+                  <div key={label} className="text-center">
+                    <div className="text-xl md:text-2xl font-bold text-white leading-tight mb-1">{value}</div>
+                    <div className="text-xs text-green-200 font-medium uppercase tracking-wide">{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* What You'll Learn */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+              {t('home.foundLearnTitle' as any)}
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  num: '01', title: t('home.foundModule1Title' as any),
+                  items: [t('home.foundModule1Item1' as any), t('home.foundModule1Item2' as any), t('home.foundModule1Item3' as any), t('home.foundModule1Item4' as any)],
+                  color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+                },
+                {
+                  num: '02', title: t('home.foundModule2Title' as any),
+                  items: [t('home.foundModule2Item1' as any), t('home.foundModule2Item2' as any), t('home.foundModule2Item3' as any), t('home.foundModule2Item4' as any)],
+                  color: 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300',
+                },
+                {
+                  num: '03', title: t('home.foundModule3Title' as any),
+                  items: [t('home.foundModule3Item1' as any), t('home.foundModule3Item2' as any), t('home.foundModule3Item3' as any), t('home.foundModule3Item4' as any)],
+                  color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+                },
+              ].map(({ num, title, items, color }) => (
+                <div key={num} className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-6">
+                  <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-4 ${color}`}>Module {num}</span>
+                  <h4 className="text-base font-bold text-gray-900 dark:text-white mb-4">{title}</h4>
+                  <ul className="space-y-2">
+                    {items.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 3 Projects */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-3">
+              {t('home.foundProjectsTitle' as any)}
+            </h3>
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-8 italic">
+              {t('home.foundProjectsNote' as any)}
+            </p>
+            <div className="space-y-4">
+              {[
+                { n: 1, title: t('home.foundProject1Title' as any), desc: t('home.foundProject1Desc' as any), tags: ['HTML', 'CSS', 'Vercel'], capstone: false },
+                { n: 2, title: t('home.foundProject2Title' as any), desc: t('home.foundProject2Desc' as any), tags: ['JavaScript', 'APIs', 'DOM'], capstone: false },
+                { n: 3, title: t('home.foundProject3Title' as any), desc: t('home.foundProject3Desc' as any), tags: ['JavaScript', 'React intro', 'Deployment'], capstone: true },
+              ].map(({ n, title, desc, tags, capstone }) => (
+                <div key={n} className={`rounded-xl border overflow-hidden ${capstone ? 'border-green-400 dark:border-green-600' : 'border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card'}`}>
+                  <div className={`px-6 py-4 flex items-center gap-4 ${capstone ? 'bg-green-600' : 'bg-gray-50 dark:bg-dark-surface border-b border-gray-100 dark:border-dark-border'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${capstone ? 'bg-white text-green-600' : 'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-300'}`}>{n}</span>
+                    <span className={`font-semibold text-sm flex-1 ${capstone ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{title}</span>
+                    {capstone && <span className="flex-shrink-0 text-xs font-semibold bg-white/20 text-white px-2.5 py-0.5 rounded-full">Capstone</span>}
+                  </div>
+                  <div className={`px-6 py-4 ${capstone ? 'bg-green-50 dark:bg-green-900/10' : ''}`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{desc}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {tags.map((tag) => (
+                        <span key={tag} className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${capstone ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-dark-surface text-gray-600 dark:text-gray-400'}`}>{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Who This Is For */}
+          <div className="max-w-4xl mx-auto mb-14">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+              {t('home.foundForTitle' as any)}
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">This is for you</span>
+                </div>
+                <ul className="space-y-3">
+                  {[t('home.foundFor1' as any), t('home.foundFor2' as any), t('home.foundFor3' as any), t('home.foundFor4' as any)].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">This is not for you</span>
+                </div>
+                <ul className="space-y-3">
+                  {[t('home.foundNotFor1' as any), t('home.foundNotFor2' as any), t('home.foundNotFor3' as any), t('home.foundNotFor4' as any)].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <svg className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Strip */}
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-2xl p-8 md:p-10 shadow-xl">
+              <p className="text-green-100 text-sm font-medium mb-2">{t('home.foundCtaNote' as any)}</p>
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-green-700 rounded-lg font-bold hover:bg-green-50 transition shadow-lg text-lg"
+              >
+                {t('home.foundCta' as any)}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+              <p className="text-white/90 text-base font-medium mt-6 max-w-md mx-auto leading-relaxed">
+                {t('home.foundExtensionNote' as any)}
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ============================================ */}
+      {/* 10.4. COURSE COMPARISON BRIDGE */}
+      {/* ============================================ */}
+      <div className="bg-gray-900 py-14">
+        <div className="container mx-auto px-4">
+          <p className="text-center text-xs font-semibold text-gray-500 uppercase tracking-widest mb-8">
+            {language === 'ja' ? '2つのコースを比較する' : 'Which course is right for you?'}
+          </p>
+          <div className="max-w-3xl mx-auto grid md:grid-cols-2 gap-4">
+            <a href="#foundations" className="group flex flex-col gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-green-500/50 rounded-xl p-6 transition">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">1</span>
+                <span className="font-bold text-white text-base">
+                  {language === 'ja' ? 'ファウンデーションズトラック' : 'Foundations Track'}
+                </span>
+              </div>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                {language === 'ja'
+                  ? 'AIなしで、コードの一行一行を自分の手で書く。本物の基礎力を身につけるための3ヶ月。'
+                  : 'You write every line yourself — no AI generating code for you. Build genuine fundamentals in 3 months.'}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-auto">
+                <span className="text-xs bg-green-900/40 text-green-300 px-2.5 py-1 rounded-full">3 {language === 'ja' ? 'ヶ月' : 'months'}</span>
+                <span className="text-xs bg-green-900/40 text-green-300 px-2.5 py-1 rounded-full">¥150,000</span>
+                <span className="text-xs bg-white/10 text-gray-300 px-2.5 py-1 rounded-full">{language === 'ja' ? 'コードファースト' : 'Code-first'}</span>
+              </div>
+            </a>
+            <a href="#course" className="group flex flex-col gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/50 rounded-xl p-6 transition">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">2</span>
+                <span className="font-bold text-white text-base">
+                  {language === 'ja' ? 'フルコース' : 'Full Course'}
+                </span>
+              </div>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                {language === 'ja'
+                  ? 'AIを日常の開発パートナーとして使いながら、フルスタックアプリを構築する5ヶ月。'
+                  : 'Build full-stack apps with AI as your daily development partner from day one. 5 months.'}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-auto">
+                <span className="text-xs bg-indigo-900/40 text-indigo-300 px-2.5 py-1 rounded-full">5 {language === 'ja' ? 'ヶ月' : 'months'}</span>
+                <span className="text-xs bg-indigo-900/40 text-indigo-300 px-2.5 py-1 rounded-full">¥200,000</span>
+                <span className="text-xs bg-white/10 text-gray-300 px-2.5 py-1 rounded-full">{language === 'ja' ? 'AI活用' : 'AI-powered'}</span>
+              </div>
+            </a>
+          </div>
+          <p className="text-center text-xs text-gray-600 mt-6">
+            {language === 'ja'
+              ? 'ファウンデーションズトラック修了者はフルコースを50%オフで受講できます。'
+              : 'Foundations Track graduates receive 50% off the Full Course.'}
+          </p>
+        </div>
+      </div>
+
+      {/* ============================================ */}
       {/* 10.5. COURSE OFFERING */}
       {/* ============================================ */}
       <section id="course" className="py-24 bg-gray-50 dark:bg-dark-surface">
@@ -992,6 +1398,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </a>
+              <p className="text-white/90 text-base font-medium mt-6 max-w-md mx-auto leading-relaxed">
+                {t('home.courseExtensionNote' as any)}
+              </p>
             </div>
           </div>
 
@@ -999,7 +1408,51 @@ export default function Home() {
       </section>
 
       {/* ============================================ */}
-      {/* 11. FINAL CTA - Schedule a Free Consultation */}
+      {/* 11. FAQ */}
+      {/* ============================================ */}
+      <section id="faq" className="py-24 bg-white dark:bg-black">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-sm font-semibold mb-4">
+              {language === 'ja' ? 'よくある質問' : 'FAQ'}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+              {language === 'ja' ? 'よくある質問' : 'Frequently Asked Questions'}
+            </h2>
+          </div>
+          <div className="max-w-3xl mx-auto divide-y divide-gray-200 dark:divide-dark-border">
+            {faqItems.map((item, i) => (
+              <div key={i}>
+                <button
+                  onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+                  className="w-full flex items-center justify-between gap-4 py-5 text-left group"
+                  aria-expanded={faqOpen === i}
+                >
+                  <span className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                    {item.q}
+                  </span>
+                  <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${faqOpen === i ? 'border-indigo-600 bg-indigo-600 dark:border-indigo-400 dark:bg-indigo-400' : 'border-gray-300 dark:border-dark-border'}`}>
+                    <svg
+                      className={`w-3 h-3 transition-transform duration-200 ${faqOpen === i ? 'rotate-45 text-white' : 'text-gray-500 dark:text-gray-400'}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </span>
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${faqOpen === i ? 'max-h-96 pb-5' : 'max-h-0'}`}>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">
+                    {item.a}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================ */}
+      {/* 12. FINAL CTA - Schedule a Free Consultation */}
       {/* ============================================ */}
       <section id="contact" className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-purple-900 dark:to-indigo-900 text-white">
         <div className="container mx-auto px-4">
