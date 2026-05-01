@@ -162,7 +162,7 @@ export default function SummaryStep({ sessionId, onComplete }: Props) {
         <div className="border border-gray-200 dark:border-dark-border rounded-xl p-6 text-center">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Ready to submit your answers?</h3>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-            We&apos;ll send your results to your email and our team will follow up with your personalized learning plan.
+            After submission, your results will be compiled and we will send you an email with an invitation to discuss your background and goals and to go over your roadmap.
           </p>
 
           {submitState === 'error' && (
