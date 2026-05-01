@@ -1492,7 +1492,7 @@ export default function Home() {
           {formStatus === 'success' ? (
             <div className="max-w-xl mx-auto bg-white/10 backdrop-blur-sm rounded-2xl p-10 border border-white/20 text-center">
               <p className="text-xl font-semibold text-white mb-2">Message sent!</p>
-              <p className="text-indigo-200">Thanks for reaching out. Trevor will get back to you soon.</p>
+              <p className="text-indigo-200">Thanks for getting in touch. Please check your email for an invitation to schedule your consultation with Trevor.</p>
             </div>
           ) : (
           <form

@@ -264,7 +264,7 @@ export const translations = {
     // Final CTA
     'home.finalCtaTitle': 'Start With a Free Skill Assessment',
     'home.finalCtaSubtitle': 'We\'ll assess your current level, learn about your goals, and build a personalized roadmap — no pressure, no commitment.',
-    'home.finalCtaButton': 'Get My Personalized Roadmap',
+    'home.finalCtaButton': 'Talk with Trevor',
     'home.finalCtaHelper': 'Takes 5 minutes · No commitment',
     'home.finalCtaSecondary': 'Prefer email? Reach us at trevor-sensei@signalworksdesign.com',
 
