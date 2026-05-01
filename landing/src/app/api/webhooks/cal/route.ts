@@ -17,7 +17,12 @@ function verifySignature(body: string, signature: string): boolean {
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
-  const signature = req.headers.get('x-cal-signature-256') ?? '';
+  const signature = req.headers.get('x-cal-signature-256');
+
+  // Cal.com ping/connectivity tests do not include a signature — acknowledge them
+  if (!signature) {
+    return NextResponse.json({ received: true });
+  }
 
   if (!verifySignature(rawBody, signature)) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
