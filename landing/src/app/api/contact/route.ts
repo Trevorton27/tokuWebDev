@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { NextRequest, NextResponse } from 'next/server';
+import { createAndSendInvite } from '@/lib/consultation';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -21,6 +22,11 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
   }
+
+  // Fire-and-forget: send consultation booking invite to the lead
+  createAndSendInvite(name, email, 'landing').catch((err) =>
+    console.error('consultation invite failed:', err)
+  );
 
   return NextResponse.json({ success: true });
 }

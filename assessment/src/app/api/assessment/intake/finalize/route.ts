@@ -7,6 +7,7 @@ import { getStepById } from '@/server/assessment/intakeConfig';
 import { sendAssessmentEmails } from '@/server/assessment/emailService';
 import { generateRoadmap } from '@/server/assessment/roadmapService';
 import { generateRoadmapPdf } from '@/server/assessment/roadmapPdf';
+import { createAndSendInvite } from '@/lib/consultation';
 
 /**
  * POST /api/assessment/intake/finalize
@@ -201,6 +202,12 @@ export async function POST() {
     }
 
     logger.info('finalize: emails sent successfully', { userId: user.id, sessionId: session.id });
+
+    // Fire-and-forget: send consultation booking invite
+    createAndSendInvite(dbUser.name ?? undefined, dbUser.email, 'assessment').catch((err) =>
+      logger.error('finalize: consultation invite failed', err)
+    );
+
     return NextResponse.json({ success: true, roadmapId });
   } catch (err) {
     if (err instanceof Error && err.message === 'Unauthorized') {
