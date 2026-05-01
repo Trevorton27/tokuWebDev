@@ -203,10 +203,13 @@ export async function POST() {
 
     logger.info('finalize: emails sent successfully', { userId: user.id, sessionId: session.id });
 
-    // Fire-and-forget: send consultation booking invite
-    createAndSendInvite(dbUser.name ?? undefined, dbUser.email, 'assessment').catch((err) =>
-      logger.error('finalize: consultation invite failed', err)
-    );
+    // Await invite so it completes before the function terminates on Vercel
+    try {
+      await createAndSendInvite(dbUser.name ?? undefined, dbUser.email, 'assessment');
+      logger.info('finalize: consultation invite sent', { userId: user.id });
+    } catch (inviteErr) {
+      logger.error('finalize: consultation invite failed', inviteErr instanceof Error ? inviteErr : new Error(String(inviteErr)), { userId: user.id });
+    }
 
     return NextResponse.json({ success: true, roadmapId });
   } catch (err) {

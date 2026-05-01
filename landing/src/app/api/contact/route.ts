@@ -23,12 +23,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
   }
 
-  // Fire-and-forget: send consultation booking invite to the lead
-  createAndSendInvite(name, email, 'landing').catch((err) => {
-    console.error('[consultation] invite failed for', email, '—', err?.message ?? err);
-    console.error('[consultation] DATABASE_URL set?', !!process.env.DATABASE_URL);
-    console.error('[consultation] RESEND_API_KEY set?', !!process.env.RESEND_API_KEY);
-  });
+  // Await the invite so it completes before the function terminates on Vercel
+  try {
+    await createAndSendInvite(name, email, 'landing');
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[consultation] invite failed for', email, '—', msg);
+  }
 
   return NextResponse.json({ success: true });
 }
