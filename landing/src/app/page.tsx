@@ -377,7 +377,7 @@ export default function Home() {
               The Modern Approach
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              What Is AI-Powered Software Development?
+              What Is Full Course: AI-Powered Software Development?
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
               AI-powered software development is the practice of building applications while using AI tools to accelerate, enhance, and guide the development process.
@@ -799,7 +799,7 @@ export default function Home() {
             {/* Two course cards */}
             <div className="grid md:grid-cols-2 gap-6 mb-10">
 
-              {/* Foundations Track */}
+              {/* Foundations Course */}
               <div className="flex flex-col rounded-2xl border-2 border-green-200 dark:border-green-800/60 overflow-hidden shadow-lg">
                 <div className="bg-green-600 px-6 py-5">
                   <p className="text-xs font-semibold text-green-200 uppercase tracking-wider mb-1">{t('home.pricingFoundHighlight' as any)}</p>
@@ -1093,7 +1093,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <span className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">1</span>
                 <span className="font-bold text-white text-base">
-                  {language === 'ja' ? 'ファウンデーションズトラック' : 'Foundations Track'}
+                  {language === 'ja' ? 'ファウンデーションズコース' : 'Foundations Course'}
                 </span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">
@@ -1128,8 +1128,8 @@ export default function Home() {
           </div>
           <p className="text-center text-xs text-gray-600 mt-6">
             {language === 'ja'
-              ? 'ファウンデーションズトラック修了者はフルコースを50%オフで受講できます。'
-              : 'Foundations Track graduates receive 50% off the Full Course.'}
+              ? 'ファウンデーションズコース修了者はフルコースを50%オフで受講できます。'
+              : 'Foundations Course graduates receive 50% off the Full Course.'}
           </p>
         </div>
       </div>
@@ -1601,7 +1601,6 @@ export default function Home() {
               <h4 className="text-white font-semibold mb-4">{t('home.footerContact')}</h4>
               <ul className="space-y-2 text-sm">
                 <li>{t('home.footerSupport')}</li>
-                <li>{t('home.footerCommunity')}</li>
               </ul>
             </div>
           </div>

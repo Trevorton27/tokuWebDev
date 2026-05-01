@@ -129,7 +129,7 @@ export const translations = {
     'home.pricingFeature6': 'Code reviews and ongoing feedback',
     'home.pricingFeature7': 'Bilingual support (English & Japanese)',
     'home.pricingFeature8': 'Discounted extensions — stay as long as you need',
-    'home.pricingFoundLabel': 'Foundations Track',
+    'home.pricingFoundLabel': 'Foundations Course',
     'home.pricingFoundHighlight': 'Code-first · No AI shortcuts',
     'home.pricingFoundProjects': '3 projects (incl. capstone)',
     'home.pricingFullLabel': 'Full Course',
@@ -147,7 +147,7 @@ export const translations = {
 
     // Course Section
     'home.courseBadge': 'AI-Powered Workflow · Now Enrolling',
-    'home.courseTitle': 'AI-Powered Software Development',
+    'home.courseTitle': 'Full Course: AI-Powered Software Development',
     'home.courseSubtitle': 'Build real applications from scratch to production — with an AI-leveraged workflow that mirrors how professionals work today.',
     'home.courseDuration': '5 Months',
     'home.courseDurationLabel': 'Duration',
@@ -212,7 +212,7 @@ export const translations = {
 
     // Foundational Course
     'home.foundBadge': 'Code-First · No AI Shortcuts',
-    'home.foundTitle': 'Foundations Track',
+    'home.foundTitle': 'Foundations Course',
     'home.foundSubtitle': 'You write every line of code yourself. No AI generating code for you — and that\'s intentional. Master the fundamentals the right way before adding AI to your toolkit.',
     'home.foundDesc': 'A focused 3-month program for complete beginners. You will learn HTML, CSS, and JavaScript from scratch — writing every line yourself. Building without AI assistance is how you develop genuine problem-solving instincts and a deep understanding of how code actually works. No prior experience needed. Students who want to continue beyond 3 months can extend at a discounted rate.',
     'home.foundDuration': '3 Months',
@@ -259,7 +259,7 @@ export const translations = {
     'home.foundCtaNote': '3 months · ¥150,000 · Limited seats per cohort',
     'home.foundCta': 'Learn More',
     'home.foundExtensionNote': 'Want more time? Extensions are available at a discount — stay connected until you\'re ready to level up.',
-    'home.foundUpgradeNote': 'Graduates of the Foundations Track receive 50% off the Full Course.',
+    'home.foundUpgradeNote': 'Graduates of the Foundations Course receive 50% off the Full Course.',
 
     // Final CTA
     'home.finalCtaTitle': 'Start With a Free Skill Assessment',
@@ -429,7 +429,7 @@ export const translations = {
     'home.footerContact': 'Contact',
     'home.footerSupport': 'trevor-sensei@signalworksdesign.com',
     'home.footerCommunity': 'Join our community',
-    'home.footerCopyright': '© 2024 Signal Works LMS. All rights reserved.',
+    'home.footerCopyright': '© 2026 Signal Works Design. All rights reserved.',
 
     // Student Dashboard
     'student.welcome': 'Welcome back',
@@ -1198,7 +1198,7 @@ export const translations = {
     'home.pricingFeature6': 'コードレビューと継続的なフィードバック',
     'home.pricingFeature7': 'バイリンガルサポート（英語・日本語）',
     'home.pricingFeature8': '割引価格の延長オプション——必要な期間だけ続けられます',
-    'home.pricingFoundLabel': 'ファウンデーションズトラック',
+    'home.pricingFoundLabel': 'ファウンデーションズコース',
     'home.pricingFoundHighlight': 'コードファースト · AIに頼らない',
     'home.pricingFoundProjects': '3プロジェクト（最終課題含む）',
     'home.pricingFullLabel': 'フルコース',
@@ -1281,7 +1281,7 @@ export const translations = {
 
     // Foundational Course
     'home.foundBadge': 'コードファースト · AIに頼らない',
-    'home.foundTitle': 'ファウンデーションズトラック',
+    'home.foundTitle': 'ファウンデーションズコース',
     'home.foundSubtitle': 'コードの一行一行を自分で書く。AIにコードを生成させない——それが意図的な選択です。AIを使いこなす前に、まず本物の基礎を身につけましょう。',
     'home.foundDesc': '完全初心者向けの3ヶ月集中プログラムです。HTML・CSS・JavaScriptをゼロから、すべて自分の手で書きながら学びます。AIの力を借りずに構築することで、本物の問題解決力とコードへの深い理解が身につきます。事前知識は不要。3ヶ月以降もサポートを続けたい方には、割引価格で延長が可能です。',
     'home.foundDuration': '3ヶ月',
@@ -1328,7 +1328,7 @@ export const translations = {
     'home.foundCtaNote': '3ヶ月 · ¥150,000 · 定員制',
     'home.foundCta': '詳しく見る',
     'home.foundExtensionNote': 'もっと時間が必要ですか？割引価格の延長オプションで、次のステップへの準備が整うまでサポートを続けられます。',
-    'home.foundUpgradeNote': 'ファウンデーションズトラック修了者は、フルコースを50%オフで受講できます。',
+    'home.foundUpgradeNote': 'ファウンデーションズコース修了者は、フルコースを50%オフで受講できます。',
 
     // Final CTA
     'home.finalCtaTitle': '無料スキルアセスメントから始めましょう',
@@ -1498,7 +1498,7 @@ export const translations = {
     'home.footerContact': 'お問い合わせ',
     'home.footerSupport': 'trevor-sensei@signalworksdesign.com',
     'home.footerCommunity': 'コミュニティに参加',
-    'home.footerCopyright': '© 2024 Signal Works LMS. All rights reserved.',
+    'home.footerCopyright': '© 2026 Signal Works Design. All rights reserved.',
 
     // Student Dashboard
     'student.welcome': 'おかえりなさい',

@@ -11,7 +11,7 @@ export async function GET(
     await requireAuth();
 
     const challenge = await getChallengeBySlug(params.slug);
-
+    console.log('Fetched challenge up in here tho: ', challenge);
     if (!challenge) {
       return NextResponse.json(
         { success: false, error: 'Challenge not found' },

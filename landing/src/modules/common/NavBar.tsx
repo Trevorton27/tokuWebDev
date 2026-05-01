@@ -35,7 +35,7 @@ export default function NavBar() {
       items: [
         {
           href: '#foundations',
-          label: ja ? 'ファウンデーションズトラック' : 'Foundations Track',
+          label: ja ? 'ファウンデーションズコース' : 'Foundations Course',
           desc: ja ? '3ヶ月 · ¥150,000 · コードファースト' : '3 months · ¥150,000 · Code-first',
         },
         {
