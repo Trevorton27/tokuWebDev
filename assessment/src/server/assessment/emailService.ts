@@ -8,7 +8,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = 'Signal Works <contact@email.signalworksdesign.com>';
 const SUPPORT_EMAIL = 'support@signalworksdesign.com';
-const BOOKING_URL = 'https://signalworks.com/book';
 
 // ============================================
 // TYPES
@@ -292,15 +291,8 @@ function buildStudentHtml(name: string): string {
     </ul>
 
     <p style="margin:0 0 20px;color:#4b5563;line-height:1.7">
-      We'll go over everything together in your follow-up meeting. If you haven't booked a session yet, you can do so using the link below.
+      Please check your inbox for a separate email from us with a link to schedule your free consultation with Trevor. You'll go over your results, discuss your goals, and confirm the right course for you.
     </p>
-
-    <div style="text-align:center;margin-bottom:28px">
-      <a href="${BOOKING_URL}"
-         style="display:inline-block;background:#4f46e5;color:#fff;font-weight:700;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:15px">
-        Book Your Follow-Up Meeting
-      </a>
-    </div>
 
     <p style="margin:0 0 4px;color:#4b5563;line-height:1.7">
       We're looking forward to working with you.
@@ -327,8 +319,8 @@ function buildStudentText(name: string): string {
     `  - A proposed study roadmap tailored to your goals`,
     `  - A set of recommended apps and projects to build`,
     '',
-    `We'll go over everything together in your follow-up meeting.`,
-    `Book your session here: ${BOOKING_URL}`,
+    `Please check your inbox for a separate email with a link to schedule your free consultation with Trevor.`,
+    `You'll go over your results, discuss your goals, and confirm the right course for you.`,
     '',
     `We're looking forward to working with you.`,
     `— The Signal Works Design Team`,

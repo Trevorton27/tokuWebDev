@@ -24,9 +24,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Fire-and-forget: send consultation booking invite to the lead
-  createAndSendInvite(name, email, 'landing').catch((err) =>
-    console.error('consultation invite failed:', err)
-  );
+  createAndSendInvite(name, email, 'landing').catch((err) => {
+    console.error('[consultation] invite failed for', email, '—', err?.message ?? err);
+    console.error('[consultation] DATABASE_URL set?', !!process.env.DATABASE_URL);
+    console.error('[consultation] RESEND_API_KEY set?', !!process.env.RESEND_API_KEY);
+  });
 
   return NextResponse.json({ success: true });
 }
