@@ -3,6 +3,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import '@/styles/globals.css';
 import NavBar from '@/modules/common/NavBar';
 import ClientProviders from '@/components/ClientProviders';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'Signal Works Design',
@@ -36,6 +37,7 @@ export default function RootLayout({
             <NavBar />
             {children}
           </ClientProviders>
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
