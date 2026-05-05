@@ -52,6 +52,13 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
           >
             Download PDF
           </a>
+          <a
+            href={`/api/admin/roadmaps/${roadmap.id}/docx`}
+            download={`roadmap-${(roadmap.user.name ?? 'student').toLowerCase().replace(/\s+/g, '-')}.docx`}
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-300 px-3 py-1.5 rounded-lg transition"
+          >
+            Download DOCX
+          </a>
           <DeleteRoadmapButton roadmapId={roadmap.id} studentName={roadmap.user.name ?? 'Student'} />
         </div>
       </div>
