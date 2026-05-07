@@ -5,12 +5,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { getGoogleDoc, convertGoogleDocToHTML } from '@/lib/googleDocs';
 import { getCurrentUser } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Authenticate and get current user
     const currentUser = await getCurrentUser();

@@ -207,7 +207,8 @@ export function convertGoogleDocToHTML(doc: any): string {
               styledText = `<u>${styledText}</u>`;
             }
             // Hyperlinks: Wrap in <a> tags with security attributes
-            if (textStyle.link?.url) {
+            // Only allow http/https URLs to prevent javascript: URI injection
+            if (textStyle.link?.url && /^https?:\/\//i.test(textStyle.link.url)) {
               // target="_blank" - opens in new tab
               // rel="noopener noreferrer" - security best practice for external links
               styledText = `<a href="${textStyle.link.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${styledText}</a>`;
