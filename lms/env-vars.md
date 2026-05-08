@@ -18,8 +18,8 @@
 | `CLERK_SECRET_KEY` | Server-side secret for Clerk API calls. Used to verify sessions, fetch user data, and manage users from API routes. Never exposed to the browser. |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Path Clerk redirects unauthenticated users to for sign-in. |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Path Clerk redirects new users to for registration. |
-| `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` | Where users land after a successful sign-in (`/student` = student dashboard). |
-| `NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL` | Where new users land after completing registration (`/student`). |
+| `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` | Where users land after a successful sign-in. Should be `/dashboard` so role-based routing sends admins → `/admin`, instructors → `/instructor`, students → `/student`. |
+| `NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL` | Where new users land after completing registration. Should be `/dashboard` for the same role-based routing. |
 
 ---
 
