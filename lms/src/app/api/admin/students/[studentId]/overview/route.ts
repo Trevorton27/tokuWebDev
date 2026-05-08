@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { clerkClient } from '@clerk/nextjs/server';
+import { getOrCreateUser } from '@/server/auth/userSyncService';
+import type { Role } from '@prisma/client';
 
 /**
  * GET /api/admin/students/[studentId]/overview
@@ -17,7 +20,7 @@ export async function GET(
     const { studentId } = await params;
 
     // Resolve Clerk ID → DB user
-    const dbUser = await prisma.user.findUnique({
+    let dbUser = await prisma.user.findUnique({
       where: { clerkId: studentId },
       select: {
         id: true,
@@ -28,6 +31,24 @@ export async function GET(
         roadmapDocumentId: true,
       },
     });
+
+    if (!dbUser) {
+      // User exists in Clerk but hasn't logged in yet — sync them into the DB now.
+      try {
+        const client = await clerkClient();
+        const clerkUser = await client.users.getUser(studentId);
+        const role = ((clerkUser.publicMetadata?.role as string) || 'STUDENT') as Role;
+        const email = clerkUser.emailAddresses[0]?.emailAddress || '';
+        const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null;
+        await getOrCreateUser({ clerkId: studentId, email, name, role, avatarUrl: clerkUser.imageUrl });
+        dbUser = await prisma.user.findUnique({
+          where: { clerkId: studentId },
+          select: { id: true, email: true, name: true, role: true, adminNotes: true, roadmapDocumentId: true },
+        });
+      } catch {
+        // Clerk user not found or sync failed
+      }
+    }
 
     if (!dbUser) {
       return NextResponse.json(
