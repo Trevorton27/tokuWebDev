@@ -690,28 +690,51 @@ export default function Home() {
               </div>
               <div className="flex-1">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                  About the Instructor
+                  {language === 'ja' ? '講師について' : 'About the Instructor'}
                 </h2>
-                <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
-                  <p>
-                    Hi, I&apos;m Trevor — a software professional and educator with experience working in international technical support, software development, and DevOps environments.
-                  </p>
-                  <p>
-                    Over the past few years, I&apos;ve worked with cloud-based platforms, APIs, and modern web technologies, helping both companies and individuals solve real technical problems. My work has involved everything from debugging production systems to building full-stack applications and supporting enterprise clients in both English and Japanese.
-                  </p>
-                  <p>
-                    What I&apos;ve learned through that experience is that the biggest gap for most learners isn&apos;t access to information — it&apos;s knowing what to focus on, how to practice effectively, and how to apply skills in real-world scenarios.
-                  </p>
-                  <p>
-                    That&apos;s exactly what this program is designed to help with.
-                  </p>
-                  <p>
-                    Rather than just teaching concepts, I focus on helping you build practical skills through guided projects, structured learning paths, and real coding challenges. The goal is not just to understand development, but to become confident using it in real situations.
-                  </p>
-                  <p>
-                    Whether you&apos;re starting from scratch or leveling up your existing skills, I&apos;m here to help you move forward with clarity and purpose.
-                  </p>
-                </div>
+                {language === 'ja' ? (
+                  <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <p>
+                      はじめまして、トレバーです。国際的な技術サポート、ソフトウェア開発、DevOps環境での実務経験を持つソフトウェアプロフェッショナル兼教育者です。
+                    </p>
+                    <p>
+                      この数年間、クラウドプラットフォーム、API、モダンなWeb技術を活用し、企業や個人の現実的な技術課題の解決に携わってきました。プロダクションシステムのデバッグから、フルスタックアプリケーションの開発、英語・日本語両方でのエンタープライズクライアントサポートまで、幅広い経験があります。
+                    </p>
+                    <p>
+                      その経験から学んだことは、多くの学習者にとっての最大の壁は「情報へのアクセス」ではなく、「何に集中すべきか」「どう実践するか」「スキルを実際の場面でどう活かすか」を知ることだということです。
+                    </p>
+                    <p>
+                      このプログラムは、まさにその部分を補うために設計されています。
+                    </p>
+                    <p>
+                      単に概念を教えるのではなく、ガイド付きプロジェクト、体系的な学習パス、実践的なコーディング課題を通じて、実用的なスキルを身につけることに重点を置いています。目標は開発を「理解する」だけでなく、実際の場面で自信を持って「使える」ようになることです。
+                    </p>
+                    <p>
+                      ゼロからのスタートでも、既存のスキルのレベルアップでも、明確な方向性と目的意識を持って前進できるよう、全力でサポートします。
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <p>
+                      Hi, I&apos;m Trevor — a software professional and educator with experience working in international technical support, software development, and DevOps environments.
+                    </p>
+                    <p>
+                      Over the past few years, I&apos;ve worked with cloud-based platforms, APIs, and modern web technologies, helping both companies and individuals solve real technical problems. My work has involved everything from debugging production systems to building full-stack applications and supporting enterprise clients in both English and Japanese.
+                    </p>
+                    <p>
+                      What I&apos;ve learned through that experience is that the biggest gap for most learners isn&apos;t access to information — it&apos;s knowing what to focus on, how to practice effectively, and how to apply skills in real-world scenarios.
+                    </p>
+                    <p>
+                      That&apos;s exactly what this program is designed to help with.
+                    </p>
+                    <p>
+                      Rather than just teaching concepts, I focus on helping you build practical skills through guided projects, structured learning paths, and real coding challenges. The goal is not just to understand development, but to become confident using it in real situations.
+                    </p>
+                    <p>
+                      Whether you&apos;re starting from scratch or leveling up your existing skills, I&apos;m here to help you move forward with clarity and purpose.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -772,7 +795,7 @@ export default function Home() {
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
-                    View on LinkedIn
+                    {language === 'ja' ? 'LinkedInで見る' : 'View on LinkedIn'}
                   </a>
                 </div>
               </div>
@@ -1428,6 +1451,190 @@ export default function Home() {
             </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* ============================================ */}
+      {/* 10.5. PAYMENT PLANS */}
+      {/* ============================================ */}
+      <section id="support" className="py-24 bg-white dark:bg-black">
+        <div className="container mx-auto px-4">
+
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-sm font-semibold mb-4">
+              {language === 'ja' ? '支払いオプション' : 'Payment Options'}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              {language === 'ja' ? '価格は障壁ではありません' : 'The price is not a barrier'}
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+              {language === 'ja'
+                ? '学ぶ意欲がある方を支援するために、柔軟な支払いオプションをご用意しています。'
+                : 'If you are motivated to learn, there is a path forward. Flexible payment options and financial support are available — just ask.'}
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-6 mb-10">
+
+            {/* Monthly payment plans */}
+            <div className="bg-gray-50 dark:bg-dark-surface rounded-2xl border border-gray-200 dark:border-dark-border p-7 flex flex-col gap-4">
+              <div className="w-11 h-11 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                  {language === 'ja' ? '月払いプラン' : 'Monthly payment plans'}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {language === 'ja'
+                    ? '一括払いが難しい場合は、月払いに分割できます。無理のないペースで始められます。'
+                    : "You don't have to pay everything up front. Split your tuition into monthly installments that fit your budget."}
+                </p>
+              </div>
+            </div>
+
+            {/* Scholarship / financial aid */}
+            <div className="bg-gray-50 dark:bg-dark-surface rounded-2xl border border-gray-200 dark:border-dark-border p-7 flex flex-col gap-4">
+              <div className="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                  {language === 'ja' ? '奨学金・経済的支援' : 'Scholarship & financial aid'}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {language === 'ja'
+                    ? '意欲があっても経済的に厳しい場合は、ご相談ください。状況に応じた支援を検討します。'
+                    : 'Motivated but financially stretched? Contact us — partial scholarships and reduced-rate spots are available for the right candidates.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom banner */}
+          <div className="max-w-3xl mx-auto bg-gradient-to-r from-green-600 to-teal-600 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-center md:text-left">
+              <p className="text-white font-bold text-lg mb-1">
+                {language === 'ja' ? '不安なことがあれば、まず話しましょう' : 'Not sure if you can afford it? Just ask.'}
+              </p>
+              <p className="text-green-100 text-sm">
+                {language === 'ja'
+                  ? '無料相談で状況をお聞きし、最適なプランをご提案します。'
+                  : 'A free consultation is the right first step. We will figure out a plan that works.'}
+              </p>
+            </div>
+            <a
+              href="#contact"
+              className="flex-shrink-0 px-6 py-3 bg-white text-green-700 hover:bg-green-50 rounded-xl font-semibold transition text-sm whitespace-nowrap"
+            >
+              {language === 'ja' ? '無料相談を予約する' : 'Book a Free Consultation'}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================ */}
+      {/* 10.6. WHAT'S INCLUDED — HIGH-VALUE EXTRAS */}
+      {/* ============================================ */}
+      <section id="extras" className="py-24 bg-gray-50 dark:bg-dark-surface">
+        <div className="container mx-auto px-4">
+
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-sm font-semibold mb-4">
+              {language === 'ja' ? 'コースに含まれるもの' : "What's Included"}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              {language === 'ja' ? 'コース以上のサポート' : 'Above and beyond support'}
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+              {language === 'ja'
+                ? '受講者全員が、学習を超えたレベルのサポートを受けられます。'
+                : 'Every student gets access to a level of support most bootcamps charge extra for — or simply do not offer.'}
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            {/* Personal tutoring */}
+            <div className="bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border p-6 flex flex-col gap-4">
+              <div className="w-11 h-11 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                  {language === 'ja' ? '個人チュータリング' : 'Personal tutoring sessions'}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {language === 'ja'
+                    ? '追加のサポートが必要な場合は、1対1のセッションを予約できます。どんな問題でも直接対話で解決します。'
+                    : 'Need extra one-on-one time? Additional tutoring sessions are available whenever you need them — no one gets left behind.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Technical support */}
+            <div className="bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border p-6 flex flex-col gap-4">
+              <div className="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                  {language === 'ja' ? 'デプロイ・外部連携サポート' : 'Deployment & integration support'}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {language === 'ja'
+                    ? 'Vercel、Stripe、Supabaseなどの外部サービスとの連携でつまずいても、直接サポートします。'
+                    : 'Stuck on Vercel, Stripe, Supabase, or any third-party tool? Direct technical help is included — you will not be debugging alone.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Professional reference */}
+            <div className="bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border p-6 flex flex-col gap-4">
+              <div className="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                  {language === 'ja' ? '推薦状・職業紹介' : 'Professional reference'}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {language === 'ja'
+                    ? '就職活動に際して、講師からの推薦状や職業紹介のサポートを提供します。'
+                    : 'Graduates can request a professional reference letter from the instructor for job applications or freelance work.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Post-graduation check-ins */}
+            <div className="bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border p-6 flex flex-col gap-4">
+              <div className="w-11 h-11 rounded-xl bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                  {language === 'ja' ? '卒業後のフォローアップ' : 'Post-graduation check-ins'}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {language === 'ja'
+                    ? 'コース修了後も定期的なフォローアップで、就職・転職・フリーランスへの移行をサポートします。'
+                    : "The relationship doesn't end at graduation. Optional check-ins keep you supported during your job search or first freelance projects."}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

@@ -55,6 +55,7 @@ model User {
   conversationsAsB    Conversation[]           @relation("ConversationsAsB")
   sentMessages        Message[]                @relation("SentMessages")
   notifications       Notification[]           @relation("UserNotifications")
+  assessmentRoadmaps  AssessmentRoadmap[]      @relation("UserAssessmentRoadmaps")
 
   @@index([email])
   @@index([clerkId])
@@ -240,6 +241,7 @@ model AssessmentSession {
   metadata    Json?
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   responses   AssessmentResponse[]
+  roadmap     AssessmentRoadmap?
 
   @@index([userId, sessionType])
   @@index([status])
@@ -689,4 +691,41 @@ model Notification {
 
   @@index([userId, read])
   @@index([userId, createdAt])
+}
+
+model AssessmentRoadmap {
+  id            String            @id @default(cuid())
+  userId        String
+  sessionId     String            @unique
+  generatedAt   DateTime          @default(now())
+  level         String
+  score         Int
+  summary       String
+  totalDuration String
+  firstStep     String
+  phases        Json
+  projects      Json
+  user          User              @relation("UserAssessmentRoadmaps", fields: [userId], references: [id], onDelete: Cascade)
+  session       AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  versions      AssessmentRoadmapVersion[]
+
+  @@index([userId])
+  @@index([generatedAt])
+}
+
+model AssessmentRoadmapVersion {
+  id            String            @id @default(cuid())
+  roadmapId     String
+  version       Int
+  editedAt      DateTime          @default(now())
+  editedBy      String
+  editNote      String?
+  summary       String
+  totalDuration String
+  firstStep     String
+  phases        Json
+  projects      Json
+  roadmap       AssessmentRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  @@index([roadmapId, version])
 }

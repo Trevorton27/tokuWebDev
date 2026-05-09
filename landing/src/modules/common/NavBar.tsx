@@ -43,6 +43,11 @@ export default function NavBar() {
           label: ja ? 'フルコース' : 'Full Course',
           desc: ja ? '5ヶ月 · ¥200,000 · AI活用ワークフロー' : '5 months · ¥200,000 · AI-powered workflow',
         },
+        {
+          href: '#support',
+          label: ja ? '支払いプラン' : 'Payment Plans',
+          desc: ja ? '月払い · 奨学金 · 柔軟なオプション' : 'Monthly · scholarships · flexible options',
+        },
       ],
     },
     {
