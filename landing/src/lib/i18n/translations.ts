@@ -92,8 +92,8 @@ export const translations = {
     'home.howStep1Desc': 'Begin with a face-to-face online session with an instructor. We get to know your background, goals, and current skill level — and you get to know us.',
     'home.howStep2Title': 'AI-Powered Self-Paced Evaluation',
     'home.howStep2Desc': 'Complete an adaptive AI evaluation at your own pace. The system identifies your strengths, gaps, and learning style with precision.',
-    'home.howStep3Title': 'Personalized Skills Profile & Roadmap',
-    'home.howStep3Desc': 'Receive a clear skills profile, a detailed gap analysis, and a personalized roadmap built specifically for your goals.',
+    'home.howStep3Title': 'Second live assessment to confirm course commitment, expectations and goals',
+    'home.howStep3Desc': 'A live one-on-one session to confirm your commitment, align on expectations, and define the goals that will shape your course experience.',
     'home.howStep4Title': 'Begin Your Structured Course',
     'home.howStep4Desc': 'Start learning with instructor-led sessions, AI-assisted practice, and real-world projects — all aligned to your roadmap.',
 
@@ -1161,8 +1161,8 @@ export const translations = {
     'home.howStep1Desc': '講師との対面式オンラインセッションからスタート。あなたの背景・目標・現在のスキルを丁寧にヒアリングし、私たちのことも知っていただきます。',
     'home.howStep2Title': 'AIによる自己ペース評価',
     'home.howStep2Desc': '自分のペースでAI評価を受けます。あなたの強み、課題、学習スタイルを高精度で分析します。',
-    'home.howStep3Title': 'スキルプロファイルとロードマップの提供',
-    'home.howStep3Desc': '明確なスキルプロファイル、詳細なギャップ分析、そしてあなたの目標に最適化されたロードマップをお渡しします。',
+    'home.howStep3Title': 'コミットメント・期待・目標を確認する第2回ライブ面談',
+    'home.howStep3Desc': '1対1のライブセッションで、受講へのコミットメントを確認し、期待値を揃え、コース体験を形成する目標を定めます。',
     'home.howStep4Title': '構造化されたコースの開始',
     'home.howStep4Desc': '講師によるセッション、AIサポート付きの練習、実践プロジェクトを通じて、ロードマップに沿った学習を開始します。',
 

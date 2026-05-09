@@ -189,10 +189,10 @@ export default function Home() {
       {/* ============================================ */}
       {/* 1. HERO SECTION */}
       {/* ============================================ */}
-      <section id="home" className="relative bg-black text-white py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+      <section id="home" className="relative bg-indigo-500 dark:bg-black text-white py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 opacity-10 dark:opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="container mx-auto px-4 text-center relative z-10">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium mb-6">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 dark:bg-white/10 backdrop-blur-sm border border-white/30 dark:border-white/20 text-sm font-medium mb-6">
             {t('home.heroBadge')}
           </span>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 max-w-4xl mx-auto leading-tight">
@@ -213,12 +213,12 @@ export default function Home() {
             </a>
             <a
               href="#curriculum"
-              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-bold hover:bg-white/10 transition"
+              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-bold hover:bg-white/20 dark:hover:bg-white/10 transition"
             >
               {t('home.heroCtaSecondary')}
             </a>
           </div>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm text-indigo-200">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 dark:bg-white/10 border border-white/30 dark:border-white/20 text-sm text-indigo-100 dark:text-indigo-200">
             <span className="font-semibold text-white">¥200,000</span>
             <span className="text-white/40">·</span>
             <span>5 months</span>
