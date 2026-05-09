@@ -434,22 +434,22 @@ export default function Home() {
 
           {/* Why It Matters */}
           <div className="max-w-4xl mx-auto mb-20">
-            <div className="bg-gray-900 dark:bg-dark-card rounded-2xl p-8 md:p-10 text-white">
-              <h3 className="text-2xl font-bold mb-4">Why It Matters</h3>
-              <p className="text-gray-300 mb-6">Software development is evolving. AI is becoming a standard tool in every developer's workflow, much like:</p>
+            <div className="bg-gray-100 dark:bg-dark-card rounded-2xl p-8 md:p-10">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Why It Matters</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">Software development is evolving. AI is becoming a standard tool in every developer's workflow, much like:</p>
               <div className="flex flex-wrap gap-3 mb-6">
                 {['Version Control (Git)', 'Frameworks (React, Next.js)', 'Cloud Platforms (AWS, Vercel)'].map((tool) => (
-                  <span key={tool} className="px-4 py-2 bg-white/10 rounded-full text-sm font-medium">{tool}</span>
+                  <span key={tool} className="px-4 py-2 bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-200 rounded-full text-sm font-medium">{tool}</span>
                 ))}
               </div>
-              <p className="text-gray-300 mb-3">Developers who know how to use AI effectively will:</p>
+              <p className="text-gray-600 dark:text-gray-300 mb-3">Developers who know how to use AI effectively will:</p>
               <div className="grid sm:grid-cols-3 gap-4">
                 {['Learn faster', 'Build faster', 'Solve more complex problems'].map((point) => (
-                  <div key={point} className="flex items-center gap-2 bg-white/5 rounded-lg px-4 py-3">
-                    <svg className="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div key={point} className="flex items-center gap-2 bg-gray-200 dark:bg-white/5 rounded-lg px-4 py-3">
+                    <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="text-sm font-medium">{point}</span>
+                    <span className="text-sm font-medium text-gray-800 dark:text-white">{point}</span>
                   </div>
                 ))}
               </div>
@@ -923,13 +923,13 @@ export default function Home() {
           </div>
 
           {/* Overview Card */}
-          <div className="max-w-5xl mx-auto mb-16 bg-gray-900 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl">
+          <div className="max-w-5xl mx-auto mb-16 bg-gray-100 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl">
             <div className="grid md:grid-cols-5">
               <div className="md:col-span-3 p-8 md:p-10">
-                <p className="text-gray-300 leading-relaxed text-base mb-6">
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-base mb-6">
                   {t('home.foundDesc' as any)}
                 </p>
-                <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-green-300 font-medium mb-8">
+                <div className="bg-green-50 dark:bg-white/5 border border-green-200 dark:border-white/10 rounded-lg px-4 py-3 text-sm text-green-700 dark:text-green-300 font-medium mb-8">
                   {t('home.foundUpgradeNote' as any)}
                 </div>
                 <a
@@ -1106,50 +1106,50 @@ export default function Home() {
       {/* ============================================ */}
       {/* 10.4. COURSE COMPARISON BRIDGE */}
       {/* ============================================ */}
-      <div className="bg-gray-900 py-14">
+      <div className="bg-gray-100 dark:bg-gray-900 py-14">
         <div className="container mx-auto px-4">
-          <p className="text-center text-xs font-semibold text-gray-500 uppercase tracking-widest mb-8">
+          <p className="text-center text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-widest mb-8">
             {language === 'ja' ? '2つのコースを比較する' : 'Which course is right for you?'}
           </p>
           <div className="max-w-3xl mx-auto grid md:grid-cols-2 gap-4">
-            <a href="#foundations" className="group flex flex-col gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-green-500/50 rounded-xl p-6 transition">
+            <a href="#foundations" className="group flex flex-col gap-3 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-green-500/50 rounded-xl p-6 transition">
               <div className="flex items-center gap-3">
                 <span className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">1</span>
-                <span className="font-bold text-white text-base">
+                <span className="font-bold text-gray-900 dark:text-white text-base">
                   {language === 'ja' ? 'ファウンデーションズコース' : 'Foundations Course'}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 {language === 'ja'
                   ? 'AIなしで、コードの一行一行を自分の手で書く。本物の基礎力を身につけるための3ヶ月。'
                   : 'You write every line yourself — no AI generating code for you. Build genuine fundamentals in 3 months.'}
               </p>
               <div className="flex flex-wrap gap-2 mt-auto">
-                <span className="text-xs bg-green-900/40 text-green-300 px-2.5 py-1 rounded-full">3 {language === 'ja' ? 'ヶ月' : 'months'}</span>
-                <span className="text-xs bg-green-900/40 text-green-300 px-2.5 py-1 rounded-full">¥150,000</span>
-                <span className="text-xs bg-white/10 text-gray-300 px-2.5 py-1 rounded-full">{language === 'ja' ? 'コードファースト' : 'Code-first'}</span>
+                <span className="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2.5 py-1 rounded-full">3 {language === 'ja' ? 'ヶ月' : 'months'}</span>
+                <span className="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2.5 py-1 rounded-full">¥150,000</span>
+                <span className="text-xs bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-full">{language === 'ja' ? 'コードファースト' : 'Code-first'}</span>
               </div>
             </a>
-            <a href="#course" className="group flex flex-col gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/50 rounded-xl p-6 transition">
+            <a href="#course" className="group flex flex-col gap-3 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-indigo-500/50 rounded-xl p-6 transition">
               <div className="flex items-center gap-3">
                 <span className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">2</span>
-                <span className="font-bold text-white text-base">
+                <span className="font-bold text-gray-900 dark:text-white text-base">
                   {language === 'ja' ? 'フルコース' : 'Full Course'}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 {language === 'ja'
                   ? 'AIを日常の開発パートナーとして使いながら、フルスタックアプリを構築する5ヶ月。'
                   : 'Build full-stack apps with AI as your daily development partner from day one. 5 months.'}
               </p>
               <div className="flex flex-wrap gap-2 mt-auto">
-                <span className="text-xs bg-indigo-900/40 text-indigo-300 px-2.5 py-1 rounded-full">5 {language === 'ja' ? 'ヶ月' : 'months'}</span>
-                <span className="text-xs bg-indigo-900/40 text-indigo-300 px-2.5 py-1 rounded-full">¥200,000</span>
-                <span className="text-xs bg-white/10 text-gray-300 px-2.5 py-1 rounded-full">{language === 'ja' ? 'AI活用' : 'AI-powered'}</span>
+                <span className="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-full">5 {language === 'ja' ? 'ヶ月' : 'months'}</span>
+                <span className="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-full">¥200,000</span>
+                <span className="text-xs bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-full">{language === 'ja' ? 'AI活用' : 'AI-powered'}</span>
               </div>
             </a>
           </div>
-          <p className="text-center text-xs text-gray-600 mt-6">
+          <p className="text-center text-xs text-gray-500 dark:text-gray-600 mt-6">
             {language === 'ja'
               ? 'ファウンデーションズコース修了者はフルコースを50%オフで受講できます。'
               : 'Foundations Course graduates receive 50% off the Full Course.'}
@@ -1177,11 +1177,11 @@ export default function Home() {
           </div>
 
           {/* Overview Card */}
-          <div className="max-w-5xl mx-auto mb-16 bg-gray-900 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl">
+          <div className="max-w-5xl mx-auto mb-16 bg-gray-100 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl">
             <div className="grid md:grid-cols-5">
               {/* Description */}
               <div className="md:col-span-3 p-8 md:p-10">
-                <p className="text-gray-300 leading-relaxed text-base mb-8">
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-base mb-8">
                   {t('home.courseDesc')}
                 </p>
                 <a
@@ -1324,7 +1324,7 @@ export default function Home() {
 
           {/* Capstone Spotlight */}
           <div className="max-w-5xl mx-auto mb-16">
-            <div className="bg-gray-900 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl border border-indigo-500/30">
+            <div className="bg-gray-100 dark:bg-dark-card rounded-2xl overflow-hidden shadow-2xl border border-indigo-200 dark:border-indigo-500/30">
               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-5 flex items-center gap-3">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold text-white">5</span>
                 <div>
@@ -1333,18 +1333,18 @@ export default function Home() {
                 </div>
                 <span className="ml-auto text-xs font-semibold bg-white/20 text-white px-2.5 py-0.5 rounded-full">Capstone</span>
               </div>
-              <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-white/10">
+              <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-white/10">
                 <div className="p-8">
-                  <p className="text-indigo-300 text-sm font-semibold uppercase tracking-wider mb-2">{t('home.courseCapstoneSubtitle' as any)}</p>
-                  <p className="text-gray-300 leading-relaxed mb-6">{t('home.courseCapstoneDesc' as any)}</p>
+                  <p className="text-indigo-600 dark:text-indigo-300 text-sm font-semibold uppercase tracking-wider mb-2">{t('home.courseCapstoneSubtitle' as any)}</p>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">{t('home.courseCapstoneDesc' as any)}</p>
                   <ul className="space-y-3">
                     {([
                       t('home.courseCapstoneWhy1' as any),
                       t('home.courseCapstoneWhy2' as any),
                       t('home.courseCapstoneWhy3' as any),
                     ] as string[]).map((item, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
-                        <svg className="w-4 h-4 text-indigo-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <li key={i} className="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-300">
+                        <svg className="w-4 h-4 text-indigo-500 dark:text-indigo-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         {item}
@@ -1353,7 +1353,7 @@ export default function Home() {
                   </ul>
                 </div>
                 <div className="p-8">
-                  <p className="text-indigo-300 text-sm font-semibold uppercase tracking-wider mb-4">{t('home.courseCapstoneIdeasLabel' as any)}</p>
+                  <p className="text-indigo-600 dark:text-indigo-300 text-sm font-semibold uppercase tracking-wider mb-4">{t('home.courseCapstoneIdeasLabel' as any)}</p>
                   <div className="space-y-3">
                     {([
                       t('home.courseCapstoneIdea1' as any),
@@ -1361,8 +1361,8 @@ export default function Home() {
                       t('home.courseCapstoneIdea3' as any),
                       t('home.courseCapstoneIdea4' as any),
                     ] as string[]).map((idea, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3 text-sm text-gray-300">
-                        <span className="w-6 h-6 rounded-full bg-indigo-600/50 flex items-center justify-center text-xs font-bold text-indigo-300 flex-shrink-0">{i + 1}</span>
+                      <div key={i} className="flex items-center gap-3 bg-gray-200 dark:bg-white/5 rounded-lg px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                        <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-600/50 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300 flex-shrink-0">{i + 1}</span>
                         {idea}
                       </div>
                     ))}
