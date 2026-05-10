@@ -94,6 +94,17 @@ export default function NavBar() {
               Signal Works Design
             </Link>
 
+            <div className="hidden md:flex items-center">
+              <Link
+                href="/services"
+                className={`px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 dark:hover:bg-dark-hover transition ${
+                  pathname === '/services' ? 'bg-indigo-700 dark:bg-dark-hover' : ''
+                }`}
+              >
+                {ja ? 'サービス' : 'Services'}
+              </Link>
+            </div>
+
             {isHomePage && (
               <div className="hidden md:flex items-center">
                 {GROUPS.map((group) => (
@@ -186,6 +197,13 @@ export default function NavBar() {
       {isHomePage && menuOpen && (
         <div className="md:hidden bg-indigo-700 dark:bg-dark-card border-t border-indigo-500 dark:border-dark-border">
           <div className="container mx-auto px-4 py-3 flex flex-col space-y-1">
+            <Link
+              href="/services"
+              onClick={() => setMenuOpen(false)}
+              className="block px-3 py-2.5 rounded-md hover:bg-indigo-600 dark:hover:bg-dark-hover transition text-sm font-medium"
+            >
+              {ja ? 'サービス' : 'Services'}
+            </Link>
             {GROUPS.map((group) => (
               <div key={group.key}>
                 <p className="px-3 pt-3 pb-1 text-xs font-semibold text-indigo-300 dark:text-gray-500 uppercase tracking-wider">
