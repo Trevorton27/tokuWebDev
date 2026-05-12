@@ -7,10 +7,10 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface RoadmapDocument {
   success: boolean;
-  title?: string;
-  content?: string;
-  documentId?: string;
-  lastModified?: string;
+  title: string;
+  content: string;
+  documentId: string;
+  lastModified: string;
 }
 
 export default function RoadmapPage() {
@@ -31,18 +31,12 @@ export default function RoadmapPage() {
 
       if (response.data.success) {
         setRoadmap(response.data);
-      } else if (response.data.documentId) {
-        // Service account unavailable but we have the doc ID — use iframe fallback
-        setRoadmap({ success: false, documentId: response.data.documentId });
       } else {
         setError(response.data.error || 'Failed to load roadmap');
       }
     } catch (err: any) {
-      const data = err.response?.data;
       if (err.response?.status === 404) {
         setError(t('student.noRoadmapAssigned'));
-      } else if (data?.documentId) {
-        setRoadmap({ success: false, documentId: data.documentId });
       } else {
         setError(t('student.failedToLoadCurriculum'));
       }
@@ -123,21 +117,13 @@ export default function RoadmapPage() {
       {/* Roadmap Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-200 dark:border-dark-border overflow-hidden">
-          {roadmap?.content ? (
-            <div className="p-8">
-              <div
-                className="prose prose-lg dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: roadmap.content }}
-              />
-            </div>
-          ) : roadmap?.documentId ? (
-            <iframe
-              src={`https://docs.google.com/document/d/${roadmap.documentId}/preview`}
-              className="w-full"
-              style={{ height: '80vh', border: 'none' }}
-              title="Student Roadmap"
+          <div className="p-8">
+            {/* Render the Google Docs HTML content */}
+            <div
+              className="prose prose-lg dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: roadmap?.content || '' }}
             />
-          ) : null}
+          </div>
         </div>
 
         {/* Footer Info */}

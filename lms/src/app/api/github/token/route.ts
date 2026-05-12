@@ -55,21 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
     const body = await request.json().catch(() => ({}));
-    const { regenerate, token: providedToken, manualInput } = body;
-
-    // If the user is providing their own webhook secret (set on GitHub), store it directly.
-    if (manualInput && providedToken && typeof providedToken === 'string') {
-      const encryptedToken = encrypt(providedToken);
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { githubWebhookToken: encryptedToken },
-      });
-      logger.info('GitHub webhook secret saved (manual input)', { userId: user.id });
-      return NextResponse.json({
-        success: true,
-        message: 'Webhook secret saved successfully',
-      });
-    }
+    const { regenerate } = body;
 
     // Check if token already exists
     const existingUser = await prisma.user.findUnique({

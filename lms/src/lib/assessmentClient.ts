@@ -1,9 +1,5 @@
 /**
  * Client-side wrappers for Assessment API endpoints
- *
- * In the separated architecture, this client calls the external Assessment app.
- * - Browser-side calls use NEXT_PUBLIC_ASSESSMENT_URL (public env var)
- * - Server-side internal calls use ASSESSMENT_API_URL + INTERNAL_API_SECRET
  */
 
 import axios from 'axios';
@@ -17,38 +13,12 @@ import type {
   ChatMessage,
 } from './types';
 
-// Browser-side client: proxies through the local Next.js API or uses public assessment URL
-const assessmentApiUrl =
-  typeof window !== 'undefined'
-    ? (process.env.NEXT_PUBLIC_ASSESSMENT_URL || '')
-    : (process.env.ASSESSMENT_API_URL || '');
-
-const internalSecret = process.env.INTERNAL_API_SECRET || '';
-
 const api = axios.create({
-  baseURL: `${assessmentApiUrl}/api/assessment`,
+  baseURL: '/api/assessment',
   headers: {
     'Content-Type': 'application/json',
   },
 });
-
-// ============================================
-// INTERNAL SERVER-SIDE CALLS (with auth header)
-// ============================================
-
-export async function getAssessmentResults(userId: string) {
-  const res = await axios.get(`${process.env.ASSESSMENT_API_URL}/api/internal/results/${userId}`, {
-    headers: { Authorization: `Bearer ${internalSecret}` },
-  });
-  return res.data;
-}
-
-export async function getAssessmentSessions(userId: string) {
-  const res = await axios.get(`${process.env.ASSESSMENT_API_URL}/api/internal/sessions/${userId}`, {
-    headers: { Authorization: `Bearer ${internalSecret}` },
-  });
-  return res.data;
-}
 
 // ============================================
 // CHALLENGES
@@ -134,6 +104,4 @@ export default {
   runCode,
   submitChallenge,
   chatWithTutor,
-  getAssessmentResults,
-  getAssessmentSessions,
 };

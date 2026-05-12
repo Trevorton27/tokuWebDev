@@ -1,27 +1,44 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
+// Define protected routes
 const isProtectedRoute = createRouteMatcher([
-  '/student(.*)',
-  '/instructor(.*)',
   '/admin(.*)',
-  '/dashboard(.*)',
-  '/roadmap(.*)',
+  '/instructor(.*)',
+  '/student(.*)',
+  '/courses(.*)',
+  '/assessment(.*)',
+  '/test-endpoints(.*)',
 ]);
 
 const isPublicRoute = createRouteMatcher([
+  '/',
+  '/login(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/api/internal(.*)',
-  '/api/webhooks(.*)',
-  '/api/cron(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req) && isProtectedRoute(req)) {
-    await auth.protect();
+  const { userId } = await auth();
+
+  // If the route is protected and user is not authenticated, redirect to sign-in
+  if (isProtectedRoute(req) && !userId) {
+    const signInUrl = new URL('/sign-in', req.url);
+    signInUrl.searchParams.set('redirect_url', req.url);
+    return NextResponse.redirect(signInUrl);
   }
+
+  // Role-based authorization is handled at the page level using getCurrentUser()
+  // which gets the role from the database (source of truth)
+
+  return NextResponse.next();
 });
 
 export const config = {
-  matcher: ['/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)', '/(api|trpc)(.*)'],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 };

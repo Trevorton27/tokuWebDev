@@ -1,64 +1,72 @@
 /**
  * API Route: Fetch Student Roadmap from Google Docs
  * GET /api/roadmap/document
- * Returns the roadmap document content in HTML format, or a documentId
- * for iframe fallback when the Google service account is unavailable.
+ * Returns the roadmap document content in HTML format
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { getGoogleDoc, convertGoogleDocToHTML } from '@/lib/googleDocs';
 import { getCurrentUser } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
-export async function GET(_request: NextRequest) {
-  let documentId: string | null = null;
-
+export async function GET(request: NextRequest) {
   try {
+    // Authenticate and get current user
     const currentUser = await getCurrentUser();
 
     if (!currentUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
+    // Get user from database with roadmapDocumentId
     const user = await prisma.user.findUnique({
       where: { id: currentUser.id },
       select: { roadmapDocumentId: true },
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    if (!user.roadmapDocumentId) {
       return NextResponse.json(
-        { error: 'No roadmap document assigned' },
+        { error: 'User not found' },
         { status: 404 }
       );
     }
 
-    documentId = user.roadmapDocumentId;
-
-    // If Google service account credentials are missing, return the documentId
-    // so the client can fall back to an iframe embed.
-    if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-      return NextResponse.json({ success: false, documentId });
+    // Check if student has a roadmap document assigned
+    if (!user.roadmapDocumentId) {
+      return NextResponse.json(
+        {
+          error: 'No roadmap document assigned',
+          message: 'Please contact your instructor to have a roadmap document assigned to your account.'
+        },
+        { status: 404 }
+      );
     }
 
-    const doc = await getGoogleDoc(documentId);
+    // Fetch the Google Doc
+    const doc = await getGoogleDoc(user.roadmapDocumentId);
+
+    // Convert to HTML
     const html = convertGoogleDocToHTML(doc);
 
     return NextResponse.json({
       success: true,
       title: doc.title || 'Student Roadmap',
       content: html,
-      documentId,
+      documentId: user.roadmapDocumentId,
       lastModified: doc.revisionId,
     });
   } catch (error: any) {
     console.error('Error fetching roadmap document:', error);
 
     return NextResponse.json(
-      { success: false, documentId, error: 'Failed to fetch roadmap document' },
+      {
+        error: 'Failed to fetch roadmap document',
+        details: error.message,
+      },
       { status: 500 }
     );
   }
