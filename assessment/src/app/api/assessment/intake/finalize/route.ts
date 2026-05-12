@@ -175,7 +175,7 @@ export async function POST() {
     let roadmapPdf: Buffer | undefined;
     if (roadmap) {
       try {
-        roadmapPdf = await generateRoadmapPdf(dbUser.name || 'Student', roadmap);
+        roadmapPdf = await generateRoadmapPdf(dbUser.name || 'Student', roadmap, overallPct);
         logger.info('finalize: roadmap PDF generated', { userId: user.id, bytes: roadmapPdf.length });
       } catch (pdfErr) {
         logger.error('finalize: failed to generate roadmap PDF', pdfErr, { userId: user.id });

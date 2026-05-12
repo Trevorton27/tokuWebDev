@@ -1,3 +1,4 @@
+import type React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -5,6 +6,18 @@ import type { RoadmapPhase, RoadmapProject, RoadmapResource } from '@/server/ass
 import DeleteRoadmapButton from './DeleteRoadmapButton';
 import EditRoadmapPanel from './EditRoadmapPanel';
 import VersionHistory from './VersionHistory';
+
+function SetupSection({ heading, subheading, children }: { heading: string; subheading?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+        {heading}
+        {subheading && <span className="normal-case font-normal ml-1">{subheading}</span>}
+      </div>
+      <ul className="space-y-1.5">{children}</ul>
+    </div>
+  );
+}
 
 function normalizeResource(r: RoadmapResource | string): { title: string; url: string | null } {
   if (typeof r === 'string') return { title: r, url: null };
@@ -107,11 +120,97 @@ export default async function RoadmapDetailPage({ params }: { params: { id: stri
         <p className="text-gray-800 leading-relaxed">{roadmap.summary}</p>
       </div>
 
-      {/* First Step */}
-      <div className="bg-indigo-600 rounded-xl p-5 mb-8">
-        <div className="text-xs font-bold text-indigo-200 uppercase tracking-wide mb-1">First Step</div>
-        <p className="text-white font-medium">{roadmap.firstStep}</p>
-      </div>
+      {/* First Step / Setup Steps */}
+      {roadmap.score < 50 ? (
+        <div className="bg-white rounded-xl border border-indigo-200 mb-8 overflow-hidden">
+          <div className="bg-indigo-600 px-5 py-3">
+            <div className="text-xs font-bold text-indigo-200 uppercase tracking-wide">Setup Steps</div>
+          </div>
+          <div className="p-5 space-y-5">
+            <SetupSection heading="1. Create Accounts">
+              {[
+                { name: 'GitHub', detail: 'github.com', note: 'Free hosting for all your code — required for every project' },
+                { name: 'Vercel', detail: 'vercel.com', note: 'Deploy your projects live instantly (sign up with GitHub)' },
+                { name: 'Claude.ai', detail: 'claude.ai', note: 'AI assistant for coding help and explanations' },
+                { name: 'Figma', detail: 'figma.com', note: 'Design and wireframe your app UI' },
+              ].map(({ name, detail, note }) => (
+                <li key={name} className="flex gap-2 text-sm">
+                  <span className="text-indigo-400 shrink-0">•</span>
+                  <span>
+                    <span className="font-semibold text-indigo-600">{name}</span>
+                    <span className="text-gray-400 text-xs ml-1">{detail}</span>
+                    <span className="text-gray-500 text-xs"> — {note}</span>
+                  </span>
+                </li>
+              ))}
+            </SetupSection>
+
+            <SetupSection heading="2. Install Software">
+              {[
+                { name: 'Git', detail: 'git-scm.com', note: 'Version control — install this first before anything else' },
+                { name: 'Node.js (LTS)', detail: 'nodejs.org', note: 'JavaScript runtime required for all web projects' },
+                { name: 'VS Code', detail: 'code.visualstudio.com', note: 'Code editor used by most professional developers' },
+              ].map(({ name, detail, note }) => (
+                <li key={name} className="flex gap-2 text-sm">
+                  <span className="text-indigo-400 shrink-0">•</span>
+                  <span>
+                    <span className="font-semibold text-indigo-600">{name}</span>
+                    <span className="text-gray-400 text-xs ml-1">{detail}</span>
+                    <span className="text-gray-500 text-xs"> — {note}</span>
+                  </span>
+                </li>
+              ))}
+            </SetupSection>
+
+            <SetupSection heading="3. Install VS Code Extensions">
+              {[
+                { name: 'Prettier - Code Formatter', note: 'Auto-formats your code on save' },
+                { name: 'ESLint', note: 'Catches errors and enforces code style' },
+                { name: 'GitLens', note: 'See git history and blame inside your editor' },
+                { name: 'Error Lens', note: 'Highlights errors inline as you type' },
+                { name: 'GitHub Copilot', note: 'AI code completion — free for students' },
+              ].map(({ name, note }) => (
+                <li key={name} className="flex gap-2 text-sm">
+                  <span className="text-indigo-400 shrink-0">•</span>
+                  <span>
+                    <span className="font-semibold text-gray-800">{name}</span>
+                    <span className="text-gray-500 text-xs"> — {note}</span>
+                  </span>
+                </li>
+              ))}
+            </SetupSection>
+
+            <SetupSection heading="4. Install CLI Tools" subheading="(in terminal, after Node.js)">
+              {[
+                { cmd: 'npm install -g @anthropic-ai/claude-code', note: 'Claude Code — AI coding assistant in your terminal' },
+                { cmd: 'npm install -g vercel', note: 'Vercel CLI — deploy to production from the command line' },
+              ].map(({ cmd, note }) => (
+                <li key={cmd} className="text-sm">
+                  <code className="bg-gray-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-mono">$ {cmd}</code>
+                  <span className="text-gray-500 text-xs ml-2">— {note}</span>
+                </li>
+              ))}
+            </SetupSection>
+
+            <SetupSection heading="5. Configure Git" subheading="(in terminal)">
+              {[
+                { cmd: 'git config --global user.name "Your Name"', note: 'Sets your identity for all commits' },
+                { cmd: 'git config --global user.email "you@email.com"', note: 'Must match your GitHub email' },
+              ].map(({ cmd, note }) => (
+                <li key={cmd} className="text-sm">
+                  <code className="bg-gray-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-mono">$ {cmd}</code>
+                  <span className="text-gray-500 text-xs ml-2">— {note}</span>
+                </li>
+              ))}
+            </SetupSection>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-indigo-600 rounded-xl p-5 mb-8">
+          <div className="text-xs font-bold text-indigo-200 uppercase tracking-wide mb-1">First Step</div>
+          <p className="text-white font-medium">{roadmap.firstStep}</p>
+        </div>
+      )}
 
       {/* Phases */}
       <h2 className="text-lg font-bold text-gray-900 mb-4">Learning Phases</h2>

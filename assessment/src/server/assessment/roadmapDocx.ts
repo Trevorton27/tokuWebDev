@@ -47,9 +47,41 @@ function bullet(text: string): Paragraph {
   });
 }
 
+const SETUP_ACCOUNTS = [
+  { name: 'GitHub', url: 'github.com', note: 'Free hosting for all your code — required for every project' },
+  { name: 'Vercel', url: 'vercel.com', note: 'Deploy your projects live instantly (sign up with GitHub)' },
+  { name: 'Claude.ai', url: 'claude.ai', note: 'AI assistant for coding help and explanations' },
+  { name: 'Figma', url: 'figma.com', note: 'Design and wireframe your app UI' },
+];
+
+const SETUP_SOFTWARE = [
+  { name: 'Git', url: 'git-scm.com', note: 'Version control — install this first before anything else' },
+  { name: 'Node.js (LTS)', url: 'nodejs.org', note: 'JavaScript runtime required for all web projects' },
+  { name: 'VS Code', url: 'code.visualstudio.com', note: 'Code editor used by most professional developers' },
+];
+
+const SETUP_EXTENSIONS = [
+  { name: 'Prettier - Code Formatter', note: 'Auto-formats your code on save' },
+  { name: 'ESLint', note: 'Catches errors and enforces code style' },
+  { name: 'GitLens', note: 'See git history and blame inside your editor' },
+  { name: 'Error Lens', note: 'Highlights errors inline as you type' },
+  { name: 'GitHub Copilot', note: 'AI code completion — free for students' },
+];
+
+const SETUP_CLI = [
+  { cmd: 'npm install -g @anthropic-ai/claude-code', note: 'Claude Code — AI coding assistant in your terminal' },
+  { cmd: 'npm install -g vercel', note: 'Vercel CLI — deploy to production from the command line' },
+];
+
+const SETUP_GIT_CONFIG = [
+  { cmd: 'git config --global user.name "Your Name"', note: 'Sets your identity for all commits' },
+  { cmd: 'git config --global user.email "you@email.com"', note: 'Must match your GitHub email' },
+];
+
 export async function generateRoadmapDocx(
   studentName: string,
-  roadmap: GeneratedRoadmap
+  roadmap: GeneratedRoadmap,
+  score = 100
 ): Promise<Buffer> {
   const children: Paragraph[] = [];
 
@@ -92,23 +124,133 @@ export async function generateRoadmapDocx(
     body(roadmap.summary)
   );
 
-  // ── First Step ───────────────────────────────────────────
-  children.push(
-    new Paragraph({
-      children: [
-        new TextRun({ text: 'YOUR FIRST STEP', bold: true, size: 20, color: 'FFFFFF' }),
-      ],
-      shading: { type: ShadingType.SOLID, color: '4F46E5' },
-      spacing: { before: 200, after: 0 },
-      indent: { left: convertInchesToTwip(0.1) },
-    }),
-    new Paragraph({
-      children: [new TextRun({ text: roadmap.firstStep, size: 20, color: 'E0E7FF' })],
-      shading: { type: ShadingType.SOLID, color: '4F46E5' },
-      spacing: { after: 240 },
-      indent: { left: convertInchesToTwip(0.1) },
-    })
-  );
+  if (score < 50) {
+    // ── Setup Steps (beginners) ─────────────────────────────
+    children.push(
+      new Paragraph({
+        children: [new TextRun({ text: 'Your Setup Steps', bold: true, size: 28 })],
+        heading: HeadingLevel.HEADING_1,
+        spacing: { before: 240, after: 120 },
+      })
+    );
+
+    children.push(label('1. CREATE ACCOUNTS'));
+    for (const { name, url, note } of SETUP_ACCOUNTS) {
+      children.push(new Paragraph({
+        children: [
+          new TextRun({ text: `${name}  `, bold: true, size: 20, color: '4F46E5' }),
+          new TextRun({ text: `${url}  —  ${note}`, size: 18, color: '6B7280' }),
+        ],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      }));
+    }
+
+    children.push(label('2. INSTALL SOFTWARE'));
+    for (const { name, url, note } of SETUP_SOFTWARE) {
+      children.push(new Paragraph({
+        children: [
+          new TextRun({ text: `${name}  `, bold: true, size: 20, color: '4F46E5' }),
+          new TextRun({ text: `${url}  —  ${note}`, size: 18, color: '6B7280' }),
+        ],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      }));
+    }
+
+    children.push(label('3. INSTALL VS CODE EXTENSIONS'));
+    for (const { name, note } of SETUP_EXTENSIONS) {
+      children.push(new Paragraph({
+        children: [
+          new TextRun({ text: `${name}  `, bold: true, size: 20, color: '111827' }),
+          new TextRun({ text: `— ${note}`, size: 18, color: '6B7280' }),
+        ],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      }));
+    }
+
+    children.push(label('4. INSTALL CLI TOOLS  (run in terminal after Node.js is installed)'));
+    for (const { cmd, note } of SETUP_CLI) {
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: `$ ${cmd}`, size: 18, color: '4F46E5', font: 'Courier New' })],
+          spacing: { after: 20 },
+          indent: { left: convertInchesToTwip(0.15) },
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: `   ${note}`, size: 16, color: '6B7280' })],
+          spacing: { after: 60 },
+          indent: { left: convertInchesToTwip(0.15) },
+        })
+      );
+    }
+
+    children.push(label('5. CONFIGURE GIT  (run in terminal)'));
+    for (const { cmd, note } of SETUP_GIT_CONFIG) {
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: `$ ${cmd}`, size: 18, color: '4F46E5', font: 'Courier New' })],
+          spacing: { after: 20 },
+          indent: { left: convertInchesToTwip(0.15) },
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: `   ${note}`, size: 16, color: '6B7280' })],
+          spacing: { after: 60 },
+          indent: { left: convertInchesToTwip(0.15) },
+        })
+      );
+    }
+  } else {
+    // ── First Step ─────────────────────────────────────────
+    children.push(
+      new Paragraph({
+        children: [new TextRun({ text: 'YOUR FIRST STEP', bold: true, size: 20, color: 'FFFFFF' })],
+        shading: { type: ShadingType.SOLID, color: '4F46E5' },
+        spacing: { before: 200, after: 0 },
+        indent: { left: convertInchesToTwip(0.1) },
+      }),
+      new Paragraph({
+        children: [new TextRun({ text: roadmap.firstStep, size: 20, color: 'E0E7FF' })],
+        shading: { type: ShadingType.SOLID, color: '4F46E5' },
+        spacing: { after: 240 },
+        indent: { left: convertInchesToTwip(0.1) },
+      })
+    );
+
+    // ── Quick Setup Reference ─────────────────────────────
+    children.push(
+      new Paragraph({
+        children: [new TextRun({ text: 'Before You Begin: Setup', bold: true, size: 28 })],
+        heading: HeadingLevel.HEADING_1,
+        spacing: { before: 240, after: 120 },
+      })
+    );
+
+    children.push(label('ACCOUNTS TO CREATE'));
+    for (const { name, url, note } of SETUP_ACCOUNTS) {
+      children.push(new Paragraph({
+        children: [
+          new TextRun({ text: `${name}  `, bold: true, size: 20, color: '4F46E5' }),
+          new TextRun({ text: `${url}  —  ${note}`, size: 18, color: '6B7280' }),
+        ],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      }));
+    }
+
+    children.push(label('APPS TO DOWNLOAD'));
+    for (const { name, url, note } of SETUP_SOFTWARE) {
+      children.push(new Paragraph({
+        children: [
+          new TextRun({ text: `${name}  `, bold: true, size: 20, color: '4F46E5' }),
+          new TextRun({ text: `${url}  —  ${note}`, size: 18, color: '6B7280' }),
+        ],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      }));
+    }
+  }
 
   // ── Phases ───────────────────────────────────────────────
   children.push(

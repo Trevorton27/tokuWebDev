@@ -10,9 +10,41 @@ function resourceLabel(r: RoadmapResource | string): string {
   return r.url ? `${r.title} — ${r.url}` : r.title;
 }
 
+const SETUP_ACCOUNTS = [
+  { name: 'GitHub', url: 'github.com', note: 'Free hosting for all your code — required for every project' },
+  { name: 'Vercel', url: 'vercel.com', note: 'Deploy your projects live instantly (sign up with GitHub)' },
+  { name: 'Claude.ai', url: 'claude.ai', note: 'AI assistant for coding help and explanations' },
+  { name: 'Figma', url: 'figma.com', note: 'Design and wireframe your app UI' },
+];
+
+const SETUP_SOFTWARE = [
+  { name: 'Git', url: 'git-scm.com', note: 'Version control — install this first before anything else' },
+  { name: 'Node.js (LTS)', url: 'nodejs.org', note: 'JavaScript runtime required for all web projects' },
+  { name: 'VS Code', url: 'code.visualstudio.com', note: 'Code editor used by most professional developers' },
+];
+
+const SETUP_EXTENSIONS = [
+  { name: 'Prettier - Code Formatter', note: 'Auto-formats your code on save' },
+  { name: 'ESLint', note: 'Catches errors and enforces code style' },
+  { name: 'GitLens', note: 'See git history and blame inside your editor' },
+  { name: 'Error Lens', note: 'Highlights errors inline as you type' },
+  { name: 'GitHub Copilot', note: 'AI code completion — free for students' },
+];
+
+const SETUP_CLI = [
+  { cmd: 'npm install -g @anthropic-ai/claude-code', note: 'Claude Code — AI coding assistant in your terminal' },
+  { cmd: 'npm install -g vercel', note: 'Vercel CLI — deploy to production from the command line' },
+];
+
+const SETUP_GIT_CONFIG = [
+  { cmd: 'git config --global user.name "Your Name"', note: 'Sets your identity for all commits' },
+  { cmd: 'git config --global user.email "you@email.com"', note: 'Must match your GitHub email' },
+];
+
 export async function generateRoadmapPdf(
   studentName: string,
-  roadmap: GeneratedRoadmap
+  roadmap: GeneratedRoadmap,
+  score = 100
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
@@ -50,18 +82,102 @@ export async function generateRoadmapPdf(
 
     doc.moveDown(1);
 
-    // ── First Step ───────────────────────────────────────────
-    doc.font('Helvetica').fontSize(10);
-    const firstStepTextH = doc.heightOfString(roadmap.firstStep, { width: PAGE_WIDTH - 24 });
-    const firstStepBoxH = 14 + firstStepTextH + 20;
-    const firstStepTop = doc.y;
-    doc.rect(50, firstStepTop, PAGE_WIDTH, firstStepBoxH).fill(PURPLE);
-    doc.fillColor('#ffffff').fontSize(10).font('Helvetica-Bold')
-      .text('YOUR FIRST STEP', 62, firstStepTop + 10);
-    doc.fillColor('#e0e7ff').fontSize(10).font('Helvetica')
-      .text(roadmap.firstStep, 62, firstStepTop + 24, { width: PAGE_WIDTH - 24 });
-    doc.text('', 50, firstStepTop + firstStepBoxH);
-    doc.moveDown(1);
+    if (score < 50) {
+      // ── Setup Steps (beginners) ───────────────────────────
+      if (doc.y > doc.page.height - 300) doc.addPage();
+      doc.fillColor(BLACK).fontSize(14).font('Helvetica-Bold').text('Your Setup Steps');
+      doc.moveDown(0.5);
+
+      doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold').text('1. CREATE ACCOUNTS');
+      doc.moveDown(0.3);
+      SETUP_ACCOUNTS.forEach(({ name, url, note }) => {
+        doc.fillColor(PURPLE).fontSize(10).font('Helvetica-Bold')
+          .text(`${name}  `, 62, doc.y, { continued: true });
+        doc.fillColor(GRAY).fontSize(9).font('Helvetica')
+          .text(`${url}  —  ${note}`, { lineGap: 3 });
+      });
+
+      doc.moveDown(0.8);
+      doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold').text('2. INSTALL SOFTWARE');
+      doc.moveDown(0.3);
+      SETUP_SOFTWARE.forEach(({ name, url, note }) => {
+        doc.fillColor(PURPLE).fontSize(10).font('Helvetica-Bold')
+          .text(`${name}  `, 62, doc.y, { continued: true });
+        doc.fillColor(GRAY).fontSize(9).font('Helvetica')
+          .text(`${url}  —  ${note}`, { lineGap: 3 });
+      });
+
+      doc.moveDown(0.8);
+      doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold').text('3. INSTALL VS CODE EXTENSIONS');
+      doc.moveDown(0.3);
+      SETUP_EXTENSIONS.forEach(({ name, note }) => {
+        doc.fillColor(BLACK).fontSize(10).font('Helvetica-Bold')
+          .text(`${name}  `, 62, doc.y, { continued: true });
+        doc.fillColor(GRAY).fontSize(9).font('Helvetica')
+          .text(`— ${note}`, { lineGap: 3 });
+      });
+
+      doc.moveDown(0.8);
+      doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold').text('4. INSTALL CLI TOOLS (run in terminal after Node.js is installed)');
+      doc.moveDown(0.3);
+      SETUP_CLI.forEach(({ cmd, note }) => {
+        doc.fillColor(PURPLE).fontSize(9).font('Helvetica')
+          .text(`$ ${cmd}`, 62, doc.y, { lineGap: 2 });
+        doc.fillColor(GRAY).fontSize(8).font('Helvetica')
+          .text(`   ${note}`, { lineGap: 4 });
+      });
+
+      doc.moveDown(0.8);
+      doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold').text('5. CONFIGURE GIT (run in terminal)');
+      doc.moveDown(0.3);
+      SETUP_GIT_CONFIG.forEach(({ cmd, note }) => {
+        doc.fillColor(PURPLE).fontSize(9).font('Helvetica')
+          .text(`$ ${cmd}`, 62, doc.y, { lineGap: 2 });
+        doc.fillColor(GRAY).fontSize(8).font('Helvetica')
+          .text(`   ${note}`, { lineGap: 4 });
+      });
+
+      doc.moveDown(1.5);
+    } else {
+      // ── First Step ─────────────────────────────────────────
+      doc.font('Helvetica').fontSize(10);
+      const firstStepTextH = doc.heightOfString(roadmap.firstStep, { width: PAGE_WIDTH - 24 });
+      const firstStepBoxH = 14 + firstStepTextH + 20;
+      const firstStepTop = doc.y;
+      doc.rect(50, firstStepTop, PAGE_WIDTH, firstStepBoxH).fill(PURPLE);
+      doc.fillColor('#ffffff').fontSize(10).font('Helvetica-Bold')
+        .text('YOUR FIRST STEP', 62, firstStepTop + 10);
+      doc.fillColor('#e0e7ff').fontSize(10).font('Helvetica')
+        .text(roadmap.firstStep, 62, firstStepTop + 24, { width: PAGE_WIDTH - 24 });
+      doc.text('', 50, firstStepTop + firstStepBoxH);
+      doc.moveDown(1);
+
+      // ── Quick Setup Reference ───────────────────────────────
+      if (doc.y > doc.page.height - 200) doc.addPage();
+      doc.fillColor(BLACK).fontSize(14).font('Helvetica-Bold').text('Before You Begin: Setup');
+      doc.moveDown(0.5);
+
+      doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold').text('ACCOUNTS TO CREATE');
+      doc.moveDown(0.3);
+      SETUP_ACCOUNTS.forEach(({ name, url, note }) => {
+        doc.fillColor(PURPLE).fontSize(10).font('Helvetica-Bold')
+          .text(`${name}  `, 62, doc.y, { continued: true });
+        doc.fillColor(GRAY).fontSize(9).font('Helvetica')
+          .text(`${url}  —  ${note}`, { lineGap: 3 });
+      });
+
+      doc.moveDown(0.8);
+      doc.fillColor(GRAY).fontSize(9).font('Helvetica-Bold').text('APPS TO DOWNLOAD');
+      doc.moveDown(0.3);
+      SETUP_SOFTWARE.forEach(({ name, url, note }) => {
+        doc.fillColor(PURPLE).fontSize(10).font('Helvetica-Bold')
+          .text(`${name}  `, 62, doc.y, { continued: true });
+        doc.fillColor(GRAY).fontSize(9).font('Helvetica')
+          .text(`${url}  —  ${note}`, { lineGap: 3 });
+      });
+
+      doc.moveDown(1.5);
+    }
 
     // ── Phases ───────────────────────────────────────────────
     doc.fillColor(BLACK).fontSize(14).font('Helvetica-Bold').text('Learning Phases');

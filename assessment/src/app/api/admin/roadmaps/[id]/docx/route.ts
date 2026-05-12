@@ -25,7 +25,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     firstStep: roadmap.firstStep,
     phases,
     projects,
-  });
+  }, roadmap.score);
 
   const filename = `roadmap-${(roadmap.user.name ?? 'student').toLowerCase().replace(/\s+/g, '-')}.docx`;
 
